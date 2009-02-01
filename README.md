@@ -5,22 +5,12 @@ Django PayPal
 About
 -----
 
-Django PayPal is a pluggable application that implements with PayPal Payments 
-Standard and Payments Pro. It focused on selling software - think "Buy it Now" 
-single items with no shipping.
+Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro. It focused on selling software - think "Buy it Now" single items with no shipping.
 
-Before diving in further a quick overview of PayPal's different payment methods
-might help. **[PayPal Payments Standard](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WebsitePaymentsStandard_IntegrationGuide.pdf)** is the "Buy it Now" button you may have
-seen floating around the internets. Buyers click on the button and are taken to
-PayPal's website where they can pay for the product. After completing the 
-purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this 
-process [Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf) (IPN). Most people would agree that this 
-method sucks (who wants to send people to PayPal's website)? But it is quick to
-implement and doesn't require any of your pages to use SSL.
+Before diving in further a quick overview of PayPal's different payment methods might help. **[PayPal Payments Standard](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WebsitePaymentsStandard_IntegrationGuide.pdf)** is the "Buy it Now" button you may have
+seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process **[Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf)** (IPN). Most people would agree that this method sucks (who wants to send people to PayPal's website)? But it is quick to implement and doesn't require any of your pages to use SSL.
 
-**PayPal Payments Pro** allows you to accept payments on your website (though
-you still have to provide functionality to buy through PayPal : \)... and is
-currently under development.
+**PayPal Payments Pro** allows you to accept payments on your website (though you still have to provide functionality to buy through PayPal : \)... and is currently under development.
 
 Usage:
 ------
@@ -99,9 +89,9 @@ it. Thanks [Jon Atkinson](http://jonatkinson.co.uk/) [tutorial](http://jonatkins
 
 1. Upload your public key to the paypal website (sandbox or live).
         
-    https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert
+    [https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
 
-    https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert
+    [https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
 
 1.  Copy your `cert id` - you'll need it in two steps. It's on the screen where
     you uploaded your public key.
@@ -119,7 +109,6 @@ it. Thanks [Jon Atkinson](http://jonatkinson.co.uk/) [tutorial](http://jonatkins
 1. Swap out your unencrypted button for a `PayPalEncryptedPaymentsForm`:
 
         # views.py
-        ...
         from paypal.standard.forms import PayPalEncryptedPaymentsForm
         
         def view_that_asks_for_money(request):
@@ -128,7 +117,7 @@ it. Thanks [Jon Atkinson](http://jonatkinson.co.uk/) [tutorial](http://jonatkins
             form = PayPalPaymentsForm(initial=paypal_dict)
             # Works just like before!
             form.render()
-    
+
 
 Using PayPal Payments Standard with Encrypted Buttons and Shared Secrets:
 ------------------------------------------------------
@@ -147,10 +136,9 @@ Use postbacks for validation if:
 
 1. Swap out your button for a `PayPalSharedSecretEncryptedPaymentsForm`:
 
-# views.py
-...
-from paypal.standard.forms import PayPalSharedSecretEncryptedPaymentsForm
-
+        # views.py
+        from paypal.standard.forms import PayPalSharedSecretEncryptedPaymentsForm
+        
         def view_that_asks_for_money(request):
             ...
             # Create the instance.
@@ -158,7 +146,7 @@ from paypal.standard.forms import PayPalSharedSecretEncryptedPaymentsForm
             # Works just like before!
             form.render()
             
-1. Verify that your IPN endpoint is running on SSL (request.is_secure() should return true)!
+1. Verify that your IPN endpoint is running on SSL - request.is_secure() should return True!
 
 -------------------
 
@@ -178,16 +166,12 @@ Flags are set on bad invalid transactions ...
 ToDo:
 =====
 
-I'm not master of encryption and the Shared Secrets implementation is
-just a stab in the dark. The implementation should be vetted before
-production use.
+*   I'm not master of encryption and the Shared Secrets implementation is just a stab in the dark. The implementation should be vetted before production use.
 
-Scattered throughout the code are triple hash ### ToDo comments with
-little actionable items.
+* Scattered throughout the code are triple hash ### ToDo comments with little actionable items.
 
-PayPal payments pro is in the works.
+* PayPal payments pro is in the works.
 
-IPN created should probably emit signals so that other objects can update
-themselves on the correct conditions.
+* IPN created should probably emit signals so that other objects can update themselves on the correct conditions.
 
-TESTS. Yah, this needs some test scripts bad...
+* TESTS. Yah, this needs some test scripts bad...
