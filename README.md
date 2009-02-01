@@ -189,3 +189,5 @@ PayPal payments pro is in the works.
 
 IPN created should probably emit signals so that other objects can update
 themselves on the correct conditions.
+
+TESTS. Yah, this needs some test scripts bad...
