@@ -122,7 +122,7 @@ it. Thanks to [Jon Atkinson](http://jonatkinson.co.uk/) for the [tutorial](http:
 
 
 Using PayPal Payments Standard with Encrypted Buttons and Shared Secrets:
-------------------------------------------------------
+-------------------------------------------------------------------------
 
 This method uses Shared secrets instead of IPN postback to verify that transactions
 are legit. PayPal recommends you should use Shared Secrets if:
@@ -150,6 +150,36 @@ Use postbacks for validation if:
             
 1. Verify that your IPN endpoint is running on SSL - request.is_secure() should return True!
 
+
+Using PayPal Payments Pro
+-------------------------
+
+PayPal Payments Pro is the more awesome version of PayPal that lets you accept payments on your site.
+
+1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your `INSTALLED_APPS`:
+
+        # settings.py
+        ...
+        INSTALLED_APPS = (... 'paypal.standard', 'paypal.pro', ...)
+        
+1. Grab PayPalPro endpoint and go crazy...
+
+        # views.py
+        ...
+        from paypal.pro.views import PayPalPro
+        
+        # See source for all required fields.
+        pro = PayPalPro(item={'amt':1000.00, ...})
+        
+        # urls.py
+        
+        urlpatterns = ('',
+            ...
+            (r'^payment-url/$', 'myproject.views.pro')
+            ...
+        )
+        
+
 PayPal Initial Data:
 --------------------
 
@@ -172,3 +202,31 @@ ToDo:
 * IPN created should probably emit signals so that other objects can update themselves on the correct conditions.
 
 * TESTS. Yah, this needs some test scripts bad...
+
+* IPN / NVP / PaymentInfo - there are three models running around there probably only need to be two. Do direct payments send an IPN postback?
+
+License (MIT)
+=============
+
+Copyright (c) 2009 Handi Mobility Inc.
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.

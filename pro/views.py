@@ -25,23 +25,23 @@ class PayPalPro(object):
     This class-based view takes care of Pay Pal Website Payments Pro. It's a monster.
     PayPalPro has two flows - the checkout on your website and checkout on PayPal...
 
-    `item_data` is a dictionary that holds information about a single
-    item purchase.
+    `item` is a dictionary that holds information about the item.
     
-        Require Keys:
+    For single item purchase:
+    
+        Required Keys:
             * amt: Float amount of the item.
         
         Optional Keys:
             * custom:
             * invnum: Unique ID that identifies this transaction.
     
-    `reccuring_data` is a dictionary which holds information about
-    setting a recurring billing cycle.
+    For recurring billing:
     
         Required Keys:
+          * amt: Float amount for each billing cycle.
           * billingperiod: String unit of measure for the billing cycle (Day|Week|SemiMonth|Month|Year)
           * billingfrequency: Integer number of periods that make up a cycle.
-          * amt: Float amount for each billing cycle.
           * profilestartdate: The date to begin billing. "2008-08-05T17:00:00Z" UTC/GMT
           * desc: Description of what you're billing for.
           
@@ -76,14 +76,13 @@ class PayPalPro(object):
     """
 
     # ### Todo: Work item / recurring data into one parameter?
-    def __init__(self, item_data=None, recurring_data=None, 
-                 payment_form_cls=PaymentForm,
-                 payment_template="pro/payment.html", 
-                 confirm_form_cls=ConfirmForm,
+    def __init__(self, item=None, 
+                 payment_form_cls=PaymentForm, 
+                 payment_template="pro/payment.html",
+                 confirm_form_cls=ConfirmForm, 
                  confirm_template="pro/confirm.html",
-                 success_url="", fail_url=None, test=True):
-        self.item_data = item_data
-        self.recurring_data = recurring_data
+                 success_url="?success", fail_url=None, test=True):
+        self.item = item
         self.payment_form_cls = payment_form_cls
         self.payment_template = payment_template
         self.confirm_form_cls = confirm_form_cls
@@ -107,11 +106,10 @@ class PayPalPro(object):
             elif 'token' in request.GET and 'PayerID' in request.GET:
                 return self.render_confirm_form()
             else:
-                return self.render_payment_form()
-                
+                return self.render_payment_form() 
         else:
             if 'token' in request.POST and 'PayerID' in request.POST:
-                return self.express_confirmed()
+                return self.validate_confirm_form()
             else:
                 return self.validate_payment_form()
 
@@ -142,7 +140,7 @@ class PayPalPro(object):
 
         payment_obj.init(self.request)
         if not failed:
-            success = payment_obj.process(self.request, self.item_data, self.recurring_data)
+            success = payment_obj.process(self.request, self.item)
         payment_obj.save()
         if success:
             return HttpResponseRedirect(self.success_url)
@@ -162,12 +160,12 @@ class PayPalPro(object):
         
         """
         wpp = PayPalWPP()
-        response = wpp.setExpressCheckout(self.item_data)
+        response = wpp.setExpressCheckout(self.item)
         if response.get('ACK') == 'Success' and 'TOKEN' in response:
             pp_params = dict(token=response['TOKEN'], 
-                             AMT=self.item_data['amt'], 
-                             RETURNURL=self.item_data['returnurl'], 
-                             CANCELURL=self.item_data['cancelurl'])
+                             AMT=self.item['amt'], 
+                             RETURNURL=self.item['returnurl'], 
+                             CANCELURL=self.item['cancelurl'])
             pp_url = SANDBOX_EXPRESS_ENDPOINT % urllib.urlencode(pp_params)
             return HttpResponseRedirect(pp_url)
         else:
@@ -185,7 +183,7 @@ class PayPalPro(object):
         context['form'] = self.confirm_form_cls(initial=initial)
         return render_to_response(self.confirm_template, context, RequestContext(self.request))
 
-    def express_confirmed(self):
+    def validate_confirm_form(self):
         """
         Final express flow step.
         User has pressed the confirm button and now we send it off to PayPal.
@@ -194,7 +192,7 @@ class PayPalPro(object):
         wpp = PayPalWPP()
         pp_data = dict(token=self.request.POST['token'], payerid=self.request.POST['PayerID'])
         self.item_data.update(pp_data)
-        response = wpp.doExpressCheckoutPayment(self.item_data)
+        response = wpp.doExpressCheckoutPayment(self.item)
         if response.get('ACK') == 'Success':
             return HttpResponseRedirect(self.success_url)
         else:
@@ -205,8 +203,9 @@ class PayPalPro(object):
     
 
 
-pro = PayPalPro()
-# dict(custom='cust', invnum='inve3', amt=10.0, returnurl=RETURN_URL, cancelurl=CANCEL_URL)
+item = dict(custom='cust', invnum='inve4', amt=10.0, returnurl=RETURN_URL, cancelurl=CANCEL_URL)
+pro = PayPalPro(item=item)
+
 
 # ### Todo: Rework `payment` parameters. and the name.
 # ### ToDo: Could `express` be a class based view to be a little less confusing?
@@ -214,9 +213,6 @@ pro = PayPalPro()
 # def paypalpro(request, item_data=None, reccuring_data=None, template="pro/payment.html", context=None, success_url="", fail_url=None):
 #     context = context or {}
 # 
-#     # profilestartdate    
-#     # from time import gmtime, strftime
-#     # strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
 #         
 #     # item_data = item_data or dict(custom='cust', invnum='inve', amt=10.0)
 #     reccuring_data = dict(desc="Mobify.Me Premium", billingperiod="Month", billingfrequency=1, amt=10.0, profilestartdate='2009-02-02T19:11:01Z')

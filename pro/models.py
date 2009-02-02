@@ -109,14 +109,14 @@ class PayPalPaymentInfo(PaymentInfo):
     class Meta:
         db_table = "paypal_paymentinfo"
         
-    def process(self, request, item_data=None, recurring_data=None):
+    def process(self, request, item):
         """
         Do a direct payment.
         
         """
         from paypal.pro.helpers import PayPalWPP
         wpp = PayPalWPP(request)
-        
+
         # Change the model information into a dict that PayPal can understand.        
         params = model_to_dict(self, exclude=self.ADMIN_FIELDS)
         params['ipaddress'] = self.ipaddress  # These were stashed in form.save.
@@ -124,25 +124,20 @@ class PayPalPaymentInfo(PaymentInfo):
         params['creditcardtype'] = self.creditcardtype
         params['expdate'] = self.expdate
         params['cvv2'] = self.cvv2
-        
-        # Create single payment:
-        if item_data is not None:
-            params.update(item_data)      
-            response = wpp.doDirectPayment(params)
+        params.update(item)      
 
+        # Create single payment:
+        if 'billingperiod' not in params:
+            response = wpp.doDirectPayment(params)
         # Create recurring payment:
-        elif recurring_data is not None:
-            print 'recurring_data creating.' 
-            params.update(recurring_data)
-            print params
-            response = wpp.createRecurringPaymentsProfile(params, direct=True)
-        
         else:
-            raise PayPalError("Must specified one or the other.")
-        
+            response = wpp.createRecurringPaymentsProfile(params, direct=True)
+
         # Store the response.
         self.response = repr(response)
         
+        # ### ToDo: This duplicates the new PayPalNVP class - remove the data here, or elsewhere.
+        # ### ToDo: Can these signals instead be sent out by the IPN ???
         if response['ACK'] != "Success":
             self.set_flag(response.get('L_LONGMESSAGE0', ''), response.get('L_ERRORCODE0', ''))
             payment_was_flagged.send(sender=self, response=response, request=request)

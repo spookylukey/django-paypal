@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import urllib
+import time
 
 from django.conf import settings
 
@@ -14,6 +15,13 @@ BASE_PARAMS = dict(USER=USER , PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSIO
 
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
+
+
+def paypal_time(time_obj=None):
+    """Returns a time suitable for `profilestartdate` or other PayPal time fields."""
+    if time_obj is None:
+        time_obj = time.gmtime()
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time_obj)
 
 
 class PayPalError(Exception):
