@@ -23,8 +23,9 @@ class PayPalIPNForm(forms.ModelForm):
     https://developer.paypal.com/us/cgi-bin/devscr?cmd=_tools-session    
     
     """
-    # `payment_date` has a non-standard date format.
-    payment_date = forms.DateTimeField(input_formats=PayPalIPN.PAYMENT_DATE_FORMAT)
+    # PayPal dates have non-standard formats.
+    payment_date = forms.DateTimeField(input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
+    next_payment_date = forms.DateTimeField(input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
 
     class Meta:
         model = PayPalIPN

@@ -20,12 +20,19 @@ class PayPalError(Exception):
     
 class PayPalWPP(object):
     """
-    PayPal Website Payments Pro.
+    Wrapper class for the PayPal Website Payments Pro.
+    
+    Website Payments Pro Integration Guide:
     https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WPP_IntegrationGuide.pdf
+
+    Name-Value Pair API Developer Guide and Reference:
+    https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_NVPAPI_DeveloperGuide.pdf
+
     """
     def __init__(self, params=BASE_PARAMS, test=True):
         """
         Required - USER / PWD / SIGNATURE / VERSION
+
         """
         if test:
             self.endpoint = SANBOX_ENDPOINT
@@ -37,8 +44,6 @@ class PayPalWPP(object):
     def doDirectPayment(self, params):
         """
         Do direct payment. Woot, this is where we take the money from the guy.        
-
-        https://www.paypal.com/en_US/ebook/PP_NVPAPI_DeveloperGuide/directpayment.html
         
         """
         defaults = dict(METHOD="DoDirectPayment", PAYMENTACTION="Sale")
@@ -68,7 +73,8 @@ class PayPalWPP(object):
         buyer. You invoke the GetExpressCheckoutDetails API operation from the page 
         specified by return URL, which you set in your call to the SetExpressCheckout API. 
         Typically, you invoke this operation as soon as the redirect occurs and use the information in 
-        the response to populate your review page. 
+        the response to populate your review page.
+        
         """
         defaults = dict(METHOD="GetExpressCheckoutDetails")
         required ="returnurl cancelurl token".split()
@@ -89,31 +95,35 @@ class PayPalWPP(object):
         print pp_params
         return self._fetch(pp_params)
         
-    def createRecurringPaymentsProfile(self, params):
+    def createRecurringPaymentsProfile(self, params, direct=False):
         """
-        profilestartdate - date when the billing profile begins
-        billingperiod - day/week/semimonth/month/year
-        billingfrequency - number of billing periods in one billing cycle
-        amt - amount of each cycle    
+        Fields explained in views.
+        
+        Response:
+            * profileid: unique id for future reference.
+            * status: (ActiveProfile|PendingProfile)
+        
+        """
+        defaults = dict(METHOD="CreateRecurringPaymentsProfile")
+        required = "profilestartdate billingperiod billingfrequency amt".split()
+        # Direct payments require CC data
+        if direct:
+            required + "creditcardtype acct expdate firstname lastname".split()
+        else:
+            required + ["token"]
 
-        # 
-        TRIALBILLINGPERIOD - 
-        TRIALBILLINGFREQUENCY -
-        TRIALAMT -
-        TRIALTOTALBILLINGCYCLES -
-        
-        # Initial Payment
-        INITAMT
-        FAILEDINITAMTACTION
-        
-        MAXFAILEDPAYMENTS
-        
-        AUTOBILLOUTAMT
-        
-        """
-    
-    
-        require = "creditcardtype acct expdate firstname lastname profilestartdate billingperiod billingfrequency amt"
+        pp_params = self._check_and_update_params(params, required, defaults)
+        print pp_params
+        return self._fetch(pp_params)
+
+
+
+
+    def getTransactionDetails(self, params):
+        raise NotImplementedError
+
+    def massPay(self, params):
+        raise NotImplementedError
 
     def getRecurringPaymentsProfileDetails(self, params):
         raise NotImplementedError
@@ -127,9 +137,8 @@ class PayPalWPP(object):
     def manangeRecurringPaymentsProfileStatus(self, params):
         raise NotImplementedError
         
-    def RefundTransaction(self, params):
+    def refundTransaction(self, params):
         raise NotImplementedError
-        
 
     def _check_and_update_params(self, params, required, defaults):
         for r in required:
@@ -187,66 +196,3 @@ L_SEVERITYCODE0=severityCode
 
 
 """
-
-
-# 
-# 
-# 
-# 
-#     
-
-#     
-
-#         
-#     def GetTransactionDetails(self, tx_id):
-#         params = {
-#             'METHOD' : "GetTransactionDetails", 
-#             'TRANSACTIONID' : tx_id,
-#         }
-#         params_string = self.signature + urllib.urlencode(params)
-#         response = urllib.urlopen(self.API_ENDPOINT, params_string).read()
-#         response_tokens = {}
-#         for token in response.split('&'):
-#             response_tokens[token.split("=")[0]] = token.split("=")[1]
-#         for key in response_tokens.keys():
-#                 response_tokens[key] = urllib.unquote(response_tokens[key])
-#         return response_tokens
-#                 
-#     def MassPay(self, email, amt, note, email_subject):
-#         unique_id = str(md5.new(str(datetime.datetime.now())).hexdigest())
-#         params = {
-#             'METHOD' : "MassPay",
-#             'RECEIVERTYPE' : "EmailAddress",
-#             'L_AMT0' : amt,
-#             'CURRENCYCODE' : 'USD',
-#             'L_EMAIL0' : email,
-#             'L_UNIQUE0' : unique_id,
-#             'L_NOTE0' : note,
-#             'EMAILSUBJECT': email_subject,
-#         }
-#         params_string = self.signature + urllib.urlencode(params)
-#         response = urllib.urlopen(self.API_ENDPOINT, params_string).read()
-#         response_tokens = {}
-#         for token in response.split('&'):
-#             response_tokens[token.split("=")[0]] = token.split("=")[1]
-#         for key in response_tokens.keys():
-#                 response_tokens[key] = urllib.unquote(response_tokens[key])
-#         response_tokens['unique_id'] = unique_id
-#         return response_tokens
-#                 
-#     
-#     def CreateRecurringPaymentsProfile(self, token, startdate, desc, period, freq, amt):
-#         params = {
-#             'METHOD': 'CreateRecurringPaymentsProfile',
-#             'PROFILESTARTDATE': startdate,
-#             'DESC':desc,
-#             'BILLINGPERIOD':period,
-#             'BILLINGFREQUENCY':freq,
-#             'AMT':amt,
-#             'TOKEN':token,
-#             'CURRENCYCODE':'USD',
-#         }
-#         params_string = self.signature + urllib.urlencode(params)
-#         response = urllib.urlopen(self.API_ENDPOINT, params_string).read()
-#         response_dict = parse_qs(response)
-#         return response_dict

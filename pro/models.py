@@ -8,6 +8,9 @@ from paypal.pro.helpers import PayPalWPP
 from paypal.pro.signals import payment_was_successful, payment_was_flagged
 
 
+# ### ToDo: Need a better way to store responses and more information from a transaction
+# ### can we use the iPN model in standard?
+
 class BasePaymentInfo(models.Model):
     """
     Base model suitable for representing a payment!    
@@ -20,8 +23,6 @@ class BasePaymentInfo(models.Model):
     state = models.CharField("State", max_length=255)
     countrycode = CountryField("Country", default="US")
     zip = models.CharField("Zipcode", max_length=32)
-
-    # ### Todo: add hidden item name and invoice blah blah blah fields.ow you'
 
     class Meta:
         abstract = True
@@ -45,12 +46,14 @@ class PaymentInfo(BasePaymentInfo):
         abstract = True
         
     def init(self, request):
+        """Initialize a PaymentInfo instance from a HttpRequest object."""
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
         self.query = request.POST.urlencode()
         if request.user.is_authenticated():
             self.user = request.user
 
     def set_flag(self, info, code=None):
+        """Flag this PaymentInfo for further investigation."""
         self.flag = True
         self.flag_info += info
         if code is not None:
@@ -65,7 +68,7 @@ class PayPalPaymentInfo(PaymentInfo):
     ADMIN_FIELDS = "id user ipaddress flag flag_code flag_info query created_at updated_at response".split()
     ITEM_FIELDS = "amt custom invnum".split()
     
-    amt = models.FloatField()
+    amt = models.FloatField(blank=True, null=True)
     custom = models.CharField(max_length=255, blank=True)
     invnum = models.CharField(max_length=127, blank=True)
     response = models.TextField(blank=True)
@@ -73,24 +76,35 @@ class PayPalPaymentInfo(PaymentInfo):
     class Meta:
         db_table = "paypal_paymentinfo"
         
-    def process(self, request, item_data):
+    def process(self, request, item_data=None, recurring_data=None):
         """
         Do a direct payment.
         
         """
+        wpp = PayPalWPP()
+        
         # Change the model information into a dict that PayPal can understand.        
         params = model_to_dict(self, exclude=self.ADMIN_FIELDS)
-        # Grab the non-model params we stashed in the form.save
-        params['ipaddress'] = self.ipaddress
+        params['ipaddress'] = self.ipaddress  # These were stashed in form.save.
         params['acct'] = self.acct
         params['creditcardtype'] = self.creditcardtype
         params['expdate'] = self.expdate
         params['cvv2'] = self.cvv2
-        params.extend(item_data)      
         
-        # Make the request to PayPal - this could take some time.
-        wpp = PayPalWPP()
-        response = wpp.doDirectPayment(params)
+        # Create single payment:
+        if item_data is not None:
+            params.update(item_data)      
+            response = wpp.doDirectPayment(params)
+
+        # Create recurring payment:
+        elif recurring_data is not None:
+            print 'recurring_data creating.' 
+            params.update(recurring_data)
+            print params
+            response = wpp.createRecurringPaymentsProfile(params, direct=True)
+        
+        else:
+            raise PayPalError("Must specified one or the other.")
         
         # Store the response.
         self.response = repr(response)

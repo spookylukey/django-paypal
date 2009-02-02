@@ -18,8 +18,53 @@ SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-c
 # ### Todo: Rework `payment` parameters. and the name.
 # ### ToDo: Could `express` be a class based view to be a little less confusing?
 
-def payment(request, item_data=None, template="pro/payment.html", context=None, success_url="", fail_url=None):
+def payment(request, item_data=None, reccuring_data=None, template="pro/payment.html", context=None, success_url="", fail_url=None):
     context = context or {}
+    """
+    
+    `item_data` is a dictionary that holds information about a single
+    item purchase.
+    
+        Require Keys:
+            * amt: Float amount of the item.
+        
+        Optional Keys:
+            * custom:
+            * invnum: Unique ID that identifies this transaction.
+
+    `reccuring_data` is a dictionary which holds information about
+    setting a recurring billing cycle.
+
+        Required Keys:
+          * billingperiod: String unit of measure for the billing cycle (Day|Week|SemiMonth|Month|Year)
+          * billingfrequency: Integer number of periods that make up a cycle.
+          * amt: Float amount for each billing cycle.
+          * profilestartdate: The date to begin billing. "2008-08-05T17:00:00Z" UTC/GMT
+          * desc: Description of what you're billing for.
+          
+        Optional Keys:
+          * trialbillingperiod: String unit of measure for trial cycle (Day|Week|SemiMonth|Month|Year)
+          * trialbillingfrequency: Integer # of periods in a cycle.
+          * trialamt: Float amount to bill for the trial period.
+          * trialtotalbillingcycles: Integer # of cycles for the trial payment period.
+          * failedinitamtaction: set to continue on failure (ContinueOnFailure / CancelOnFailure)
+          * maxfailedpayments: number of payments before profile is suspended.
+          * autobilloutamt: automatically bill outstanding amount.
+          * subscribername: Full name of the person who paid.
+          * profilereference: Unique reference or invoice number.
+          * taxamt: How much tax.
+          * initamt: Initial non-recurring payment due upon creation.
+          * currencycode: defaults to USD
+          * + a bunch of shipping fields
+    
+    """
+    # profilestartdate    
+    # from time import gmtime, strftime
+    # strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+        
+    # item_data = item_data or dict(custom='cust', invnum='inve', amt=10.0)
+    reccuring_data = dict(desc="Mobify.Me Premium", billingperiod="Month", billingfrequency=1, amt=10.0, profilestartdate='2009-02-02T19:11:01Z')
+
 
     if request.method == "POST":
         failed = False  # Did the form pass validation?
@@ -37,8 +82,16 @@ def payment(request, item_data=None, template="pro/payment.html", context=None, 
         # If the payment has not failed, try processing it.
         payment_obj.init(request)
         if not failed:
-            item_data = item_data or dict(custom='cust', invnum='inve', amt=10.0)
-            success = payment_obj.process(request, item_data)
+
+            # Go and either create the item or the recurring...
+            success = payment_obj.process(request, item_data, reccuring_data)
+
+        
+        
+            
+            
+
+
         payment_obj.save()        
 
         # Redirect accordingly!

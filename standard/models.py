@@ -10,7 +10,7 @@ class PayPalIPN(models.Model):
     
     """    
     # 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
-    PAYMENT_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
+    PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
     
     # ### Todo: Choices fields? in or out?
     # FLAG_CODE_CHOICES = (
@@ -37,18 +37,19 @@ class PayPalIPN(models.Model):
     last_name = models.CharField(max_length=64, blank=True)
     payer_business_name = models.CharField(max_length=127, blank=True)
     payer_email = models.CharField(max_length=127, blank=True)
+    payer_status= models.CharField(max_length=32, blank=True)
     payer_id = models.CharField(max_length=13, blank=True)
     payer_status = models.CharField(max_length=10, blank=True)
     contact_phone = models.CharField(max_length=20, blank=True)
     residence_country = models.CharField(max_length=2, blank=True)
-    
+
     # Basic information.
     business = models.CharField(max_length=127, blank=True, help_text="Email where the money was sent.")
     item_name = models.CharField(max_length=127, blank=True)
     item_number = models.CharField(max_length=127, blank=True)
     quantity = models.IntegerField(blank=True, default=1, null=True)
     receiver_email = models.EmailField(max_length=127, blank=True)
-    receiver_id = models.CharField(max_length=127, blank=True)
+    receiver_id = models.CharField(max_length=127, blank=True)  # 258DLEHY2BDK6
 
     # Merchant specific.
     custom = models.CharField(max_length=255, blank=True)
@@ -61,14 +62,21 @@ class PayPalIPN(models.Model):
     auth_amount = models.FloatField(default=0, blank=True, null=True)
     auth_status = models.CharField(max_length=9, blank=True) 
     mc_gross = models.FloatField(default=0, blank=True, null=True)
-    parent_txn_id = models.CharField(max_length=19, blank=True)
+    mc_fee = models.FloatField(default=0, blank=True, null=True)
+    mc_currency = models.CharField(max_length=32, default="USD", blank=True)
+    currency_code = models.CharField(max_length=32, default="USD", blank=True)
+    payment_cycle= models.CharField(max_length=32, blank=True) #Monthly
+    payment_fee = models.FloatField(default=0, blank=True, null=True)
     payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
+    next_payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     payment_status = models.CharField(max_length=9, blank=True)
     payment_type = models.CharField(max_length=7, blank=True)
     pending_reason = models.CharField(max_length=14, blank=True)
     reason_code = models.CharField(max_length=15, blank=True)
     transaction_entity = models.CharField(max_length=7, blank=True)
     txn_id = models.CharField("Transaction ID", max_length=19, blank=True, help_text="PayPal transaction ID.")
+    txn_type= models.CharField("Transaction Type", max_length=32, blank=True, help_text="PayPal transaction type.")
+    parent_txn_id = models.CharField("Parent Transaction ID", max_length=19, blank=True)
 
     # Additional information - full IPN query and time fields.
     test_ipn = models.BooleanField(default=False, blank=True)
@@ -79,6 +87,17 @@ class PayPalIPN(models.Model):
     query = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Recurring Payments:
+    profile_status = models.CharField(max_length=32, blank=True) 
+    initial_payment_amount = models.FloatField(default=0, blank=True, null=True)
+    amount_per_cycle = models.FloatField(default=0, blank=True, null=True)
+    outstanding_balance = models.FloatField(default=0, blank=True, null=True)
+    period_type = models.CharField(max_length=32, blank=True)
+    product_name = models.CharField(max_length=128, blank=True)
+    product_type= models.CharField(max_length=128, blank=True)
+    recurring_payment_id = models.CharField(max_length=128, blank=True)  # I-FA4XVST722B9
+    receipt_id= models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451
 
     # ### To-do: Unimplemnted fields that you mightw want to think about.
     # mc_handling
