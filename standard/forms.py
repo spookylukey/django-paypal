@@ -11,7 +11,6 @@ from django.contrib.sites.models import Site
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.models import PayPalIPN
 
-
 # ### Todo: Can we put a default notify_url initial that defaults to the ipn view?
 # NOTIFY_URL = getattr(settings, 'PAYPAL_NOTIFY_URL', "%s%s" % (Site.objects.get_current(), reverse('paypal.standard.views.ipn')
 NOTIFY_URL = None

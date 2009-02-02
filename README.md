@@ -72,7 +72,7 @@ Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------
 
 Use this method to encrypt your button so sneaky gits don't try to hack
-it. Thanks [Jon Atkinson](http://jonatkinson.co.uk/) [tutorial](http://jonatkinson.co.uk/paypal-encrypted-buttons-django/).
+it. Thanks to [Jon Atkinson](http://jonatkinson.co.uk/) for the [tutorial](http://jonatkinson.co.uk/paypal-encrypted-buttons-django/).
 
 1. Encrypted buttons require the `M2Crypto` library:
 
@@ -148,8 +148,6 @@ Use postbacks for validation if:
             
 1. Verify that your IPN endpoint is running on SSL - request.is_secure() should return True!
 
--------------------
-
 PayPal Initial Data:
 --------------------
 
@@ -159,9 +157,6 @@ Flags:
 ------
 
 Flags are set on bad invalid transactions ...
-
-
--------------------
 
 ToDo:
 =====
