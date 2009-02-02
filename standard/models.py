@@ -28,7 +28,7 @@ class PayPalIPN(models.Model):
     # PENDING_REASON = address authorization echeck intl multi-currency unilateral upgrade verify other
     # REASON_CODE = chargeback guarantee buyer_complaint refund other
     # TRANSACTION_ENTITY_CHOICES = auth reauth order payment
-    
+
     # Buyer information.
     address_city = models.CharField(max_length=40, blank=True)
     address_country = models.CharField(max_length=64, blank=True)
