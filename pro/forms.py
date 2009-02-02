@@ -23,3 +23,8 @@ class PaymentForm(forms.ModelForm):
             instance.cvv2 = self.cleaned_data['cvv2']
             instance.expdate = self.cleaned_data['expdate'].strftime("%m%Y")
         return instance
+
+        
+class ConfirmForm(forms.Form):
+    token = forms.CharField(max_length=255, widget=forms.HiddenInput())
+    PayerID = forms.CharField(max_length=255, widget=forms.HiddenInput())

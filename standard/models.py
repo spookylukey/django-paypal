@@ -8,7 +8,10 @@ class PayPalIPN(models.Model):
     """
     Logs PayPal IPN interactions.
     
-    """    
+    """
+    # ### ToDo: There are a # of fields that appear to be duplicates from PayPal
+    # ### can we sort them out?
+    
     # 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
     PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
     
@@ -68,25 +71,14 @@ class PayPalIPN(models.Model):
     payment_cycle= models.CharField(max_length=32, blank=True) #Monthly
     payment_fee = models.FloatField(default=0, blank=True, null=True)
     payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
-    next_payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     payment_status = models.CharField(max_length=9, blank=True)
     payment_type = models.CharField(max_length=7, blank=True)
     pending_reason = models.CharField(max_length=14, blank=True)
     reason_code = models.CharField(max_length=15, blank=True)
     transaction_entity = models.CharField(max_length=7, blank=True)
     txn_id = models.CharField("Transaction ID", max_length=19, blank=True, help_text="PayPal transaction ID.")
-    txn_type= models.CharField("Transaction Type", max_length=32, blank=True, help_text="PayPal transaction type.")
+    txn_type = models.CharField("Transaction Type", max_length=32, blank=True, help_text="PayPal transaction type.")
     parent_txn_id = models.CharField("Parent Transaction ID", max_length=19, blank=True)
-
-    # Additional information - full IPN query and time fields.
-    test_ipn = models.BooleanField(default=False, blank=True)
-    ip = models.IPAddressField(blank=True)
-    flag = models.BooleanField(default=False, blank=True)
-    flag_code = models.CharField(max_length=16, blank=True)
-    flag_info = models.TextField(blank=True)
-    query = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     # Recurring Payments:
     profile_status = models.CharField(max_length=32, blank=True) 
@@ -98,6 +90,7 @@ class PayPalIPN(models.Model):
     product_type= models.CharField(max_length=128, blank=True)
     recurring_payment_id = models.CharField(max_length=128, blank=True)  # I-FA4XVST722B9
     receipt_id= models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451
+    next_payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
 
     # ### To-do: Unimplemnted fields that you mightw want to think about.
     # mc_handling
@@ -110,6 +103,16 @@ class PayPalIPN(models.Model):
     # shipping_method
     # shipping
     # tax
+
+    # Additional information - full IPN query and time fields.
+    test_ipn = models.BooleanField(default=False, blank=True)
+    ip = models.IPAddressField(blank=True)
+    flag = models.BooleanField(default=False, blank=True)
+    flag_code = models.CharField(max_length=16, blank=True)
+    flag_info = models.TextField(blank=True)
+    query = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "paypal_ipn"

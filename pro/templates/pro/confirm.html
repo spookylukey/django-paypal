@@ -8,14 +8,9 @@
 <form action="" method="post">
     <table>
         <tr>
-            <td colspan="2" align="right">
-                <input type="hidden" value="{{ payerid }}" name="payerid" />            
-                <input type="hidden" value="{{ token }}" name="token" />
-                <input type="submit" value="confirm" />
-            </td>
+            {{ form.as_table }}
+            <td colspan="2" align="right"><input type="submit" value="confirm" /></td>
         </tr>
-
-
     </table>
 </form>
 

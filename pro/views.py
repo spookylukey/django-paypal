@@ -2,25 +2,132 @@
 # -*- coding: utf-8 -*-
 import urllib
 
+from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 
-from paypal.pro.forms import PaymentForm
+from paypal.pro.forms import PaymentForm, ConfirmForm
 from paypal.pro.models import PayPalPaymentInfo
 from paypal.pro.helpers import PayPalWPP
 
 # Edit IPN URL:
 # https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify
 
+EXPRESS_ENDPOINT = "https://www.paypal.com/webscr?cmd=_express-checkout&%s"
 SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout&%s"
 
+ 
+RETURN_URL = "http://216.19.180.83:8000/pro/"
+CANCEL_URL = "http://216.19.180.83:8000/pro/"
+SUCCESS_URL = "http://216.19.180.83:8000/success/" 
+
+class PayPalPro(object):
+    
+    def __init__(self, item_data=None, recurring_data=None, 
+                 payment_form_cls=PaymentForm,
+                 payment_template="pro/payment.html", 
+                 confirm_form_cls=ConfirmForm,
+                 confirm_template="pro/confirm.html",
+                 success_url="", fail_url=None, test=True):
+        self.item_data = item_data or dict(custom='cust', invnum='inve3', amt=10.0, returnurl=RETURN_URL, cancelurl=CANCEL_URL)
+        self.recurring_data = recurring_data
+        self.payment_form_cls = payment_form_cls
+        self.payment_template = payment_template
+        self.confirm_template = confirm_template
+        self.success_url = success_url
+        self.fail_url = fail_url
+        if test:
+            self.express_endpoint = SANDBOX_EXPRESS_ENDPOINT
+        else:
+            self.express_endpoint = EXPRESS_ENDPOINT
+        # ### Todo only one form of data???
+
+    def __call__(self, request):
+        self.request = request
+    
+        if request.method == "GET":
+            if 'express' in request.GET:
+                return self.redirect_to_express()
+            elif 'token' in request.GET and 'PayerID' in request.GET:
+                return self.render_confirm_form()
+            else:
+                return self.render_payment_form()
+                
+        else:
+            if 'token' in request.POST and 'PayerID' in request.POST:
+                return self.express_confirmed()
+                
+
+
+    def render_payment_form(self, context=None):
+        """
+        Display the Payment form for entering the monies.
+        
+        """
+        context = context or {}
+        context['form'] = PaymentForm()
+        return render_to_response(self.payment_template, context, RequestContext(self.request))
+
+    def redirect_to_express(self):
+        """
+        First express flow step.
+        Redirect to PayPal with the data in tow.
+        
+        """
+        wpp = PayPalWPP()
+        response = wpp.setExpressCheckout(self.item_data)
+        if response.get('ACK') == 'Success' and 'TOKEN' in response:
+            pp_params = dict(token=response['TOKEN'], 
+                             AMT=self.item_data['amt'], 
+                             RETURNURL=self.item_data['returnurl'], 
+                             CANCELURL=self.item_data['cancelurl'])
+            pp_url = SANDBOX_EXPRESS_ENDPOINT % urllib.urlencode(pp_params)
+            return HttpResponseRedirect(pp_url)
+        else:
+            context = {'errors':'There was a problem contacting PayPal. Please try again later.'}
+            return self.render_payment_form(context)
+
+    def render_confirm_form(self, context=None):
+        """
+        Second express flow step.
+        Show the confirmation form to get the guy to click I approve.
+        
+        """
+        context = context or {}
+        initial = {'token': self.request.GET['token'], 'PayerID': self.request.GET['PayerID']}
+        context['form'] = ConfirmForm(initial=initial)
+        return render_to_response(self.confirm_template, context, RequestContext(self.request))
+
+    def express_confirmed(self):
+        """
+        Final express flow step.
+        User has pressed the confirm button and now we send it off to PayPal.
+        
+        """
+        wpp = PayPalWPP()
+        pp_data = dict(token=self.request.POST['token'], payerid=self.request.POST['PayerID'])
+        self.item_data.update(pp_data)
+        response = wpp.doExpressCheckoutPayment(self.item_data)
+        if response.get('ACK') == 'Success':
+            return HttpResponseRedirect(self.success_url)
+        else:
+            context = {'errors':'There was a problem processing the payment. Please check your information and try again.'}
+            return self.render_payment_form(context)
+            
+
+    
+
+
+pro = PayPalPro()
 
 # ### Todo: Rework `payment` parameters. and the name.
 # ### ToDo: Could `express` be a class based view to be a little less confusing?
 
-def payment(request, item_data=None, reccuring_data=None, template="pro/payment.html", context=None, success_url="", fail_url=None):
+def paypalpro(request, item_data=None, reccuring_data=None, template="pro/payment.html", context=None, success_url="", fail_url=None):
     context = context or {}
     """
+    This view takes care of everything related to a Pay Pal Website Payment Pro thinger.
+    It's a monster.
     
     `item_data` is a dictionary that holds information about a single
     item purchase.
@@ -78,27 +185,16 @@ def payment(request, item_data=None, reccuring_data=None, template="pro/payment.
             payment_obj = PayPalPaymentInfo()
             payment_obj.set_flag("Bad form data: %s" % form.errors)
 
-
         # If the payment has not failed, try processing it.
         payment_obj.init(request)
         if not failed:
-
-            # Go and either create the item or the recurring...
             success = payment_obj.process(request, item_data, reccuring_data)
-
-        
-        
-            
-            
-
-
         payment_obj.save()        
 
-        # Redirect accordingly!
         if success:
-            return HttpResponse(success_url)
+            return HttpResponseRedirect(success_url)
         elif fail_url is not None:
-            return HttpResponse(fail_url)
+            return HttpResponseRedirect(fail_url)
 
     else:
         form = PaymentForm(initial=item_data)
