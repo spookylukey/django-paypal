@@ -72,15 +72,64 @@ class PayPalWPP(object):
         """
         defaults = dict(METHOD="GetExpressCheckoutDetails")
         required ="returnurl cancelurl token".split()
+        pp_params = self._check_and_update_params(params, required, defaults)
         print pp_params
         return self._fetch(pp_params)
 
     def doExpressCheckoutPayment(self, params):
+        """
+        Check the dude out:
         
+        {'ORDERTIME': '2009-02-02T16:48:41Z', 'ACK': 'Success', 'TIMESTAMP': '2009-02-02T16:48:43Z', 'CURRENCYCODE': 'USD', 'PAYMENTSTATUS': 'Completed', 'PENDINGREASON': 'None', 'PAYMENTTYPE': 'instant', 'TOKEN': 'EC-4FD207377L4986412', 'VERSION': '50.0', 'BUILD': '801690', 'TAXAMT': '0.00', 'FEEAMT': '0.59', 'REASONCODE': 'None', 'TRANSACTIONID': '1WF99451L2124605U', 'AMT': '10.00', 'CORRELATIONID': '46bcc23d964ad', 'TRANSACTIONTYPE': 'expresscheckout'}
+        
+        """
         defaults = dict(METHOD="DoExpressCheckoutPayment", PAYMENTACTION="Sale")
         required ="returnurl cancelurl amt token payerid".split()
+        pp_params = self._check_and_update_params(params, required, defaults)
         print pp_params
         return self._fetch(pp_params)
+        
+    def createRecurringPaymentsProfile(self, params):
+        """
+        profilestartdate - date when the billing profile begins
+        billingperiod - day/week/semimonth/month/year
+        billingfrequency - number of billing periods in one billing cycle
+        amt - amount of each cycle    
+
+        # 
+        TRIALBILLINGPERIOD - 
+        TRIALBILLINGFREQUENCY -
+        TRIALAMT -
+        TRIALTOTALBILLINGCYCLES -
+        
+        # Initial Payment
+        INITAMT
+        FAILEDINITAMTACTION
+        
+        MAXFAILEDPAYMENTS
+        
+        AUTOBILLOUTAMT
+        
+        """
+    
+    
+        require = "creditcardtype acct expdate firstname lastname profilestartdate billingperiod billingfrequency amt"
+
+    def getRecurringPaymentsProfileDetails(self, params):
+        raise NotImplementedError
+
+    def updateRecurringPaymentsProfile(self, params):
+        raise NotImplementedError
+    
+    def billOutstandingAmount(self, params):
+        raise NotImplementedError
+        
+    def manangeRecurringPaymentsProfileStatus(self, params):
+        raise NotImplementedError
+        
+    def RefundTransaction(self, params):
+        raise NotImplementedError
+        
 
     def _check_and_update_params(self, params, required, defaults):
         for r in required:

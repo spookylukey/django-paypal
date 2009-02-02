@@ -58,18 +58,28 @@ def payment(request, item_data=None, template="pro/payment.html", context=None, 
 # ### ToDo: Since by PP def. this has to be coupled to `payment` can we put them together?
 
 def express(request, template="pro/confirm.html", 
-            return_url="http://216.19.180.83:8000/return/", cancel_url="http://216.19.180.83:8000/cancel/"):
+            return_url="http://216.19.180.83:8000/express/", cancel_url="http://216.19.180.83:8000/cancel/", 
+            success_url="http://216.19.180.83:8000/success_url/"):
     """
     Express checkout flow.
 
     """
     
-    # Starting the Express flow - redirect to PayPal.
-    if 'token' not in request.GET and 'PayerID' not in request.GET    
-        params = dict(custom='cust', invnum='inve2', amt=10.0, 
-                      returnurl=return_url, 
-                      cancelurl=cancel_url)
     
+    # item_params should be passed in.
+    params = dict(custom='cust', invnum='inve2', amt=10.0, returnurl=return_url, cancelurl=cancel_url)
+    
+    # Pressed confirm - go ahead an bill.
+    if request.method == "POST":
+        wpp = PayPalWPP()
+        params.update(dict(token=request.POST['token'], payerid=request.POST['payerid']))
+        response = wpp.doExpressCheckoutPayment(params)
+        return HttpResponseRedirect(success_url)
+    
+    
+    
+    # Starting the Express flow - redirect to PayPal.
+    if 'token' not in request.GET and 'PayerID' not in request.GET:    
         wpp = PayPalWPP()
         response = wpp.setExpressCheckout(params)
         if 'TOKEN' in response:
@@ -81,10 +91,14 @@ def express(request, template="pro/confirm.html",
     if 'token' in request.GET and 'PayerID' in request.GET:
         token = request.GET['token']
         payerid = request.GET['PayerID']
-
         # Ask the dude to hit the confirm button!
-        return render_to_response(template)
+        return render_to_response(template, {'token': token, 'payerid': payerid})
 
-    # Pressed confirm - go ahead an bill.
-    if request.method == "POST":
         
+        
+#     def doExpressCheckoutPayment(self, params):
+#         
+#         defaults = dict(METHOD="DoExpressCheckoutPayment", PAYMENTACTION="Sale")
+#         required ="returnurl cancelurl amt token payerid".split()
+#         print pp_params
+#         return self._fetch(pp_params)
