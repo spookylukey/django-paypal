@@ -4,6 +4,7 @@ import urllib
 
 from django.conf import settings
 
+from paypal.pro.models import PayPalNVP
 
 USER = settings.PAYPAL_WPP_USER 
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
@@ -17,7 +18,9 @@ SANBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
 
 class PayPalError(Exception):
     pass
-    
+
+# ### ToDo: Record all interactions with paypal NVP.
+
 class PayPalWPP(object):
     """
     Wrapper class for the PayPal Website Payments Pro.
@@ -29,11 +32,12 @@ class PayPalWPP(object):
     https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_NVPAPI_DeveloperGuide.pdf
 
     """
-    def __init__(self, params=BASE_PARAMS, test=True):
+    def __init__(self, request, params=BASE_PARAMS, test=True):
         """
         Required - USER / PWD / SIGNATURE / VERSION
 
         """
+        self.request = request
         if test:
             self.endpoint = SANBOX_ENDPOINT
         else:
@@ -49,19 +53,19 @@ class PayPalWPP(object):
         defaults = dict(METHOD="DoDirectPayment", PAYMENTACTION="Sale")
         required = "creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt".split()
         pp_params = self._check_and_update_params(params, required, defaults)
-        print pp_params        
+        print pp_params
         return self._fetch(pp_params)
 
     def setExpressCheckout(self, params):
         """
         Setup an express payment. Token is the important thing.
         
-        """    
+        """
         # custom invnum notifyurl
         defaults = dict(METHOD="SetExpressCheckout", NOSHIPPING=1)
         required = "returnurl cancelurl amt".split()
         pp_params = self._check_and_update_params(params, required, defaults)
-        print pp_params        
+        print pp_params
         return self._fetch(pp_params)
 
     def getExpressCheckoutDetails(self, params):
@@ -116,9 +120,6 @@ class PayPalWPP(object):
         print pp_params
         return self._fetch(pp_params)
 
-
-
-
     def getTransactionDetails(self, params):
         raise NotImplementedError
 
@@ -158,7 +159,18 @@ class PayPalWPP(object):
         response = urllib.urlopen(self.endpoint, params_string).read()
         tok = self._parse_response(response)
         print tok
+        
+        # Record this NVP.
+        nvp_obj = PayPalNVP()
+        nvp_obj.init(self.request, params, tok)
+        if tok.get('ACK') != 'Success':
+            nvp_obj.set_flag(tok.get('L_LONGMESSAGE0'), tok.get('L_ERRORCODE0'))
+        nvp_obj.save()        
+        
         return tok
+        
+        # ### ToDo: Return the nvp_obj and the tok so the caller can do post processing.
+        # return nvp_obj, tok
         
     def _parse_response(self, response):
         response_tokens = {}
@@ -166,33 +178,3 @@ class PayPalWPP(object):
             key, value = kv.split("=")
             response_tokens[key] = urllib.unquote(value)
         return response_tokens
- 
-
-
-
-
-"""
-SUCCESS
-
-Success
-
-SuccessWithWarning 
-
-ACK=Success&TIMESTAMP=date/timeOfResponse
-&CORRELATIONID=debuggingToken&VERSION=...
-&BUILD=buildNumber 
-"""
-
-"""
-ERROR:
-Failure|FailureWithWarning|Warning 
-
-ACK=Error&TIMESTAMP=date/timeOfResponse&
-CORRELATIONID=debuggingToken&VERSION=VersionNo&
-BUILD=buildNumber&L_ERRORCODE0=errorCode&
-L_SHORTMESSAGE0=shortMessage&
-L_LONGMESSAGE0=longMessage&
-L_SEVERITYCODE0=severityCode 
-
-
-"""

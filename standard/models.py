@@ -3,6 +3,8 @@
 from django.db import models
 from django.conf import settings
 
+# ### ToDo: would be cool if PayPalIPN.query was a JSON field
+# ### or something else that let you get at the data better.
 
 class PayPalIPN(models.Model):
     """

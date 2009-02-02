@@ -15,7 +15,6 @@ from paypal.pro.helpers import PayPalWPP
 
 EXPRESS_ENDPOINT = "https://www.paypal.com/webscr?cmd=_express-checkout&%s"
 SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout&%s"
-
  
 RETURN_URL = "http://216.19.180.83:8000/pro/"
 CANCEL_URL = "http://216.19.180.83:8000/pro/"
@@ -33,6 +32,7 @@ class PayPalPro(object):
         self.recurring_data = recurring_data
         self.payment_form_cls = payment_form_cls
         self.payment_template = payment_template
+        self.confirm_form_cls = confirm_form_cls
         self.confirm_template = confirm_template
         self.success_url = success_url
         self.fail_url = fail_url
@@ -43,8 +43,11 @@ class PayPalPro(object):
         # ### Todo only one form of data???
 
     def __call__(self, request):
+        """
+        Spin off and call the appropriate thing..
+        
+        """
         self.request = request
-    
         if request.method == "GET":
             if 'express' in request.GET:
                 return self.redirect_to_express()
@@ -56,8 +59,8 @@ class PayPalPro(object):
         else:
             if 'token' in request.POST and 'PayerID' in request.POST:
                 return self.express_confirmed()
-                
-
+            else:
+                return self.validate_payment_form()
 
     def render_payment_form(self, context=None):
         """
@@ -65,7 +68,38 @@ class PayPalPro(object):
         
         """
         context = context or {}
-        context['form'] = PaymentForm()
+        context['form'] = self.payment_form_cls()
+        return render_to_response(self.payment_template, context, RequestContext(self.request))
+
+    def validate_payment_form(self, context=None):
+        """
+        Try a Direct Payment and if the form validates ask PayPal for the money.
+        
+        """
+        failed = False  # Did the form pass validation?
+        success = False  # Was processing successful?
+        form = self.payment_form_cls(self.request.POST)
+        
+        if form.is_valid():
+            payment_obj = form.save(commit=False)
+        else:
+            failed = True
+            payment_obj = PayPalPaymentInfo()
+            payment_obj.set_flag("Bad form data: %s" % form.errors)    
+
+        payment_obj.init(self.request)
+        if not failed:
+            success = payment_obj.process(self.request, self.item_data, self.recurring_data)
+        payment_obj.save()
+        if success:
+            return HttpResponseRedirect(self.success_url)
+        elif self.fail_url is not None:
+            return HttpResponseRedirect(self.fail_url)
+
+        # Failed, render the payment form w/ errors.
+        context = context or {}
+        context['form'] = form
+        context['errors'] = "Please correct the errors below and try again."
         return render_to_response(self.payment_template, context, RequestContext(self.request))
 
     def redirect_to_express(self):
@@ -95,7 +129,7 @@ class PayPalPro(object):
         """
         context = context or {}
         initial = {'token': self.request.GET['token'], 'PayerID': self.request.GET['PayerID']}
-        context['form'] = ConfirmForm(initial=initial)
+        context['form'] = self.confirm_form_cls(initial=initial)
         return render_to_response(self.confirm_template, context, RequestContext(self.request))
 
     def express_confirmed(self):

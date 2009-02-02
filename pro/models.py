@@ -4,12 +4,45 @@ from django.db import models
 from django.forms.models import model_to_dict
 
 from paypal.pro.fields import CountryField
-from paypal.pro.helpers import PayPalWPP
 from paypal.pro.signals import payment_was_successful, payment_was_flagged
 
+# ### ToDo: A lot of these common fields could be moved to mixins.
+# ### there is a lot of non-dry stuff going on between the models here.
 
 # ### ToDo: Need a better way to store responses and more information from a transaction
 # ### can we use the iPN model in standard?
+
+# ### ToDo: flesh out NVP request / response model for WPP interactios.
+
+class PayPalNVP(models.Model):
+    user = models.ForeignKey('auth.user', null=True)
+    flag = models.BooleanField(default=False, blank=True)
+    flag_code = models.CharField(max_length=16, blank=True)
+    flag_info = models.TextField(blank=True)    
+    ipaddress = models.IPAddressField(blank=True)
+    request = models.TextField(blank=True)
+    response = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = "paypal_nvp"
+    
+    def init(self, request_obj, request_params, response):
+        """Initialize a PayPalNVP instance from a HttpRequest object."""
+        self.ipaddress = request_obj.META.get('REMOTE_ADDR', '')
+        if request_obj.user.is_authenticated():
+            self.user = request_obj.user
+        self.request = repr(request_params)
+        self.response = repr(response)
+
+    def set_flag(self, info, code=None):
+        """Flag this PaymentInfo for further investigation."""
+        self.flag = True
+        self.flag_info += info
+        if code is not None:
+            self.flag_code = code
+
 
 class BasePaymentInfo(models.Model):
     """
@@ -81,7 +114,8 @@ class PayPalPaymentInfo(PaymentInfo):
         Do a direct payment.
         
         """
-        wpp = PayPalWPP()
+        from paypal.pro.helpers import PayPalWPP
+        wpp = PayPalWPP(request)
         
         # Change the model information into a dict that PayPal can understand.        
         params = model_to_dict(self, exclude=self.ADMIN_FIELDS)

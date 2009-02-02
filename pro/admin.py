@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 
-from paypal.pro.models import PayPalPaymentInfo
+from paypal.pro.models import PayPalPaymentInfo, PayPalNVP
 
 
 class PayPalPaymentInfoAdmin(admin.ModelAdmin):
@@ -35,3 +35,7 @@ class PayPalPaymentInfoAdmin(admin.ModelAdmin):
 #     )
 #     list_display = ('__unicode__', 'txn_id', 'flag', 'payment_status', 'payment_date', )
 admin.site.register(PayPalPaymentInfo, PayPalPaymentInfoAdmin)
+
+class PayPalNVPAdmin(admin.ModelAdmin):
+    list_display = "user ipaddress flag flag_code created_at".split()
+admin.site.register(PayPalNVP, PayPalNVPAdmin)

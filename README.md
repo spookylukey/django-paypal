@@ -12,6 +12,8 @@ seen floating around the internets. Buyers click on the button and are taken to 
 
 **PayPal Payments Pro** allows you to accept payments on your website (though you still have to provide functionality to buy through PayPal : \)... and is currently under development.
 
+Takes the approach of logging everything to the database. You would never look at it if it was in a log file anyways.
+
 Usage:
 ------
 
