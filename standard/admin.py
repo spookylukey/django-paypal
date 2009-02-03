@@ -39,8 +39,9 @@ class PayPalIPNAdmin(admin.ModelAdmin):
         ("Admin", {
             "description": "Additional Info.",
             "classes": ('collapse',),
-            "fields": "test_ipn ip query".split()
+            "fields": "test_ipn ipaddress query flag_code flag_info".split()
         }),
     )
-    list_display = "__unicode__ txn_id flag payment_status payment_date".split()
+    list_display = "__unicode__ flag payment_status payment_date next_payment_date mc_gross".split()
+    search_fields = "txn_id recurring_payment_id".split()
 admin.site.register(PayPalIPN, PayPalIPNAdmin)

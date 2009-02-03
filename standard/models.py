@@ -84,7 +84,7 @@ class PayPalIPN(models.Model):
     reason_code = models.CharField(max_length=15, blank=True)
     transaction_entity = models.CharField(max_length=7, blank=True)
     txn_id = models.CharField("Transaction ID", max_length=19, blank=True, help_text="PayPal transaction ID.")
-    txn_type = models.CharField("Transaction Type", max_length=32, blank=True, help_text="PayPal transaction type.")
+    txn_type = models.CharField("Transaction Type", max_length=128, blank=True, help_text="PayPal transaction type.")
     parent_txn_id = models.CharField("Parent Transaction ID", max_length=19, blank=True)
 
     # Recurring Payments:
@@ -113,7 +113,7 @@ class PayPalIPN(models.Model):
 
     # Additional information - full IPN query and time fields.
     test_ipn = models.BooleanField(default=False, blank=True)
-    ip = models.IPAddressField(blank=True)
+    ipaddress = models.IPAddressField(blank=True)
     flag = models.BooleanField(default=False, blank=True)
     flag_code = models.CharField(max_length=16, blank=True)
     flag_info = models.TextField(blank=True)
@@ -125,7 +125,17 @@ class PayPalIPN(models.Model):
         db_table = "paypal_ipn"
 
     def __unicode__(self):
-        return "<PayPalIPN: %s>" % self.txn_id
+        fmt = u"<IPN: %s %s>"
+        if self.is_transaction():
+            return fmt % ("Transaction", self.txn_id)
+        else:
+            return fmt % ("Recurring", self.recurring_payment_id)
+        
+    def is_transaction(self):
+        return len(self.txn_id) > 0
+    
+    def is_recurring(self):
+        return len(self.recurring_payment_id) > 0
         
     def _postback(self, test=True):
         """
@@ -144,10 +154,10 @@ class PayPalIPN(models.Model):
         
         response = urllib2.urlopen(endpoint, "cmd=_notify-validate&%s" % self.query).read()
         if response == "VERIFIED":
-            return False
+            return True
         else:
             self.set_flag("Invalid postback.")
-            return True
+            return False
                     
     def verify(self, item_check_callable=None, test=True):
         """
@@ -163,16 +173,22 @@ class PayPalIPN(models.Model):
         from paypal.standard.helpers import duplicate_txn_id
         
         if self._postback(test):
-            if self.payment_status != "Completed":
-                self.set_flag("Invalid payment_status.")
-            if duplicate_txn_id(self):
-                self.set_flag("Duplicate transaction ID.")
-            if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
-                self.set_flag("Invalid receiver_email.")
-            if callable(item_check_callable):
-                flag, reason = item_check_callable(self)
-                if flag:
-                    self.set_flag(reason)
+        
+            if self.is_transaction():
+                if self.payment_status != "Completed":
+                    self.set_flag("Invalid payment_status.")
+                if duplicate_txn_id(self):
+                    self.set_flag("Duplicate transaction ID.")
+                if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
+                    self.set_flag("Invalid receiver_email.")
+                if callable(item_check_callable):
+                    flag, reason = item_check_callable(self)
+                    if flag:
+                        self.set_flag(reason)
+                        
+            else:
+                # ### To-Do: Need to run a different series of checks on recurring payments.
+                pass
                 
     def verify_secret(self, form_instance, secret):
         """
@@ -185,7 +201,7 @@ class PayPalIPN(models.Model):
 
     def init(self, request):
         self.query = request.POST.urlencode()
-        self.ip = request.META.get('REMOTE_ADDR', '')
+        self.ipaddress = request.META.get('REMOTE_ADDR', '')
     
 
     def set_flag(self, info, code=None):
