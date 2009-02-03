@@ -27,18 +27,19 @@ def ipn(request, item_check_callable=None):
         
     if failed:
         ipn_obj = PayPalIPN.objects.create()
-        ipn_obj.set_flag("Invalid form.")
-        
-    ipn_obj.query = request.POST.urlencode()
-    ipn_obj.ip = request.META.get('REMOTE_ADDR', '')
+        ipn_obj.set_flag("Invalid form. %s" % form.errors)
+    
+    ipon_obj.init(request)
 
     if not failed:
         # Secrets should only be used over SSL.
         if request.is_secure() and 'secret' in request.GET:
-        # if 'secret' in request.GET:
             ipn_obj.verify_secret(form, request.GET['secret'])
         else:
-            ipn_obj.verify(item_check_callable)
+            if ipn_obj.test_ipn:
+                ipn_obj.verify(item_check_callable)
+            else:
+                ipn_obj.verify(item_check_callable, test=False)
 
     ipn_obj.save()    
     return HttpResponse("OKAY")

@@ -12,13 +12,12 @@ def make_secret(form_instance, secret_fields=None):
     selection of variables in params. Should only be used with SSL.
     
     """
-    from django.conf import settings
-    from django.contrib.auth.models import get_hexdigest
-    
     # ### ToDo: amount is mc_gross on the IPN - where should mapping logic go?
     # ### ToDo: amount / mc_gross is not nessecarily returned as it was sent - how to use it? 10.00 vs. 10.0
     # ### ToDo: the secret should be based on the invoice or custom fields as well - otherwise its always the same.
-
+    from django.conf import settings
+    from django.contrib.auth.models import get_hexdigest
+    
     # Build the secret with fields availible in both PaymentForm and the IPN. Order matters.
     if secret_fields is None:
         secret_fields = ['business', 'item_name']
@@ -34,7 +33,6 @@ def make_secret(form_instance, secret_fields=None):
                 data += unicode(form_instance.initial[name])
             elif name in form_instance.fields and form_instance.fields[name].initial is not None:
                 data += unicode(form_instance.fields[name].initial)
-
 
     secret = get_hexdigest('sha1', settings.SECRET_KEY, data)
     return secret

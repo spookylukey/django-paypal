@@ -20,7 +20,7 @@ class PayPalNVP(models.Model):
     flag_code = models.CharField(max_length=16, blank=True)
     flag_info = models.TextField(blank=True)    
     ipaddress = models.IPAddressField(blank=True)
-    request = models.TextField(blank=True)
+    query = models.TextField(blank=True)
     response = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -28,12 +28,12 @@ class PayPalNVP(models.Model):
     class Meta:
         db_table = "paypal_nvp"
     
-    def init(self, request_obj, request_params, response):
+    def init(self, request, query, response):
         """Initialize a PayPalNVP instance from a HttpRequest object."""
-        self.ipaddress = request_obj.META.get('REMOTE_ADDR', '')
-        if request_obj.user.is_authenticated():
-            self.user = request_obj.user
-        self.request = repr(request_params)
+        self.ipaddress = request.META.get('REMOTE_ADDR', '')
+        if request.user.is_authenticated():
+            self.user = request.user
+        self.query = repr(query)
         self.response = repr(response)
 
     def set_flag(self, info, code=None):
@@ -64,9 +64,11 @@ class PaymentInfo(BasePaymentInfo):
     """
     Payment model with a bit more information.
 
-    """    
+    """
+    RESTRICTED_FIELDS = "expdate_0 expdate_1 cvv2 acct".split()
+
+    # Admin fields:        
     user = models.ForeignKey('auth.user', null=True)
-    # Admin fields:    
     ipaddress = models.IPAddressField(blank=True)
     flag = models.BooleanField(default=False, blank=True)
     flag_code = models.CharField(max_length=16, blank=True)
@@ -81,7 +83,9 @@ class PaymentInfo(BasePaymentInfo):
     def init(self, request):
         """Initialize a PaymentInfo instance from a HttpRequest object."""
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
-        self.query = request.POST.urlencode()
+        # No storing that CC# info. Bad.
+        query_data = dict((k,v) for k, v in request.POST.iteritems() if k not in self.RESTRICTED_FIELDS)
+        self.query = repr(query_data)
         if request.user.is_authenticated():
             self.user = request.user
 

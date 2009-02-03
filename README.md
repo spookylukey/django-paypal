@@ -205,6 +205,8 @@ ToDo:
 
 * IPN / NVP / PaymentInfo - there are three models running around there probably only need to be two. Do direct payments send an IPN postback?
 
+* Lots of fields store QueryDict dumps b/c we're not sure exactly what we're getting - would be cool to be able to access those fields like they were a dict (JSONField)
+
 License (MIT)
 =============
 

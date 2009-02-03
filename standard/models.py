@@ -6,6 +6,11 @@ from django.conf import settings
 # ### ToDo: would be cool if PayPalIPN.query was a JSON field
 # ### or something else that let you get at the data better.
 
+
+POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
+SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+
+
 class PayPalIPN(models.Model):
     """
     Logs PayPal IPN interactions.
@@ -122,7 +127,7 @@ class PayPalIPN(models.Model):
     def __unicode__(self):
         return "<PayPalIPN: %s>" % self.txn_id
         
-    def _postback(self):
+    def _postback(self, test=True):
         """
         Perform PayPal Postback validation.
         Sends the received data back to PayPal which responds with verified or invalid.
@@ -132,17 +137,19 @@ class PayPalIPN(models.Model):
         """
         import urllib2
         
-        # ### Todo: Add code to choose sandbox or live.
-        # ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
-        ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
-        response = urllib2.urlopen(ENDPOINT, "cmd=_notify-validate&%s" % self.query).read()
+        if test:
+            endpoint = SANDBOX_POSTBACK_ENDPOINT
+        else:
+            endpoint = POSTBACK_ENDPOINT
+        
+        response = urllib2.urlopen(endpoint, "cmd=_notify-validate&%s" % self.query).read()
         if response == "VERIFIED":
             return False
         else:
             self.set_flag("Invalid postback.")
             return True
                     
-    def verify(self, item_check_callable=None):
+    def verify(self, item_check_callable=None, test=True):
         """
         Verifies an IPN.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
@@ -155,7 +162,7 @@ class PayPalIPN(models.Model):
         """
         from paypal.standard.helpers import duplicate_txn_id
         
-        if self._postback():
+        if self._postback(test):
             if self.payment_status != "Completed":
                 self.set_flag("Invalid payment_status.")
             if duplicate_txn_id(self):
@@ -175,6 +182,11 @@ class PayPalIPN(models.Model):
         from paypal.standard.helpers import check_secret
         if not check_secret(form_instance, secret):
             self.set_flag("Invalid secret.")
+
+    def init(self, request):
+        self.query = request.POST.urlencode()
+        self.ip = request.META.get('REMOTE_ADDR', '')
+    
 
     def set_flag(self, info, code=None):
         """
