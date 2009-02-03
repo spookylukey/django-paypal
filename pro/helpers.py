@@ -2,10 +2,16 @@
 # -*- coding: utf-8 -*-
 import urllib
 import time
+import pprint
 
 from django.conf import settings
+from django.forms.models import fields_for_model
 
 from paypal.pro.models import PayPalNVP
+
+# ### ToDo: Check AVS / CVV2 responses to look for fraudz.
+# ### flags etc. on PayPalWPP - tie it 
+# ### ToDo: Not very DRY yet... factor out common actions from calls into methods.
 
 USER = settings.PAYPAL_WPP_USER 
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
@@ -16,18 +22,20 @@ BASE_PARAMS = dict(USER=USER , PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSIO
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
 
+NVP_FIELDS = fields_for_model(PayPalNVP).keys()
+
 
 def paypal_time(time_obj=None):
     """Returns a time suitable for `profilestartdate` or other PayPal time fields."""
     if time_obj is None:
         time_obj = time.gmtime()
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time_obj)
-
+    
+def string2time(s):
+    return time.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
 
 class PayPalError(Exception):
     pass
-
-# ### ToDo: Record all interactions with paypal NVP.
 
 class PayPalWPP(object):
     """
@@ -58,11 +66,13 @@ class PayPalWPP(object):
         Do direct payment. Woot, this is where we take the money from the guy.        
         
         """
-        defaults = dict(METHOD="DoDirectPayment", PAYMENTACTION="Sale")
+        defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
         required = "creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt".split()
-        pp_params = self._check_and_update_params(params, required, defaults)
-        print pp_params
-        return self._fetch(pp_params)
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            return False
+        else:
+            return True
 
     def setExpressCheckout(self, params):
         """
@@ -74,61 +84,46 @@ class PayPalWPP(object):
         if self._is_recurring(params):
             params = self._recurring_setExpressCheckout_adapter(params)
 
-        defaults = dict(METHOD="SetExpressCheckout", NOSHIPPING=1)
+        defaults = {"method": "SetExpressCheckout", "noshipping": 1}
         required = "returnurl cancelurl amt".split()
-        pp_params = self._check_and_update_params(params, required, defaults)
-        print pp_params
-        return self._fetch(pp_params)
-
-    def getExpressCheckoutDetails(self, params):
-        """
-        From the PayPal docs:
-        
-        Although you are not required to invoke the GetExpressCheckoutDetails API operation, 
-        most Express Checkout implementations take this action to obtain information about the 
-        buyer. You invoke the GetExpressCheckoutDetails API operation from the page 
-        specified by return URL, which you set in your call to the SetExpressCheckout API. 
-        Typically, you invoke this operation as soon as the redirect occurs and use the information in 
-        the response to populate your review page.
-        
-        """
-        defaults = dict(METHOD="GetExpressCheckoutDetails")
-        required ="returnurl cancelurl token".split()
-        pp_params = self._check_and_update_params(params, required, defaults)
-        print pp_params
-        return self._fetch(pp_params)
+        # We'll need to use the token to continue.
+        return self._fetch(params, required, defaults)
 
     def doExpressCheckoutPayment(self, params):
         """
         Check the dude out:
         
         """
-        defaults = dict(METHOD="DoExpressCheckoutPayment", PAYMENTACTION="Sale")
+        defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
         required ="returnurl cancelurl amt token payerid".split()
-        pp_params = self._check_and_update_params(params, required, defaults)
-        print pp_params
-        return self._fetch(pp_params)
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            return False
+        else:
+            return True
         
     def createRecurringPaymentsProfile(self, params, direct=False):
         """
         Fields explained in views.
         
-        Response:
-            * profileid: unique id for future reference.
-            * status: (ActiveProfile|PendingProfile)
-        
         """
-        defaults = dict(METHOD="CreateRecurringPaymentsProfile")
+        defaults = {"method": "CreateRecurringPaymentsProfile"}
         required = "profilestartdate billingperiod billingfrequency amt".split()
+
         # Direct payments require CC data
         if direct:
             required + "creditcardtype acct expdate firstname lastname".split()
         else:
             required + ["token", "payerid"]
 
-        pp_params = self._check_and_update_params(params, required, defaults)
-        print pp_params
-        return self._fetch(pp_params)
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            return False
+        else:
+            return True
+
+    def getExpressCheckoutDetails(self, params):
+        raise NotImplementedError
 
     def setCustomerBillingAgreement(self, params):
         raise DeprecationWarning
@@ -161,16 +156,11 @@ class PayPalWPP(object):
             return False
 
     def _recurring_setExpressCheckout_adapter(self, params):
-        """
-        
-        
-        """
-        
         # ### ToDo: The interface to SEC for recurring payments is different than ECP.
         # ### Right now we'll just mung the parameters into the shape we need. Is there
         # ### another solution?
-        params['L_BILLINGTYPE0'] = "RecurringPayments"
-        params['L_BILLINGAGREEMENTDESCRIPTION0'] = params['desc']
+        params['l_billingtype0'] = "RecurringPayments"
+        params['l_billingagreementdescription0'] = params['desc']
 
         REMOVE = "billingfrequency billingperiod profilestartdate desc".split()
         for k in params.keys():
@@ -179,36 +169,57 @@ class PayPalWPP(object):
                 
         return params
 
-    def _check_and_update_params(self, params, required, defaults):
+    def _fetch(self, params, required, defaults):
+        """
+        Make the NVP request and store the response.
+        
+        """
+        # ### This function just sucks.
+        
+        defaults.update(params)
+        pp_params = self._check_and_update_params(required, defaults)        
+        pp_string = self.signature + urllib.urlencode(pp_params)
+        response = urllib.urlopen(self.endpoint, pp_string).read()
+        response_params = self._parse_response(response)
+        
+        print 'Request:'
+        pprint.pprint(defaults)
+        print '\nResponse:'
+        pprint.pprint(response_params)
+
+        # everything = MergeDict(params, response_params)
+        # nvp_params = dict((k,everything[k]) for k in everything.keys() if k in NVP_FIELDS)
+        # ### bleh.
+        everything = {}
+        
+        def x(d):
+            for k, v in d.iteritems():
+                if k in NVP_FIELDS:
+                    everything[k] = v
+        
+        x(params)
+        x(response_params)        
+
+        if 'timestamp' in everything:
+            everything['timestamp'] = string2time(everything['timestamp'])
+
+        # Record this NVP.
+        nvp_obj = PayPalNVP(**everything)
+        nvp_obj.init(self.request, params, response_params)
+        nvp_obj.save()
+        return nvp_obj
+
+    def _check_and_update_params(self, required, params):
         for r in required:
             if r not in params:
                 raise PayPalError("Missing required param: %s" % r)    
 
-        # Upcase all the keys and put them in with the defaults.
-        defaults.update(dict((k.upper(), v) for k, v in params.iteritems()))
-        return defaults
-
-    def _fetch(self, params):
-        params_string = self.signature + urllib.urlencode(params)
-        response = urllib.urlopen(self.endpoint, params_string).read()
-        tok = self._parse_response(response)
-        print tok
-        
-        # Record this NVP.
-        nvp_obj = PayPalNVP()
-        nvp_obj.init(self.request, params, tok)
-        if tok.get('ACK') != 'Success':
-            nvp_obj.set_flag(tok.get('L_LONGMESSAGE0'), tok.get('L_ERRORCODE0'))
-        nvp_obj.save()        
-        
-        return tok
-        
-        # ### ToDo: Return the nvp_obj and the tok so the caller can do post processing.
-        # return nvp_obj, tok
+        # Upper case all the parameters for PayPal.
+        return (dict((k.upper(), v) for k, v in params.iteritems()))
         
     def _parse_response(self, response):
         response_tokens = {}
         for kv in response.split('&'):
             key, value = kv.split("=")
-            response_tokens[key] = urllib.unquote(value)
+            response_tokens[key.lower()] = urllib.unquote(value)
         return response_tokens

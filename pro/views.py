@@ -7,8 +7,9 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 
 from paypal.pro.forms import PaymentForm, ConfirmForm
-from paypal.pro.models import PayPalPaymentInfo
+from paypal.pro.models import PayPalNVP
 from paypal.pro.helpers import PayPalWPP
+from paypal.pro.signals import payment_was_successful, payment_was_flagged
 
 
 # PayPal Edit IPN URL:
@@ -129,30 +130,22 @@ class PayPalPro(object):
         Try a Direct Payment and if the form validates ask PayPal for the money.
         
         """
-        failed = False  # Did the form pass validation?
-        success = False  # Was processing successful?
-        form = self.payment_form_cls(self.request.POST)
-        
+        context = context or {}        
+        form = self.payment_form_cls(self.request.POST)        
         if form.is_valid():
-            payment_obj = form.save(commit=False)
-        else:
-            failed = True
-            payment_obj = PayPalPaymentInfo()
-            payment_obj.set_flag("Bad form data: %s" % form.errors)    
-
-        payment_obj.init(self.request)
-        if not failed:
-            success = payment_obj.process(self.request, self.item)
-        payment_obj.save()
-        if success:
-            return HttpResponseRedirect(self.success_url)
-        elif self.fail_url is not None:
-            return HttpResponseRedirect(self.fail_url)
+            success = form.process(self.request, self.item)
+            if success:
+            
+                print 'sendering'
+            
+                payment_was_successful.send(sender=self.item)
+                return HttpResponseRedirect(self.success_url)
+            else:
+                context['errors'] = "There was an error processing your payment. Check your information and try again."
 
         # Failed, render the payment form w/ errors.
-        context = context or {}
         context['form'] = form
-        context['errors'] = "Please correct the errors below and try again."
+        context.setdefault('errors', 'Please correct the errors below and try again.')
         return render_to_response(self.payment_template, context, RequestContext(self.request))
 
     def redirect_to_express(self):
@@ -162,9 +155,9 @@ class PayPalPro(object):
         
         """
         wpp = PayPalWPP(self.request)
-        response = wpp.setExpressCheckout(self.item)
-        if response.get('ACK') == 'Success' and 'TOKEN' in response:
-            pp_params = dict(token=response['TOKEN'], 
+        nvp_obj = wpp.setExpressCheckout(self.item)
+        if not nvp_obj.flag:
+            pp_params = dict(token=nvp_obj.token, 
                              AMT=self.item['amt'], 
                              RETURNURL=self.item['returnurl'], 
                              CANCELURL=self.item['cancelurl'])
@@ -196,11 +189,12 @@ class PayPalPro(object):
         self.item.update(pp_data)
         
         if self.is_recurring:
-            response = wpp.createRecurringPaymentsProfile(self.item)
+            success = wpp.createRecurringPaymentsProfile(self.item)
         else:
-            response = wpp.doExpressCheckoutPayment(self.item)
+            success = wpp.doExpressCheckoutPayment(self.item)
 
-        if response.get('ACK') == 'Success':
+        if success:
+            payment_was_successful.send(sender=self.item)
             return HttpResponseRedirect(self.success_url)
         else:
             context = {'errors':'There was a problem processing the payment. Please check your information and try again.'}
