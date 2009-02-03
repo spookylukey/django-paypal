@@ -191,12 +191,10 @@ class PayPalIPN(models.Model):
                 # ### To-Do: Need to run a different series of checks on recurring payments.
                 pass
     
-        print 'VERIFY!'
-    
-#         if self.flag:
-#             payment_was_flagged.send(sender=self) #, response=response, request=request)
-#         else:
-        payment_was_successful.send(sender=self) #, response=response, request=request)
+         if self.flag:
+             payment_was_flagged.send(sender=self)
+        else:
+            payment_was_successful.send(sender=self)
 
     def verify_secret(self, form_instance, secret):
         """

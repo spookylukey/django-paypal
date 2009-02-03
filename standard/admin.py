@@ -46,6 +46,6 @@ class PayPalIPNAdmin(admin.ModelAdmin):
             "fields": L("test_ipn ipaddress query flag_code flag_info")
         }),
     )
-    list_display = L("__unicode__ flag payment_status payment_date next_payment_date mc_gross")
+    list_display = L("__unicode__ flag invoice custom payment_status created_at")
     search_fields = L("txn_id recurring_payment_id")
 admin.site.register(PayPalIPN, PayPalIPNAdmin)

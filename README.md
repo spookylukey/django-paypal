@@ -77,13 +77,13 @@ Using PayPal Payments Standard:
         # models.py (or somewhere)
         
         from paypal.standard.signals import payment_was_successful
-
-        payment_was_successful.connect(show_me_the_money)
         
         def show_me_the_money(sender, **kwargs):
             ipn_obj = sender
-            if ipn_obj.cust == "Upgrade all users!"
+            # Undertake some action depending upon `ipn_obj`.
+            if ipn_obj.cust == "Upgrade all users!":
                 Users.objects.update(paid=True)        
+        payment_was_successful.connect(show_me_the_money)
 
 Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------

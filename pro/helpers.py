@@ -66,10 +66,14 @@ class PayPalWPP(object):
 
     def setExpressCheckout(self, params):
         """
-        Setup an express payment. Token is the important thing.
+        Initiates an Express Checkout transaction. 
+        Optionally, the SetExpressCheckout API operation can set up billing agreements for
+        reference transactions and recurring payments.         
         
         """
-        # custom invnum notifyurl
+        if self._is_recurring(params):
+            params = self._recurring_setExpressCheckout_adapter(params)
+
         defaults = dict(METHOD="SetExpressCheckout", NOSHIPPING=1)
         required = "returnurl cancelurl amt".split()
         pp_params = self._check_and_update_params(params, required, defaults)
@@ -149,6 +153,31 @@ class PayPalWPP(object):
         
     def refundTransaction(self, params):
         raise NotImplementedError
+
+    def _is_recurring(self, params):
+        if 'billingfrequency' in params:
+            return True
+        else:
+            return False
+
+    def _recurring_setExpressCheckout_adapter(self, params):
+        """
+        
+        
+        """
+        
+        # ### ToDo: The interface to SEC for recurring payments is different than ECP.
+        # ### Right now we'll just mung the parameters into the shape we need. Is there
+        # ### another solution?
+        params['L_BILLINGTYPE0'] = "RecurringPayments"
+        params['L_BILLINGAGREEMENTDESCRIPTION0'] = params['desc']
+
+        REMOVE = "billingfrequency billingperiod profilestartdate desc".split()
+        for k in params.keys():
+            if k in REMOVE:
+                del params[k]
+                
+        return params
 
     def _check_and_update_params(self, params, required, defaults):
         for r in required:

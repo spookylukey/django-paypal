@@ -41,7 +41,6 @@ def ipn(request, item_check_callable=None):
         if request.is_secure() and 'secret' in request.GET:
             ipn_obj.verify_secret(form, request.GET['secret'])
         else:
-            print 'err?'
             if ipn_obj.test_ipn:
                 ipn_obj.verify(item_check_callable)
             else:

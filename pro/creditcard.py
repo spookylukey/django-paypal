@@ -6,18 +6,18 @@ import datetime
 # Adapted from:
 # http://www.djangosnippets.org/snippets/764/
 # http://www.satchmoproject.com/trac/browser/satchmo/trunk/satchmo/apps/satchmo_utils/views.py
-
+# http://tinyurl.com/shoppify-credit-cards
 
 # Everything that isn't a digit.
-RE_NOT_DIGIT = re.compile(r'[^0-9]')
+RE_NOT_DIGIT = re.compile(r'[^\d]')
 
 # Well known card regular expressions.
 CARDS = {
-    'Visa': re.compile(r"^4([0-9]{12,15})$"),
-    'Mastercard': re.compile(r"^5[1-5]([0-9]{14})$"),
-    'Dinersclub': re.compile(r"^3(?:0[0-5]|[68][0-9])[0-9]{11}$"),
-    'Amex': re.compile("^3[47][0-9]{13}$"),
-    'Discover': re.compile("^6(?:011|5[0-9]{2})[0-9]{12}$"),
+    'Visa': re.compile(r"^4\d{12}(\d{3})?$"),
+    'Mastercard': re.compile(r"(5[1-5]\d{4}|677189)\d{10}$"),
+    'Dinersclub': re.compile(r"^3(0[0-5]|[68]\d)\d{11}"),
+    'Amex': re.compile("^3[47]\d{13}$"),
+    'Discover': re.compile("^(6011|65\d{2})\d{12}$"),
 }
 
 # Well known test numberss
@@ -25,9 +25,8 @@ TEST_NUMBERS = ("378282246310005 371449635398431 378734493671000 30569309025904 
 
 
 def verify_credit_card(number):
-    """Returns the card type or None if its not a card."""
+    """Returns the card type for `number or None if it is invalid."""
     return CreditCard(number).verify()
-
 
 class CreditCard(object):
     def __init__(self, number):
