@@ -7,7 +7,7 @@ import pprint
 from django.conf import settings
 from django.forms.models import fields_for_model
 
-from paypal.pro.models import PayPalNVP
+from paypal.pro.models import PayPalNVP, L
 
 # ### ToDo: Check AVS / CVV2 responses to look for fraudz.
 # ### flags etc. on PayPalWPP - tie it 
@@ -67,7 +67,7 @@ class PayPalWPP(object):
         
         """
         defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
-        required = "creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt".split()
+        required = L("creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             return False
@@ -85,7 +85,7 @@ class PayPalWPP(object):
             params = self._recurring_setExpressCheckout_adapter(params)
 
         defaults = {"method": "SetExpressCheckout", "noshipping": 1}
-        required = "returnurl cancelurl amt".split()
+        required = L("returnurl cancelurl amt")
         # We'll need to use the token to continue.
         return self._fetch(params, required, defaults)
 
@@ -95,7 +95,7 @@ class PayPalWPP(object):
         
         """
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
-        required ="returnurl cancelurl amt token payerid".split()
+        required =L("returnurl cancelurl amt token payerid")
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             return False
@@ -108,13 +108,13 @@ class PayPalWPP(object):
         
         """
         defaults = {"method": "CreateRecurringPaymentsProfile"}
-        required = "profilestartdate billingperiod billingfrequency amt".split()
+        required = L("profilestartdate billingperiod billingfrequency amt")
 
         # Direct payments require CC data
         if direct:
-            required + "creditcardtype acct expdate firstname lastname".split()
+            required + L("creditcardtype acct expdate firstname lastname")
         else:
-            required + ["token", "payerid"]
+            required + L("token payerid")
 
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
@@ -157,12 +157,11 @@ class PayPalWPP(object):
 
     def _recurring_setExpressCheckout_adapter(self, params):
         # ### ToDo: The interface to SEC for recurring payments is different than ECP.
-        # ### Right now we'll just mung the parameters into the shape we need. Is there
-        # ### another solution?
+        # ### Right now we'll just adapter the keys to what we need.
         params['l_billingtype0'] = "RecurringPayments"
         params['l_billingagreementdescription0'] = params['desc']
 
-        REMOVE = "billingfrequency billingperiod profilestartdate desc".split()
+        REMOVE = L("billingfrequency billingperiod profilestartdate desc")
         for k in params.keys():
             if k in REMOVE:
                 del params[k]
@@ -187,21 +186,19 @@ class PayPalWPP(object):
         print '\nResponse:'
         pprint.pprint(response_params)
 
-        # everything = MergeDict(params, response_params)
-        # nvp_params = dict((k,everything[k]) for k in everything.keys() if k in NVP_FIELDS)
-        # ### bleh.
+        # Put fields from NVP into everything so we can pass it to `create`.
         everything = {}
-        
-        def x(d):
+        def into_everything(d):
             for k, v in d.iteritems():
                 if k in NVP_FIELDS:
                     everything[k] = v
         
-        x(params)
-        x(response_params)        
+        into_everything(params)
+        into_everything(response_params)        
 
-        if 'timestamp' in everything:
-            everything['timestamp'] = string2time(everything['timestamp'])
+        # ### ToDo: this call is messing up.
+        # if 'timestamp' in everything:
+        #    everything['timestamp'] = string2time(everything['timestamp'])
 
         # Record this NVP.
         nvp_obj = PayPalNVP(**everything)

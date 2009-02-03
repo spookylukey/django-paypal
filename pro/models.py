@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import string
+
 from django.db import models
 from django.forms.models import model_to_dict
 
 from paypal.pro.fields import CountryField
+
+L = string.split
 
 # ### ToDo: Remove PaymentInfo models. and flesh out NVP model.
 # ### they duplicate information!
@@ -14,9 +18,9 @@ class PayPalNVP(models.Model):
     TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
     RESTRICTED_FIELDS = "expdate cvv2 acct".split()
-    ADMIN_FIELDS = "id user ipaddress flag flag_code flag_info query created_at updated_at response".split()
-    ITEM_FIELDS = "amt custom invnum".split()
-    DIRECT_FIELDS = "firstname lastname street city state countrycode zip".split()
+    ADMIN_FIELDS = L("id user flag flag_code flag_info query response created_at updated_at ")
+    ITEM_FIELDS = L("amt custom invnum")
+    DIRECT_FIELDS = L("firstname lastname street city state countrycode zip")
 
     # Response fields
     method = models.CharField(max_length=16, blank=True)
@@ -90,7 +94,6 @@ class PayPalNVP(models.Model):
 
         # Change the model information into a dict that PayPal can understand.        
         params = model_to_dict(self, exclude=self.ADMIN_FIELDS)
-        params['ipaddress'] = self.ipaddress  # These were stashed in form.save.
         params['acct'] = self.acct
         params['creditcardtype'] = self.creditcardtype
         params['expdate'] = self.expdate
