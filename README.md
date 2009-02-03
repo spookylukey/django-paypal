@@ -197,8 +197,6 @@ ToDo:
 
 * Scattered throughout the code are triple hash ### ToDo comments with little actionable items.
 
-* PayPal payments pro is in the works.
-
 * IPN created should probably emit signals so that other objects can update themselves on the correct conditions.
 
 * TESTS. Yah, this needs some test scripts bad...
@@ -206,6 +204,8 @@ ToDo:
 * IPN / NVP / PaymentInfo - there are three models running around there probably only need to be two. Do direct payments send an IPN postback?
 
 * Lots of fields store QueryDict dumps b/c we're not sure exactly what we're getting - would be cool to be able to access those fields like they were a dict (JSONField)
+
+* Express Checkout flow with recurring payments doesn't like the tokens its getting...
 
 License (MIT)
 =============

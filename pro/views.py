@@ -78,6 +78,10 @@ class PayPalPro(object):
                  confirm_template="pro/confirm.html",
                  success_url="?success", fail_url=None, test=True):
         self.item = item
+        self.is_recurring = False
+        if 'billingperiod' in item:
+            self.is_recurring = True
+            print self.is_recurring
         # ### Could we set these based off success_url / fail_url?
         # self.item.setdefault('returnurl', )
         # self.item.setdefault('cancelurl', )
@@ -190,7 +194,12 @@ class PayPalPro(object):
         wpp = PayPalWPP(self.request)
         pp_data = dict(token=self.request.POST['token'], payerid=self.request.POST['PayerID'])
         self.item.update(pp_data)
-        response = wpp.doExpressCheckoutPayment(self.item)
+        
+        if self.is_recurring:
+            response = wpp.createRecurringPaymentsProfile(self.item)
+        else:
+            response = wpp.doExpressCheckoutPayment(self.item)
+
         if response.get('ACK') == 'Success':
             return HttpResponseRedirect(self.success_url)
         else:

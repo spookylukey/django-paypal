@@ -10,7 +10,7 @@ from paypal.pro.models import PayPalNVP
 USER = settings.PAYPAL_WPP_USER 
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
 SIGNATURE = settings.PAYPAL_WPP_SIGNATURE
-VERSION = "50.0"
+VERSION = 54.0
 BASE_PARAMS = dict(USER=USER , PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSION)
 
 ENDPOINT = "https://api-3t.paypal.com/nvp"
@@ -98,8 +98,6 @@ class PayPalWPP(object):
         """
         Check the dude out:
         
-        {'ORDERTIME': '2009-02-02T16:48:41Z', 'ACK': 'Success', 'TIMESTAMP': '2009-02-02T16:48:43Z', 'CURRENCYCODE': 'USD', 'PAYMENTSTATUS': 'Completed', 'PENDINGREASON': 'None', 'PAYMENTTYPE': 'instant', 'TOKEN': 'EC-4FD207377L4986412', 'VERSION': '50.0', 'BUILD': '801690', 'TAXAMT': '0.00', 'FEEAMT': '0.59', 'REASONCODE': 'None', 'TRANSACTIONID': '1WF99451L2124605U', 'AMT': '10.00', 'CORRELATIONID': '46bcc23d964ad', 'TRANSACTIONTYPE': 'expresscheckout'}
-        
         """
         defaults = dict(METHOD="DoExpressCheckoutPayment", PAYMENTACTION="Sale")
         required ="returnurl cancelurl amt token payerid".split()
@@ -122,11 +120,14 @@ class PayPalWPP(object):
         if direct:
             required + "creditcardtype acct expdate firstname lastname".split()
         else:
-            required + ["token"]
+            required + ["token", "payerid"]
 
         pp_params = self._check_and_update_params(params, required, defaults)
         print pp_params
         return self._fetch(pp_params)
+
+    def setCustomerBillingAgreement(self, params):
+        raise DeprecationWarning
 
     def getTransactionDetails(self, params):
         raise NotImplementedError
