@@ -3,9 +3,17 @@
 from django.db import models
 from django.conf import settings
 
+from paypal.standard.signals import payment_was_successful, payment_was_flagged
+
 # ### ToDo: would be cool if PayPalIPN.query was a JSON field
 # ### or something else that let you get at the data better.
 
+# ### ToDo: Should the signal be in `set_flag` or `verify`?
+
+# ### ToDo: There are a # of fields that appear to be duplicates from PayPal
+# ### can we sort them out?
+
+# ### Todo: PayPalIPN choices fields? in or out?
 
 POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
@@ -15,24 +23,19 @@ class PayPalIPN(models.Model):
     """
     Logs PayPal IPN interactions.
     
-    """
-    # ### ToDo: There are a # of fields that appear to be duplicates from PayPal
-    # ### can we sort them out?
-    
+    """    
     # 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
     PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
     
-    # ### Todo: Choices fields? in or out?
     # FLAG_CODE_CHOICES = (
-    # PAYMENT_STATUS_CHOICES = (Canceled_ Reversal Completed Denied Expired
-    #    Failed Pending Processed Refunded Reversed Voided
-    # AUTH_STATUS_CHOICES = (Completed Pending Voided)
-    # ADDRESS_STATUS_CHOICES = (confirmed / unconfirmed)
-    # PAYER_STATUS_CHOICES = (verified / unverified)
-    # PAYMENT_TYPE_CHOICES =  echeck / instant
-    # PENDING_REASON = address authorization echeck intl multi-currency unilateral upgrade verify other
-    # REASON_CODE = chargeback guarantee buyer_complaint refund other
-    # TRANSACTION_ENTITY_CHOICES = auth reauth order payment
+    # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
+    # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
+    # ADDRESS_STATUS_CHOICES = "confirmed unconfirmed".split()
+    # PAYER_STATUS_CHOICES = "verified / unverified".split()
+    # PAYMENT_TYPE_CHOICES =  "echeck / instant.split()
+    # PENDING_REASON = "address authorization echeck intl multi-currency unilateral upgrade verify other".split()
+    # REASON_CODE = "chargeback guarantee buyer_complaint refund other".split()
+    # TRANSACTION_ENTITY_CHOICES = "auth reauth order payment".split()
 
     # Buyer information.
     address_city = models.CharField(max_length=40, blank=True)
@@ -146,12 +149,10 @@ class PayPalIPN(models.Model):
         
         """
         import urllib2
-        
         if test:
             endpoint = SANDBOX_POSTBACK_ENDPOINT
         else:
             endpoint = POSTBACK_ENDPOINT
-        
         response = urllib2.urlopen(endpoint, "cmd=_notify-validate&%s" % self.query).read()
         if response == "VERIFIED":
             return True
@@ -173,7 +174,7 @@ class PayPalIPN(models.Model):
         from paypal.standard.helpers import duplicate_txn_id
         
         if self._postback(test):
-        
+
             if self.is_transaction():
                 if self.payment_status != "Completed":
                     self.set_flag("Invalid payment_status.")
@@ -184,12 +185,19 @@ class PayPalIPN(models.Model):
                 if callable(item_check_callable):
                     flag, reason = item_check_callable(self)
                     if flag:
-                        self.set_flag(reason)
-                        
+                        self.set_flag(reason)                 
+
             else:
                 # ### To-Do: Need to run a different series of checks on recurring payments.
                 pass
-                
+    
+        print 'VERIFY!'
+    
+#         if self.flag:
+#             payment_was_flagged.send(sender=self) #, response=response, request=request)
+#         else:
+        payment_was_successful.send(sender=self) #, response=response, request=request)
+
     def verify_secret(self, form_instance, secret):
         """
         Verifies an IPN payment over SSL using EWP. 
@@ -203,7 +211,6 @@ class PayPalIPN(models.Model):
         self.query = request.POST.urlencode()
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
     
-
     def set_flag(self, info, code=None):
         """
         Sets a flag on the transaction and also sets a reason.

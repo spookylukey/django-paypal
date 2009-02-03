@@ -161,10 +161,6 @@ class PayPalWPP(object):
 
     def _fetch(self, params):
         params_string = self.signature + urllib.urlencode(params)
-        
-        print self.endpoint
-        print params_string
-        
         response = urllib.urlopen(self.endpoint, params_string).read()
         tok = self._parse_response(response)
         print tok

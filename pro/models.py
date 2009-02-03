@@ -6,6 +6,8 @@ from django.forms.models import model_to_dict
 from paypal.pro.fields import CountryField
 from paypal.pro.signals import payment_was_successful, payment_was_flagged
 
+# ### ToDo: Move all signalling to IPN.
+
 # ### ToDo: A lot of these common fields could be moved to mixins.
 # ### there is a lot of non-dry stuff going on between the models here.
 
@@ -144,8 +146,8 @@ class PayPalPaymentInfo(PaymentInfo):
         # ### ToDo: Can these signals instead be sent out by the IPN ???
         if response['ACK'] != "Success":
             self.set_flag(response.get('L_LONGMESSAGE0', ''), response.get('L_ERRORCODE0', ''))
-            payment_was_flagged.send(sender=self, response=response, request=request)
+#            payment_was_flagged.send(sender=self, response=response, request=request)
             return False
         else:
-            payment_was_successful.send(sender=self, response=response, request=request)
+#            payment_was_successful.send(sender=self, response=response, request=request)
             return True

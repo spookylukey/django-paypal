@@ -69,6 +69,22 @@ Using PayPal Payments Standard:
             ...
         )
 
+1.  Connect actions to the signals generated when PayPal talks to your `notify_url`.
+    Currently there are two signals `payment_was_succesful` and `payment_was_flagged`.
+    Both live in `paypal.standard.signals`. You can connect to either of these signals
+    and update your data accordingly when payments are processed. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
+
+        # models.py (or somewhere)
+        
+        from paypal.standard.signals import payment_was_successful
+
+        payment_was_successful.connect(show_me_the_money)
+        
+        def show_me_the_money(sender, **kwargs):
+            ipn_obj = sender
+            if ipn_obj.cust == "Upgrade all users!"
+                Users.objects.update(paid=True)        
+
 Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------
 
@@ -153,14 +169,16 @@ Use postbacks for validation if:
 Using PayPal Payments Pro
 -------------------------
 
-PayPal Payments Pro is the more awesome version of PayPal that lets you accept payments on your site.
+PayPal Payments Pro is the more awesome version of PayPal that lets you accept payments on your site. Note that PayPal Pro uses a lot of the code from `paypal.standard` so you'll need to include both apps. Specifically IPN is still used for payment confirmation.
 
 1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your `INSTALLED_APPS`:
 
         # settings.py
         ...
         INSTALLED_APPS = (... 'paypal.standard', 'paypal.pro', ...)
-        
+
+1. Grab the PayPalIPN url
+
 1. Grab PayPalPro endpoint and go crazy...
 
         # views.py
@@ -177,6 +195,9 @@ PayPal Payments Pro is the more awesome version of PayPal that lets you accept p
             (r'^payment-url/$', 'myproject.views.pro')
             ...
         )
+        
+
+
         
 
 PayPal Initial Data:
@@ -196,8 +217,6 @@ ToDo:
 
 * Scattered throughout the code are triple hash ### ToDo comments with little actionable items.
 
-* IPN created should probably emit signals so that other objects can update themselves on the correct conditions.
-
 * TESTS. Yah, this needs some test scripts bad...
 
 * IPN / NVP / PaymentInfo - there are three models running around there probably only need to be two. Do direct payments send an IPN postback?
@@ -205,6 +224,8 @@ ToDo:
 * Lots of fields store QueryDict dumps b/c we're not sure exactly what we're getting - would be cool to be able to access those fields like they were a dict (JSONField)
 
 * Express Checkout flow with recurring payments doesn't like the tokens its getting...
+
+* Would also be awesome to have a feed of successful payments so you keep up to date with how rich you're getting.
 
 License (MIT)
 =============
