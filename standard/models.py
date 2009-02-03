@@ -191,8 +191,8 @@ class PayPalIPN(models.Model):
                 # ### To-Do: Need to run a different series of checks on recurring payments.
                 pass
     
-         if self.flag:
-             payment_was_flagged.send(sender=self)
+        if self.flag:
+            payment_was_flagged.send(sender=self)
         else:
             payment_was_successful.send(sender=self)
 
