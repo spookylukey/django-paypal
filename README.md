@@ -5,14 +5,13 @@ Django PayPal
 About
 -----
 
-Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro. It focused on selling software - think "Buy it Now" single items with no shipping.
+Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro. It focused on selling software - think "Buy it Now" single items with no shipping or recurring payments.
 
 Before diving in further a quick overview of PayPal's different payment methods might help. **[PayPal Payments Standard](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WebsitePaymentsStandard_IntegrationGuide.pdf)** is the "Buy it Now" button you may have
 seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process **[Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf)** (IPN). Most people would agree that this method sucks (who wants to send people to PayPal's website)? But it is quick to implement and doesn't require any of your pages to use SSL.
 
-**PayPal Payments Pro** allows you to accept payments on your website (though you still have to provide functionality to buy through PayPal : \)... and is currently under development.
+**PayPal Payments Pro** allows you to accept payments on your website. It contains two payment flows - **Direct Payment** allows the user to enter credit card information on your website and pay on your website. **Express Checkout** sends the user over to PayPal to confirm their payment method before redirecting back to your website for confirmation. PayPal rules state that both methods must be implemented.
 
-Takes the approach of logging everything to the database. You would never look at it if it was in a log file anyways.
 
 Usage:
 ------
