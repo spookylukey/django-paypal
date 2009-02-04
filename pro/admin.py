@@ -6,5 +6,5 @@ from paypal.pro.models import PayPalNVP
 
 
 class PayPalNVPAdmin(admin.ModelAdmin):
-    list_display = "user ipaddress flag flag_code created_at".split()
+    list_display = "user method flag flag_code created_at".split()
 admin.site.register(PayPalNVP, PayPalNVPAdmin)

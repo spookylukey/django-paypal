@@ -17,18 +17,18 @@ class PayPalNVP(models.Model):
     # 2009-02-03T17:47:41Z
     TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
-    RESTRICTED_FIELDS = "expdate cvv2 acct".split()
+    RESTRICTED_FIELDS = L("expdate cvv2 acct")
     ADMIN_FIELDS = L("id user flag flag_code flag_info query response created_at updated_at ")
     ITEM_FIELDS = L("amt custom invnum")
     DIRECT_FIELDS = L("firstname lastname street city state countrycode zip")
 
     # Response fields
-    method = models.CharField(max_length=16, blank=True)
+    method = models.CharField(max_length=64, blank=True)
     ack = models.CharField(max_length=16, blank=True)    
     profilestatus = models.CharField(max_length=32, blank=True)
-    # ### ToDo: Unpacking this field from the paypal time is giving weird erros.
-    # timestamp = models.DateTimeField(blank=True, null=True)
+    timestamp = models.DateTimeField(blank=True, null=True)
     profileid = models.CharField(max_length=16, blank=True)  # I-E596DFUSD882
+    profilereference = models.CharField(max_length=128, blank=True)  # PROFILEREFERENCE
     correlationid = models.CharField(max_length=16, blank=True) # 25b380cda7a21
     token = models.CharField(max_length=64, blank=True)
     payerid = models.CharField(max_length=64, blank=True)

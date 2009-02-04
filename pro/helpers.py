@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 import urllib
 import time
+import datetime
 import pprint
 
 from django.conf import settings
 from django.forms.models import fields_for_model
 
 from paypal.pro.models import PayPalNVP, L
+
 
 # ### ToDo: Check AVS / CVV2 responses to look for fraudz.
 # ### flags etc. on PayPalWPP - tie it 
@@ -29,10 +31,11 @@ def paypal_time(time_obj=None):
     """Returns a time suitable for `profilestartdate` or other PayPal time fields."""
     if time_obj is None:
         time_obj = time.gmtime()
-    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time_obj)
+    return time.strftime(PayPalNVP.TIMESTAMP_FORMAT, time_obj)
     
-def string2time(s):
-    return time.strptime(s, "%Y-%m-%dT%H:%M:%SZ")
+def paypaltime2datetime(s):
+    """Convert a PayPal time string to a DateTime."""
+    return datetime.datetime(*(time.strptime(s, PayPalNVP.TIMESTAMP_FORMAT)[:6]))
 
 class PayPalError(Exception):
     pass
@@ -193,12 +196,11 @@ class PayPalWPP(object):
                 if k in NVP_FIELDS:
                     everything[k] = v
         
-        into_everything(params)
+        into_everything(defaults)
         into_everything(response_params)        
 
-        # ### ToDo: this call is messing up.
-        # if 'timestamp' in everything:
-        #    everything['timestamp'] = string2time(everything['timestamp'])
+        if 'timestamp' in everything:
+            everything['timestamp'] = paypaltime2datetime(everything['timestamp'])
 
         # Record this NVP.
         nvp_obj = PayPalNVP(**everything)
