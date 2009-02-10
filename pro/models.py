@@ -24,12 +24,12 @@ class PayPalNVP(models.Model):
 
     # Response fields
     method = models.CharField(max_length=64, blank=True)
-    ack = models.CharField(max_length=16, blank=True)    
+    ack = models.CharField(max_length=32, blank=True)    
     profilestatus = models.CharField(max_length=32, blank=True)
     timestamp = models.DateTimeField(blank=True, null=True)
-    profileid = models.CharField(max_length=16, blank=True)  # I-E596DFUSD882
+    profileid = models.CharField(max_length=32, blank=True)  # I-E596DFUSD882
     profilereference = models.CharField(max_length=128, blank=True)  # PROFILEREFERENCE
-    correlationid = models.CharField(max_length=16, blank=True) # 25b380cda7a21
+    correlationid = models.CharField(max_length=32, blank=True) # 25b380cda7a21
     token = models.CharField(max_length=64, blank=True)
     payerid = models.CharField(max_length=64, blank=True)
     
@@ -49,7 +49,7 @@ class PayPalNVP(models.Model):
     # Admin fields
     user = models.ForeignKey('auth.user', blank=True, null=True)
     flag = models.BooleanField(default=False, blank=True)
-    flag_code = models.CharField(max_length=16, blank=True)
+    flag_code = models.CharField(max_length=32, blank=True)
     flag_info = models.TextField(blank=True)    
     ipaddress = models.IPAddressField(blank=True)
     query = models.TextField(blank=True)

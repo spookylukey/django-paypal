@@ -177,16 +177,25 @@ PayPal Payments Pro is the more awesome version of PayPal that lets you accept p
         ...
         INSTALLED_APPS = (... 'paypal.standard', 'paypal.pro', ...)
 
-1. Grab the PayPalIPN url
+1. Write a view wrapper for `paypal.pro.views.PayPalPro` and add it to your `urls.py`:
 
-1. Grab PayPalPro endpoint and go crazy...
-
-        # views.py
-        ...
         from paypal.pro.views import PayPalPro
+
+        def buy_my_item(request):
+            item = {'amt':"10.00",              # amount to charge for item
+                    'inv':"inventory#",         # unique tracking variable paypal
+                    'custom':"tracking#",       # custom tracking variable for you
+                    'cancelurl':"http://...",   # Express checkout cancel url
+                    'returnurl':"http://..."}   # Express checkout return url
         
-        # See source for all required fields.
-        pro = PayPalPro(item={'amt':1000.00, ...})
+        kw = {'item':'item',                            # what you're selling
+               'payment_template': 'template',          # template to use for payment form
+               'confirm_template': 'confirm_template',  # form class to use for Express checkout confirmation
+               'payment_form_cls': 'payment_form_cls',  # form class to use for payment
+               'success_url': '/success',               # where to redirect after successful payment
+               }
+        ppp = PayPalPro(**kw)
+        return ppp(request)
         
         # urls.py
         
@@ -197,7 +206,7 @@ PayPal Payments Pro is the more awesome version of PayPal that lets you accept p
         )
         
 
-
+1. Profit. (Setup NVP / IPN endpoints to receive information)
         
 
 PayPal Initial Data:

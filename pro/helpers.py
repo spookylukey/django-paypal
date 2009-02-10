@@ -120,6 +120,8 @@ class PayPalWPP(object):
             required + L("token payerid")
 
         nvp_obj = self._fetch(params, required, defaults)
+        
+        # Flag if profile_type != ActiveProfile
         if nvp_obj.flag:
             return False
         else:
