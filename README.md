@@ -222,19 +222,15 @@ Flags are set on bad invalid transactions ...
 ToDo:
 =====
 
-*   I'm not master of encryption and the Shared Secrets implementation is just a stab in the dark. The implementation should be vetted before production use.
+* Shared Secrets: I'm not master of encryption and the Shared Secrets implementation is just a stab in the dark. The implementation should be vetted before production use.
 
-* Scattered throughout the code are triple hash ### ToDo comments with little actionable items.
+* Fixmes: Scattered throughout the code are triple hash ### FIXME comments with little actionable items.
 
-* TESTS. Yah, this needs some test scripts bad...
+* Testing: Not enough coverage.
 
-* IPN / NVP / PaymentInfo - there are three models running around there probably only need to be two. Do direct payments send an IPN postback?
+* Query Fields: Lots of fields store QueryDict dumps b/c we're not sure exactly what we're getting - would be cool to be able to access those fields like they were a dict (JSONField)
 
-* Lots of fields store QueryDict dumps b/c we're not sure exactly what we're getting - would be cool to be able to access those fields like they were a dict (JSONField)
-
-* Express Checkout flow with recurring payments doesn't like the tokens its getting...
-
-* Would also be awesome to have a feed of successful payments so you keep up to date with how rich you're getting.
+* Feeds: Would also be awesome to have a feed of successful payments so you keep up to date with how rich you're getting.
 
 License (MIT)
 =============

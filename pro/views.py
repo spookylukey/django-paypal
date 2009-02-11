@@ -77,7 +77,7 @@ class PayPalPro(object):
                  payment_template="pro/payment.html",
                  confirm_form_cls=ConfirmForm, 
                  confirm_template="pro/confirm.html",
-                 success_url="?success", fail_url=None, test=True):
+                 success_url="?success", fail_url=None, test=True, context=None):
         self.item = item
         self.is_recurring = False
         if 'billingperiod' in item:
@@ -96,6 +96,7 @@ class PayPalPro(object):
             self.express_endpoint = SANDBOX_EXPRESS_ENDPOINT
         else:
             self.express_endpoint = EXPRESS_ENDPOINT
+        self.context = context or {}
 
     def __call__(self, request):
         """
@@ -116,37 +117,32 @@ class PayPalPro(object):
             else:
                 return self.validate_payment_form()
 
-    def render_payment_form(self, context=None):
+    def render_payment_form(self):
         """
         Display the Payment form for entering the monies.
         
         """
-        context = context or {}
-        context['form'] = self.payment_form_cls()
-        return render_to_response(self.payment_template, context, RequestContext(self.request))
+        self.context['form'] = self.payment_form_cls()
+        return render_to_response(self.payment_template, self.context, RequestContext(self.request))
 
-    def validate_payment_form(self, context=None):
+    def validate_payment_form(self):
         """
         Try a Direct Payment and if the form validates ask PayPal for the money.
         
         """
-        context = context or {}        
         form = self.payment_form_cls(self.request.POST)        
         if form.is_valid():
             success = form.process(self.request, self.item)
             if success:
-            
-                print 'sendering'
-            
                 payment_was_successful.send(sender=self.item)
                 return HttpResponseRedirect(self.success_url)
             else:
-                context['errors'] = "There was an error processing your payment. Check your information and try again."
+                self.context['errors'] = "There was an error processing your payment. Check your information and try again."
 
         # Failed, render the payment form w/ errors.
-        context['form'] = form
-        context.setdefault('errors', 'Please correct the errors below and try again.')
-        return render_to_response(self.payment_template, context, RequestContext(self.request))
+        self.context['form'] = form
+        self.context.setdefault('errors', 'Please correct the errors below and try again.')
+        return render_to_response(self.payment_template, self.context, RequestContext(self.request))
 
     def redirect_to_express(self):
         """
@@ -164,19 +160,18 @@ class PayPalPro(object):
             pp_url = SANDBOX_EXPRESS_ENDPOINT % urllib.urlencode(pp_params)
             return HttpResponseRedirect(pp_url)
         else:
-            context = {'errors':'There was a problem contacting PayPal. Please try again later.'}
-            return self.render_payment_form(context)
+            self.context = {'errors':'There was a problem contacting PayPal. Please try again later.'}
+            return self.render_payment_form(self.context)
 
-    def render_confirm_form(self, context=None):
+    def render_confirm_form(self):
         """
         Second express flow step.
         Show the confirmation form to get the guy to click I approve.
         
         """
-        context = context or {}
         initial = {'token': self.request.GET['token'], 'PayerID': self.request.GET['PayerID']}
-        context['form'] = self.confirm_form_cls(initial=initial)
-        return render_to_response(self.confirm_template, context, RequestContext(self.request))
+        self.context['form'] = self.confirm_form_cls(initial=initial)
+        return render_to_response(self.confirm_template, self.context, RequestContext(self.request))
 
     def validate_confirm_form(self):
         """
@@ -197,5 +192,5 @@ class PayPalPro(object):
             payment_was_successful.send(sender=self.item)
             return HttpResponseRedirect(self.success_url)
         else:
-            context = {'errors':'There was a problem processing the payment. Please check your information and try again.'}
-            return self.render_payment_form(context)
+            self.context = {'errors':'There was a problem processing the payment. Please check your information and try again.'}
+            return self.render_payment_form(self.context)
