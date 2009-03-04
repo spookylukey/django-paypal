@@ -194,5 +194,5 @@ class PayPalPro(object):
             payment_was_successful.send(sender=self.item)
             return HttpResponseRedirect(self.success_url)
         else:
-            self.context['errors'] = "There was a problem processing the payment. Please check your information and try again."
+            self.context['errors'] = "There was a problem processing the payment. Check your information and try again."
             return self.render_payment_form()

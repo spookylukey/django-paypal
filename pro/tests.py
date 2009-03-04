@@ -92,3 +92,54 @@ class PayPalWPPTestCase(TestCase):
     def testSetExpressCheckout(self):
         ""
         pass
+
+### SetExpressCheckout
+# PayPal Request:
+# {'amt': '10.00',
+#  'cancelurl': 'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
+#  'custom': u'website_id=480&cname=1',
+#  'inv': u'website-480-cname',
+#  'method': 'SetExpressCheckout',
+#  'next': 'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
+#  'noshipping': 1,
+#  'returnurl': 'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname'}
+# 
+# PayPal Response:
+# {'ack': 'Success',
+#  'build': '848077',
+#  'correlationid': '44977a68d0bea',
+#  'timestamp': '2009-03-04T20:55:07Z',
+#  'token': 'EC-6HW17184NE0084127',
+#  'version': '54.0'}
+
+### DoExpressCheckoutPayment
+# PayPal Request:
+# {'amt': '10.00',
+#  'cancelurl': u'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
+#  'custom': u'website_id=480&cname=1',
+#  'inv': u'website-480-cname',
+#  'method': 'DoExpressCheckoutPayment',
+#  'next': u'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
+#  'payerid': u'BN5JZ2V7MLEV4',
+#  'paymentaction': 'Sale',
+#  'returnurl': u'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
+#  'token': u'EC-6HW17184NE0084127'}
+# 
+# PayPal Response:
+# {'ack': 'Success',
+#  'amt': '10.00',
+#  'build': '848077',
+#  'correlationid': '375f4773c3d34',
+#  'currencycode': 'USD',
+#  'feeamt': '0.59',
+#  'ordertime': '2009-03-04T20:56:08Z',
+#  'paymentstatus': 'Completed',
+#  'paymenttype': 'instant',
+#  'pendingreason': 'None',
+#  'reasoncode': 'None',
+#  'taxamt': '0.00',
+#  'timestamp': '2009-03-04T20:56:09Z',
+#  'token': 'EC-6HW17184NE0084127',
+#  'transactionid': '3TG42202A7335864V',
+#  'transactiontype': 'expresscheckout',
+#  'version': '54.0'}
