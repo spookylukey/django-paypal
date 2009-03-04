@@ -5,18 +5,15 @@ import string
 from django.db import models
 from django.forms.models import model_to_dict
 
-from paypal.pro.fields import CountryField
-
 L = string.split
 
-# ### ToDo: Remove PaymentInfo models. and flesh out NVP model.
-# ### they duplicate information!
 
 class PayPalNVP(models.Model):
-
-    # 2009-02-03T17:47:41Z
-    TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
-
+    """
+    Record of a NVP interaction with PayPal.
+    
+    """
+    TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"  # 2009-02-03T17:47:41Z
     RESTRICTED_FIELDS = L("expdate cvv2 acct")
     ADMIN_FIELDS = L("id user flag flag_code flag_info query response created_at updated_at ")
     ITEM_FIELDS = L("amt custom invnum")
@@ -39,7 +36,7 @@ class PayPalNVP(models.Model):
     street = models.CharField("Street Address", max_length=255, blank=True)
     city = models.CharField("City", max_length=255, blank=True)
     state = models.CharField("State", max_length=255, blank=True)
-    countrycode = CountryField("Country", default="US", blank=True)
+    countrycode = models.CharField("Country", max_length=2,blank=True)
     zip = models.CharField("Postal / Zip Code", max_length=32, blank=True)
     
     # Custom fields
@@ -60,25 +57,29 @@ class PayPalNVP(models.Model):
     class Meta:
         db_table = "paypal_nvp"
     
-    def init(self, request, params, response):
+    def init(self, request, paypal_request, paypal_response):
         """
-        Initialize a PayPalNVP instance from a HttpRequest object.
+        Initialize a PayPalNVP instance from a HttpRequest.
         
         """
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
-        if request.user.is_authenticated():
+        if hasattr(request, "user") and request.user.is_authenticated():
             self.user = request.user
-        # No storing that CC# info. Bad.
-        query_data = dict((k,v) for k, v in params.iteritems() if k not in self.RESTRICTED_FIELDS)
+
+        # No storing credit card info.
+        query_data = dict((k,v) for k, v in paypal_request.iteritems() if k not in self.RESTRICTED_FIELDS)
         self.query = repr(query_data)
-        self.response = repr(response)
+        self.response = repr(paypal_response)
 
         # Was there a flag on the play?        
-        if response.get('ack', False) != "Success":
-            self.set_flag(response.get('L_LONGMESSAGE0', ''), response.get('L_ERRORCODE0', ''))
+        if paypal_response.get('ack', False) != "Success":
+            self.set_flag(paypal_response.get('l_longmessage0', ''), paypal_response.get('l_errorcode', ''))
 
     def set_flag(self, info, code=None):
-        """Flag this PaymentInfo for further investigation."""
+        """
+        Flag this instance for investigation.
+        
+        """
         self.flag = True
         self.flag_info += info
         if code is not None:
@@ -100,9 +101,9 @@ class PayPalNVP(models.Model):
         params['cvv2'] = self.cvv2
         params.update(item)      
 
-        # Create single payment:
-        if 'billingperiod' not in params:
-            return wpp.doDirectPayment(params)
         # Create recurring payment:
-        else:
+        if 'billingperiod' in params:
             return wpp.createRecurringPaymentsProfile(params, direct=True)
+        # Create single payment:
+        else:
+            return wpp.doDirectPayment(params)

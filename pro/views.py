@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib
-
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
+from django.utils.http import urlencode
 
 from paypal.pro.forms import PaymentForm, ConfirmForm
 from paypal.pro.models import PayPalNVP
@@ -20,18 +19,21 @@ SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-c
 
 class PayPalPro(object):
     """
-    This class-based view takes care of Pay Pal Website Payments Pro. It's a monster.
-    PayPalPro has two flows - the checkout on your website and checkout on PayPal...
+    This class-based view takes care of PayPal WebsitePaymentsPro (WPP).
+    PayPalPro has two separate flows - DirectPayment and ExpressPayFlow. In 
+    DirectPayment the user buys on your site. In ExpressPayFlow the user is
+    direct to PayPal to confirm their purchase. PayPalPro implements both 
+    flows. To it create an instance using the these parameters:
 
-    `item` is a dictionary that holds information about the item.
+    item: a dictionary that holds information about the item being purchased.
     
-    For single item purchase:
+    For single item purchase (pay once):
     
         Required Keys:
             * amt: Float amount of the item.
         
         Optional Keys:
-            * custom:
+            * custom: You can set this to help you identify a transaction.
             * invnum: Unique ID that identifies this transaction.
     
     For recurring billing:
@@ -58,18 +60,18 @@ class PayPalPro(object):
           * currencycode: defaults to USD
           * + a bunch of shipping fields
         
-    `payment_form_cls` is the form class that will be used to display the payment form.
+    payment_form_cls: form class that will be used to display the payment form.
     It should inherit from `paypal.pro.forms.PaymentForm` if you're adding more.
     
-    `payment_template` is the template used to ask the dude for monies. To comply with
+    payment_template: template used to ask the dude for monies. To comply with
     PayPal regs. it must include a link to PayPal Express Checkout.
     
-    `confirm_form_cls` is the form class that will be used to display the confirmation form.
+    confirm_form_cls: form class that will be used to display the confirmation form.
     It should inherit from `paypal.pro.forms.ConfirmForm`. It is only used in the Express flow.
     
-    `success_url` & `fail_url` are URLs to be redirected to when the payment is comlete or fails.
+    success_url / fail_url: URLs to be redirected to when the payment is comlete or fails.
     
-    If `test` is True the transaction will take place in the PayPal sandbox.
+    test: if True then the transaction takes place on the PayPal sandbox.
 
     """
     def __init__(self, item=None, 
@@ -82,10 +84,6 @@ class PayPalPro(object):
         self.is_recurring = False
         if 'billingperiod' in item:
             self.is_recurring = True
-            print self.is_recurring
-        # ### Could we set these based off success_url / fail_url?
-        # self.item.setdefault('returnurl', )
-        # self.item.setdefault('cancelurl', )
         self.payment_form_cls = payment_form_cls
         self.payment_template = payment_template
         self.confirm_form_cls = confirm_form_cls
@@ -100,26 +98,31 @@ class PayPalPro(object):
 
     def __call__(self, request):
         """
-        Spin off and call the appropriate thing..
+        Return the appropriate response for the state of the transaction.
         
         """
         self.request = request
         if request.method == "GET":
+            # express indicates the first step of ExpressFlow.
             if 'express' in request.GET:
                 return self.redirect_to_express()
+            # token / PayerID indicates the second step of ExpressFlow.
             elif 'token' in request.GET and 'PayerID' in request.GET:
                 return self.render_confirm_form()
+            # Otherwise render the DirectPayment form.
             else:
                 return self.render_payment_form() 
         else:
+            # Third step of ExpressFlow.
             if 'token' in request.POST and 'PayerID' in request.POST:
                 return self.validate_confirm_form()
+            # Process the DirectPayment form.
             else:
                 return self.validate_payment_form()
 
     def render_payment_form(self):
         """
-        Display the Payment form for entering the monies.
+        Display the DirectPayment for entering payment information.
         
         """
         self.context['form'] = self.payment_form_cls()
@@ -127,7 +130,7 @@ class PayPalPro(object):
 
     def validate_payment_form(self):
         """
-        Try a Direct Payment and if the form validates ask PayPal for the money.
+        Try to validate and then process the DirectPayment form.
         
         """
         form = self.payment_form_cls(self.request.POST)        
@@ -139,15 +142,14 @@ class PayPalPro(object):
             else:
                 self.context['errors'] = "There was an error processing your payment. Check your information and try again."
 
-        # Failed, render the payment form w/ errors.
         self.context['form'] = form
-        self.context.setdefault('errors', 'Please correct the errors below and try again.')
+        self.context.setdefault("errors", "Please correct the errors below and try again.")
         return render_to_response(self.payment_template, self.context, RequestContext(self.request))
 
     def redirect_to_express(self):
         """
-        First express flow step.
-        Redirect to PayPal with the data in tow.
+        First step of ExpressCheckout. Redirect the request to PayPal using the 
+        data returned from setExpressCheckout.
         
         """
         wpp = PayPalWPP(self.request)
@@ -157,16 +159,16 @@ class PayPalPro(object):
                              AMT=self.item['amt'], 
                              RETURNURL=self.item['returnurl'], 
                              CANCELURL=self.item['cancelurl'])
-            pp_url = SANDBOX_EXPRESS_ENDPOINT % urllib.urlencode(pp_params)
+            pp_url = self.express_endpoint % urlencode(pp_params)
             return HttpResponseRedirect(pp_url)
         else:
-            self.context = {'errors':'There was a problem contacting PayPal. Please try again later.'}
+            self.context = {'errors': 'There was a problem contacting PayPal. Please try again later.'}
             return self.render_payment_form()
 
     def render_confirm_form(self):
         """
-        Second express flow step.
-        Show the confirmation form to get the guy to click I approve.
+        Second step of ExpressCheckout. Display an order confirmation form which
+        contains hidden fields with the token / PayerID from PayPal.
         
         """
         initial = {'token': self.request.GET['token'], 'PayerID': self.request.GET['PayerID']}
@@ -175,8 +177,8 @@ class PayPalPro(object):
 
     def validate_confirm_form(self):
         """
-        Final express flow step.
-        User has pressed the confirm button and now we send it off to PayPal.
+        Third and final step of ExpressCheckout. Request has pressed the confirmation but
+        and we can send the final confirmation to PayPal using the data from the POST'ed form.
         
         """
         wpp = PayPalWPP(self.request)

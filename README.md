@@ -232,6 +232,11 @@ ToDo:
 
 * Feeds: Would also be awesome to have a feed of successful payments so you keep up to date with how rich you're getting.
 
+Links:
+------
+
+1. [Set your IPN Endpoint on the PayPal Sandbox](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify)
+
 License (MIT)
 =============
 

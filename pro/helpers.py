@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import urllib
+import urllib2
 import time
 import datetime
 import pprint
@@ -28,13 +29,19 @@ NVP_FIELDS = fields_for_model(PayPalNVP).keys()
 
 
 def paypal_time(time_obj=None):
-    """Returns a time suitable for `profilestartdate` or other PayPal time fields."""
+    """
+    Returns a time suitable for `profilestartdate` or other PayPal time fields.
+    
+    """
     if time_obj is None:
         time_obj = time.gmtime()
     return time.strftime(PayPalNVP.TIMESTAMP_FORMAT, time_obj)
     
 def paypaltime2datetime(s):
-    """Convert a PayPal time string to a DateTime."""
+    """
+    Convert a PayPal time string to a DateTime.
+    
+    """
     return datetime.datetime(*(time.strptime(s, PayPalNVP.TIMESTAMP_FORMAT)[:6]))
 
 class PayPalError(Exception):
@@ -72,16 +79,20 @@ class PayPalWPP(object):
         defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
         required = L("creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
         nvp_obj = self._fetch(params, required, defaults)
-        if nvp_obj.flag:
-            return False
-        else:
-            return True
+        # ### Could check cvv2match / avscode are both 'X' or '0'
+        # qd = django.http.QueryDict(nvp_obj.response)
+        # if qd.get('cvv2match') not in ['X', '0']:
+        #   nvp_obj.set_flag("Invalid cvv2match: %s" % qd.get('cvv2match')
+        # if qd.get('avscode') not in ['X', '0']:
+        #   nvp_obj.set_flag("Invalid avscode: %s" % qd.get('avscode')
+        return not nvp_obj.flag
 
     def setExpressCheckout(self, params):
         """
-        Initiates an Express Checkout transaction. 
+        Initiates an Express Checkout transaction.
         Optionally, the SetExpressCheckout API operation can set up billing agreements for
-        reference transactions and recurring payments.         
+        reference transactions and recurring payments.
+        Returns a NVP instance - check for token and payerid to continue!
         
         """
         if self._is_recurring(params):
@@ -89,7 +100,6 @@ class PayPalWPP(object):
 
         defaults = {"method": "SetExpressCheckout", "noshipping": 1}
         required = L("returnurl cancelurl amt")
-        # We'll need to use the token to continue.
         return self._fetch(params, required, defaults)
 
     def doExpressCheckoutPayment(self, params):
@@ -107,7 +117,8 @@ class PayPalWPP(object):
         
     def createRecurringPaymentsProfile(self, params, direct=False):
         """
-        Fields explained in views.
+        Set direct to True to indicate that this is being called as a directPayment.
+        Returns True PayPal successfully creates the profile otherwise False.
         
         """
         defaults = {"method": "CreateRecurringPaymentsProfile"}
@@ -155,14 +166,19 @@ class PayPalWPP(object):
         raise NotImplementedError
 
     def _is_recurring(self, params):
-        if 'billingfrequency' in params:
-            return True
-        else:
-            return False
+        """
+        Helper tries to determine whether an item is recurring by looking at
+        the parameters included. billingfrequency is not given for one time payments.
+        
+        """
+        return 'billingfrequency' in params
 
     def _recurring_setExpressCheckout_adapter(self, params):
-        # ### ToDo: The interface to SEC for recurring payments is different than ECP.
-        # ### Right now we'll just adapter the keys to what we need.
+        """
+        The recurring payment interface to SEC is different than the recurring payment
+        interface to ECP. This adapts a normal call to look like a SEC call.
+        
+        """
         params['l_billingtype0'] = "RecurringPayments"
         params['l_billingagreementdescription0'] = params['desc']
 
@@ -178,37 +194,42 @@ class PayPalWPP(object):
         Make the NVP request and store the response.
         
         """
-        # ### This function just sucks.
-        
         defaults.update(params)
         pp_params = self._check_and_update_params(required, defaults)        
         pp_string = self.signature + urllib.urlencode(pp_params)
-        response = urllib.urlopen(self.endpoint, pp_string).read()
+        response = self._request(pp_string)
         response_params = self._parse_response(response)
         
-        print 'Request:'
+        print 'PayPal Request:'
         pprint.pprint(defaults)
-        print '\nResponse:'
+        print '\nPayPal Response:'
         pprint.pprint(response_params)
 
-        # Put fields from NVP into everything so we can pass it to `create`.
+        # Put all fields from NVP into everything so we can pass it to `create`.
         everything = {}
-        def into_everything(d):
-            for k, v in d.iteritems():
-                if k in NVP_FIELDS:
-                    everything[k] = v
-        
-        into_everything(defaults)
-        into_everything(response_params)        
+        def merge(*dicts):
+            for d in dicts:
+                for k, v in d.iteritems():
+                    if k in NVP_FIELDS:
+                        everything[k] = v
+                        
+        merge(defaults, response_params)
 
+        # PayPal timestamp has to be set correctly to be stored.
         if 'timestamp' in everything:
             everything['timestamp'] = paypaltime2datetime(everything['timestamp'])
 
-        # Record this NVP.
         nvp_obj = PayPalNVP(**everything)
         nvp_obj.init(self.request, params, response_params)
         nvp_obj.save()
         return nvp_obj
+        
+    def _request(self, data):
+        """
+        Moved out to make testing easier.
+        
+        """
+        return urllib2.urlopen(self.endpoint, data).read()
 
     def _check_and_update_params(self, required, params):
         for r in required:
@@ -217,7 +238,7 @@ class PayPalWPP(object):
 
         # Upper case all the parameters for PayPal.
         return (dict((k.upper(), v) for k, v in params.iteritems()))
-        
+
     def _parse_response(self, response):
         response_tokens = {}
         for kv in response.split('&'):

@@ -1,55 +1,94 @@
-IPN_TEST = {
-    'notify_version ': '2.4',
-    'last_name': 'Smith',
-    'receiver_email': 'seller@paypalsandbox.com',
-    'payment_status': '2',
-    'mc_fee': '0.44',
-    'tax': '2.02',
-    'parent_txn_id ': '',
-    'item_name1': 'something',
-    'residence_country': '182',
-    'invoice': 'abc1234',
-    'address_state': 'CA',
-    'payer_status': '0',
-    'txn_type': 'cart',
-    'address_street': '123, any street',
-    'quantity1': '1',
-    'payment_date': '22:56:14 Feb. 02, 2009 PST',
-    'first_name': 'John',
-    'item_number1': 'AK-1234',
-    'item_name': '',
-    'address_country': '182',
-    'ipn_type': '4',
-    'mc_gross1': '9.34',
-    'custom': 'xyz123',
-    'for_auction': '',
-    'address_name': 'John Smith',
-    'pending_reason': '',
-    'item_number': '',
-    'receiver_id': 'TESTSELLERID1',
-    'reason_code': '',
-    'business': '',
-    'txn_id ': '1423656',
-    'payer_id': 'TESTBUYERID01',
-    'mc_handling1': '1.67',
-    'notify_url': 'http://216.19.180.83:8000/ipn/',
-    'auction_closing_date': '',
-    'mc_handling': '2.06',
-    'auction_buyer_id': '',
-    'address_zip': '95131',
-    'address_country_code': '182',
-    'address_city': 'San Jose',
-    'address_status': '1',
-    'mc_shipping': '3.02',
-    'cmd': '_send_ipn-session',
-    'mc_currency': '15',
-    'shipping': '',
-    'payer_email': 'buyer@paypalsandbox.com',
-    'payment_type': '1',
-    'receipt_ID': '',
-    'mc_gross': '',
-    'mc_shipping1': '1.02',
-    'quantity': ''
-}
+from django.test import TestCase
+from django.test.client import Client
+from django.core.handlers.wsgi import WSGIRequest
+from django.http import QueryDict
+
+from paypal.pro.helpers import PayPalWPP
 
 
+class RequestFactory(Client):
+    # This generates fake requests to pass to WPP.
+    def request(self, **request):
+        environ = {
+            'HTTP_COOKIE': self.cookies,
+            'PATH_INFO': '/',
+            'QUERY_STRING': '',
+            'REQUEST_METHOD': 'GET',
+            'SCRIPT_NAME': '',
+            'SERVER_NAME': 'testserver',
+            'SERVER_PORT': 80,
+            'SERVER_PROTOCOL': 'HTTP/1.1',
+        }
+        environ.update(self.defaults)
+        environ.update(request)
+        return WSGIRequest(environ)
+
+
+# class DummyPayPalWPP(PayPalWPP):
+#     """
+#     Dummy class for testing PayPalWPP.
+#     
+#     """
+#     def _fetch(self, data):
+#         params = QueryDict(data)
+#         return DummyResponses[params["METHOD"]]
+        # Fake PayPal responses
+#         self.responses = {
+#             "DoDirectPayment": "Dodirect pay!!!",}
+    
+        
+class PayPalWPPTestCase(TestCase):
+    def setUp(self):
+        self.rf = RequestFactory()
+        self.request = self.rf.get("/pay/", REMOTE_ADDR="10.0.1.199")
+        self.item = {
+            'amt': '9.95',
+            'inv': 'inv',
+            'custom': 'custom',
+            'next': 'http://www.example.com/next/',
+            'returnurl': 'http://www.example.com/pay/',}                    
+        self.wpp = DummyPayPalWPP(self.request)
+
+    def testDoDirectPayment(self):
+        ""
+        # Partial data should throw exception.
+        partial_data = {'firstname': 'Chewbacca'}
+        self.assertRaises(self.wpp.doDirectPayment(partial_data))
+
+        # Full data should return True!
+        full_data = {
+            'firstname': 'Brave',
+            'lastname': 'Star',
+            'street': '1 Main St',
+            'city': 'San Jose',
+            'state': 'CA',
+            'countrycode': 'US',
+            'zip': '95131',
+            'expdate': '012019',
+            'cvv2': '037',
+            'acct': '4797503429879309',
+            'creditcardtype': 'visa',
+            'ipaddress': '10.0.1.199',}
+        full_data.update(self.item)        
+        self.assertTrue(self.wpp.doDirectPayment(full_data))
+
+        # Failure data should return False!
+        fail_data = {
+            'firstname': 'Epic',
+            'lastname': 'Fail',
+            'street': '100 Georgia St',
+            'city': 'Vancouver',
+            'state': 'BC',
+            'countrycode': 'CA',
+            'zip': 'V6V 1V1',
+            'expdate': '012019',
+            'cvv2': '999',
+            'acct': '1234567890',
+            'creditcardtype': 'visa',
+            'ipaddress': '10.0.1.199',}
+        fail_data.update(self.item)
+        self.assertFalse(self.wpp.doDirectPayment(fail_data))
+
+    def testSetExpressCheckout(self):
+        ""
+        pass

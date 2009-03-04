@@ -22,8 +22,8 @@ class CreditCardField(forms.CharField):
         
     def clean(self, value):
         """
-        Raises if it's an invalid card.
-        Also sets the card_type.
+        Raises a ValidationError if the card is not valid.
+        Also sets card type!
         
         """
         card_type = verify_credit_card(value)
@@ -36,7 +36,6 @@ class CreditCardField(forms.CharField):
 
 # Credit Card Expiry Fields from:
 # http://www.djangosnippets.org/snippets/907/
-
 class CreditCardExpiryWidget(forms.MultiWidget):
     """
     MultiWidget for representing CC expiry date.
@@ -92,6 +91,7 @@ class CreditCardExpiryField(forms.MultiValueField):
             return date(year, month, day)
         return None
 
+
 class CreditCardCVV2Field(forms.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 4)
@@ -100,7 +100,6 @@ class CreditCardCVV2Field(forms.CharField):
 
 # Country Field from:
 # http://www.djangosnippets.org/snippets/494/
-
 # http://xml.coverpages.org/country3166.html
 COUNTRIES = (
     ('US', _('United States of America')),
@@ -344,11 +343,7 @@ COUNTRIES = (
     ('ZZ', _('Unknown or unspecified country')),
 )
 
-class CountryField(models.CharField):
+class CountryField(forms.ChoiceField):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('max_length', 2)
         kwargs.setdefault('choices', COUNTRIES)
         super(CountryField, self).__init__(*args, **kwargs)
-
-    def get_internal_type(self):
-        return "CharField"

@@ -25,7 +25,10 @@ TEST_NUMBERS = ("378282246310005 371449635398431 378734493671000 30569309025904 
 
 
 def verify_credit_card(number):
-    """Returns the card type for `number or None if it is invalid."""
+    """
+    Returns the card type for number or None if invalid.
+    
+    """
     return CreditCard(number).verify()
 
 class CreditCard(object):
@@ -33,7 +36,10 @@ class CreditCard(object):
         self.number = number
 	
     def _mod10(self):
-        """Check a credit card number for validity using the mod10 algorithm."""
+        """
+        Check a credit card number for validity using the mod10 algorithm.
+        
+        """
         double = 0
         total = 0
         for i in range(len(self.number) - 1, -1, -1):
@@ -43,22 +49,34 @@ class CreditCard(object):
         return (total % 10) == 0
 
     def _strip(self):
-        """Everything that's not a digit must go."""
+        """
+        Everything that's not a digit must go.
+        
+        """
         self.number = RE_NOT_DIGIT.sub('', self.number)
         return self.number.isdigit()
 
     def _test(self):
-        """Make sure its not a junk card."""
+        """
+        Make sure its not a junk card.
+        
+        """
         return self.number not in TEST_NUMBERS
 
     def _type(self):
-        """Return the type if it matches one of the cards."""
+        """
+        Return the type if it matches one of the cards.
+        
+        """
         for card, pattern in CARDS.iteritems():
             if pattern.match(self.number):
                 return card
         return None
 
     def verify(self):
-        """Returns the card type if legal else None."""
+        """
+        Returns the card type if valid else None.
+        
+        """
         if self._strip() and self._test() and self._mod10():
             return self._type()
