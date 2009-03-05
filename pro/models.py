@@ -4,6 +4,7 @@ import string
 
 from django.db import models
 from django.forms.models import model_to_dict
+from django.utils.http import urlencode
 
 L = string.split
 
@@ -56,6 +57,7 @@ class PayPalNVP(models.Model):
         
     class Meta:
         db_table = "paypal_nvp"
+        verbose_name = "PayPal NVP"
     
     def init(self, request, paypal_request, paypal_response):
         """
@@ -68,8 +70,8 @@ class PayPalNVP(models.Model):
 
         # No storing credit card info.
         query_data = dict((k,v) for k, v in paypal_request.iteritems() if k not in self.RESTRICTED_FIELDS)
-        self.query = repr(query_data)
-        self.response = repr(paypal_response)
+        self.query = urlencode(query_data)
+        self.response = urlencode(paypal_response)
 
         # Was there a flag on the play?        
         if paypal_response.get('ack', False) != "Success":

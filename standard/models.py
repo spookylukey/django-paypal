@@ -102,18 +102,6 @@ class PayPalIPN(models.Model):
     receipt_id= models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451
     next_payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
 
-    # ### To-do: Unimplemnted fields that you mightw want to think about.
-    # mc_handling
-    # mc_shipping
-    # num_cart_items
-    # option_name1
-    # option_name2
-    # option_selection1_x
-    # option_selection2_x
-    # shipping_method
-    # shipping
-    # tax
-
     # Additional information - full IPN query and time fields.
     test_ipn = models.BooleanField(default=False, blank=True)
     ipaddress = models.IPAddressField(blank=True)
@@ -126,6 +114,7 @@ class PayPalIPN(models.Model):
 
     class Meta:
         db_table = "paypal_ipn"
+        verbose_name = "PayPal IPN"
 
     def __unicode__(self):
         fmt = u"<IPN: %s %s>"
@@ -165,9 +154,9 @@ class PayPalIPN(models.Model):
         Verifies an IPN.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
         
-        You can provide a function `item_check_callabe` that takes a PayPalIPN instance
-        and returns (True, None) if the item is valid. Returns (False, "reason") if
-        the item isn't valid. This function should check that `mc_gross`, `mc_currency`
+        Provide a callable that takes a PayPalIPN instances as a parameters and returns
+        a tuple (True, Non) if the item is valid. Should return (False, "reason") if the
+        item isn't valid. This function should check that `mc_gross`, `mc_currency`
         `item_name` and `item_number` are all correct.
 
         """
@@ -225,6 +214,19 @@ class PayPalIPNExtended(PayPalIPN):
     Idea for extending the PayPalIPN class to include other tasty IPN variables.
 
     """
+    # ### To-do: Unimplemnted fields that you mightw want to think about.
+    # mc_handling
+    # mc_shipping
+    # num_cart_items
+    # option_name1
+    # option_name2
+    # option_selection1_x
+    # option_selection2_x
+    # shipping_method
+    # shipping
+    # tax
+    
+    
     # Advanced and custom information.
     # option_name_1
     # option_name_2

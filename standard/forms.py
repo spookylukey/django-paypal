@@ -15,6 +15,7 @@ from paypal.standard.models import PayPalIPN
 # NOTIFY_URL = getattr(settings, 'PAYPAL_NOTIFY_URL', "%s%s" % (Site.objects.get_current(), reverse('paypal.standard.views.ipn')
 NOTIFY_URL = None
 
+
 class PayPalIPNForm(forms.ModelForm):
     """
     Form used to receive and record PayPal IPN notifications.
