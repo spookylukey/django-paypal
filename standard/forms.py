@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
+from django.conf import settings
 
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.models import PayPalIPN
@@ -14,6 +15,14 @@ from paypal.standard.models import PayPalIPN
 # ### Todo: Can we put a default notify_url initial that defaults to the ipn view?
 # NOTIFY_URL = getattr(settings, 'PAYPAL_NOTIFY_URL', "%s%s" % (Site.objects.get_current(), reverse('paypal.standard.views.ipn')
 NOTIFY_URL = None
+
+# API Endpoints.
+ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
+SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+# Images used to render zee buttons
+IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-click-but01.gif")
+SANDBOX_IMAGE = getattr(settings, "PAYPAL_SANDBOX_IMAGE", "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif")
+
 
 
 class PayPalIPNForm(forms.ModelForm):
@@ -44,12 +53,6 @@ class PayPalPaymentsForm(forms.Form):
     
     """
     # ### ToDo: Add notify_url initial value.
-    
-    # API Endpoints.
-    ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
-    IMAGE = "http://images.paypal.com/images/x-click-but01.gif"
-    SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
-    SANDBOX_IMAGE = "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif"
     
     # Choices.
     CMD_CHOIES = (("_xclick", "Buy now or Donations"), ("_cart", "Shopping cart"))
@@ -87,10 +90,10 @@ class PayPalPaymentsForm(forms.Form):
         """ % (endpoint, self.as_p(), image)) 
     
     def render(self):
-        return self._render(self.ENDPOINT, self.IMAGE)
+        return self._render(ENDPOINT, IMAGE)
 
     def sandbox(self):
-        return self._render(self.SANDBOX_ENDPOINT, self.SANDBOX_IMAGE)
+        return self._render(SANDBOX_ENDPOINT, SANDBOX_IMAGE)
 
 
 class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
