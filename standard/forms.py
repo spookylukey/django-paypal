@@ -46,6 +46,9 @@ class PayPalPaymentsForm(forms.Form):
     Creates a PayPal Payments Standard "Buy It Now" button, configured for a
     selling a single item with no shipping.
     
+    For a full overview of all the fields you can set (there is a lot!) see:
+    http://tinyurl.com/pps-integration
+    
     Usage:
     >>> f = PayPalPaymentsForm(initial={'item_name':'Widget 001', ...})
     >>> f.render()
@@ -67,6 +70,9 @@ class PayPalPaymentsForm(forms.Form):
     item_name = forms.CharField(widget=ValueHiddenInput())
     item_number = forms.CharField(widget=ValueHiddenInput())
     quantity = forms.CharField(widget=ValueHiddenInput())
+
+    # Localization / PayPal Setup
+    lc = forms.CharField(widget=ValueHiddenInput())
 
     # IPN control.
     notify_url = forms.CharField(widget=ValueHiddenInput()) #, initial=NOTIFY_URL)
