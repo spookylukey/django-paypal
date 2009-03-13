@@ -32,8 +32,6 @@ class PayPalIPN(models.Model):
                           "%H:%M:%S %b %d, %Y PST",
                           "%H:%M:%S %b %d, %Y PDT",)
     
-    
-    
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()

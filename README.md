@@ -5,7 +5,7 @@ Django PayPal
 About
 -----
 
-Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro. It focused on selling software - think "Buy it Now" single items with no shipping or recurring payments.
+Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro. The current implementation is geared towards selling items with no shipping.
 
 Before diving in further a quick overview of PayPal's different payment methods might help. **[PayPal Payments Standard](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WebsitePaymentsStandard_IntegrationGuide.pdf)** is the "Buy it Now" button you may have
 seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process **[Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf)** (IPN). Most people would agree that this method sucks (who wants to send people to PayPal's website)? But it is quick to implement and doesn't require any of your pages to use SSL.
@@ -169,13 +169,19 @@ Use postbacks for validation if:
 Using PayPal Payments Pro
 -------------------------
 
-PayPal Payments Pro is the more awesome version of PayPal that lets you accept payments on your site. Note that PayPal Pro uses a lot of the code from `paypal.standard` so you'll need to include both apps. Specifically IPN is still used for payment confirmation.
+PayPal Payments Pro is the more awesome version of PayPal that lets you accept payments on your site. Note that PayPal Pro uses a lot of the code from `paypal.standard` so you'll need to include both apps. Specifically IPN is still used for payment confirmation. There is a fairly good [explanation of the WPP basics on the PayPal Forums](http://www.pdncommunity.com/pdn/board/message?board.id=wppro&thread.id=192).
 
-1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your `INSTALLED_APPS`:
+
+1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your `INSTALLED_APPS`, also set your PayPal settings:
 
         # settings.py
         ...
         INSTALLED_APPS = (... 'paypal.standard', 'paypal.pro', ...)
+        PAYPAL_TEST = True         # Start in Testing Mode
+        PAYPAL_WPP_USER = ???      # Get from PayPal website!
+        PAYPAL_WPP_PASSWORD = ???
+        PAYPAL_WPP_SIGNATURE = ???
+
 
 1. Write a view wrapper for `paypal.pro.views.PayPalPro` and add it to your `urls.py`:
 
@@ -206,18 +212,9 @@ PayPal Payments Pro is the more awesome version of PayPal that lets you accept p
         )
         
 
-1. Profit. (Setup NVP / IPN endpoints to receive information)
-        
+1. Add the IPN endpoints to your `urls.py` to receive callbacks from PayPal.
 
-PayPal Initial Data:
---------------------
-
-Typically you'll want to set these fields in your form...
-
-Flags:
-------
-
-Flags are set on bad invalid transactions ...
+1. Profit.
 
 ToDo:
 =====

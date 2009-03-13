@@ -24,7 +24,6 @@ IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-cli
 SANDBOX_IMAGE = getattr(settings, "PAYPAL_SANDBOX_IMAGE", "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif")
 
 
-
 class PayPalIPNForm(forms.ModelForm):
     """
     Form used to receive and record PayPal IPN notifications.

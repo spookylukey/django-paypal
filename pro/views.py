@@ -7,15 +7,15 @@ from django.utils.http import urlencode
 
 from paypal.pro.forms import PaymentForm, ConfirmForm
 from paypal.pro.models import PayPalNVP
-from paypal.pro.helpers import PayPalWPP
+from paypal.pro.helpers import PayPalWPP, TEST
 from paypal.pro.signals import payment_was_successful, payment_was_flagged
 
 
 # PayPal Edit IPN URL:
 # https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify
-
 EXPRESS_ENDPOINT = "https://www.paypal.com/webscr?cmd=_express-checkout&%s"
 SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout&%s"
+
 
 class PayPalPro(object):
     """
@@ -71,15 +71,13 @@ class PayPalPro(object):
     
     success_url / fail_url: URLs to be redirected to when the payment is comlete or fails.
     
-    test: if True then the transaction takes place on the PayPal sandbox.
-
     """
     def __init__(self, item=None, 
                  payment_form_cls=PaymentForm, 
                  payment_template="pro/payment.html",
                  confirm_form_cls=ConfirmForm, 
                  confirm_template="pro/confirm.html",
-                 success_url="?success", fail_url=None, test=True, context=None):
+                 success_url="?success", fail_url=None, context=None):
         self.item = item
         self.is_recurring = False
         if 'billingperiod' in item:
@@ -90,10 +88,6 @@ class PayPalPro(object):
         self.confirm_template = confirm_template
         self.success_url = success_url
         self.fail_url = fail_url
-        if test:
-            self.express_endpoint = SANDBOX_EXPRESS_ENDPOINT
-        else:
-            self.express_endpoint = EXPRESS_ENDPOINT
         self.context = context or {}
 
     def __call__(self, request):
@@ -159,7 +153,11 @@ class PayPalPro(object):
                              AMT=self.item['amt'], 
                              RETURNURL=self.item['returnurl'], 
                              CANCELURL=self.item['cancelurl'])
-            pp_url = self.express_endpoint % urlencode(pp_params)
+            if TEST:
+                express_endpoint = SANDBOX_EXPRESS_ENDPOINT
+            else:
+                express_endpoint = EXPRESS_ENDPOINT
+            pp_url = express_endpoint % urlencode(pp_params)
             return HttpResponseRedirect(pp_url)
         else:
             self.context = {'errors': 'There was a problem contacting PayPal. Please try again later.'}

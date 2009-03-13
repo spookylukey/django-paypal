@@ -12,19 +12,14 @@ from django.forms.models import fields_for_model
 from paypal.pro.models import PayPalNVP, L
 
 
-# ### ToDo: Check AVS / CVV2 responses to look for fraudz.
-# ### flags etc. on PayPalWPP - tie it 
-# ### ToDo: Not very DRY yet... factor out common actions from calls into methods.
-
+TEST = settings.PAYPAL_TEST
 USER = settings.PAYPAL_WPP_USER 
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
 SIGNATURE = settings.PAYPAL_WPP_SIGNATURE
 VERSION = 54.0
 BASE_PARAMS = dict(USER=USER , PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSION)
-
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
-
 NVP_FIELDS = fields_for_model(PayPalNVP).keys()
 
 
@@ -58,14 +53,14 @@ class PayPalWPP(object):
     https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_NVPAPI_DeveloperGuide.pdf
 
     """
-    def __init__(self, request, params=BASE_PARAMS, test=True):
+    def __init__(self, request, params=BASE_PARAMS):
         """
         Required - USER / PWD / SIGNATURE / VERSION
 
         """
         self.request = request
-        if test:
-            self.endpoint = SANBOX_ENDPOINT
+        if TEST:
+            self.endpoint = SANDBOX_ENDPOINT
         else:
             self.endpoint = ENDPOINT
         self.signature_values = params
