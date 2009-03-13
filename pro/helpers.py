@@ -19,7 +19,7 @@ SIGNATURE = settings.PAYPAL_WPP_SIGNATURE
 VERSION = 54.0
 BASE_PARAMS = dict(USER=USER , PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSION)
 ENDPOINT = "https://api-3t.paypal.com/nvp"
-SANBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
+SANDBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
 NVP_FIELDS = fields_for_model(PayPalNVP).keys()
 
 
