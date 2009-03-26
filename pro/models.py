@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import string
+from string import split as L
 
 from django.db import models
 from django.forms.models import model_to_dict
 from django.utils.http import urlencode
-
-L = string.split
+from django.contrib.auth.models import User
 
 
 class PayPalNVP(models.Model):
@@ -45,7 +44,7 @@ class PayPalNVP(models.Model):
     custom = models.CharField(max_length=255, blank=True) 
     
     # Admin fields
-    user = models.ForeignKey('auth.user', blank=True, null=True)
+    user = models.ForeignKey(User, blank=True, null=True)
     flag = models.BooleanField(default=False, blank=True)
     flag_code = models.CharField(max_length=32, blank=True)
     flag_info = models.TextField(blank=True)    
