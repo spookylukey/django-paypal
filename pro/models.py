@@ -73,8 +73,12 @@ class PayPalNVP(models.Model):
         self.response = urlencode(paypal_response)
 
         # Was there a flag on the play?        
-        if paypal_response.get('ack', False) != "Success":
-            self.set_flag(paypal_response.get('l_longmessage0', ''), paypal_response.get('l_errorcode', ''))
+        ack = paypal_response.get('ack', False)
+        if ack != "Success":
+            if ack == "SuccessWithWarning":
+                self.flag_info = paypal_response.get('l_longmessage0', '')
+            else:
+                self.set_flag(paypal_response.get('l_longmessage0', ''), paypal_response.get('l_errorcode', ''))
 
     def set_flag(self, info, code=None):
         """
