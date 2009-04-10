@@ -72,6 +72,8 @@ class PayPalPaymentsForm(forms.Form):
 
     # Localization / PayPal Setup
     lc = forms.CharField(widget=ValueHiddenInput())
+    page_style = forms.CharField(widget=ValueHiddenInput())
+    cbt = forms.CharField(widget=ValueHiddenInput())
 
     # IPN control.
     notify_url = forms.CharField(widget=ValueHiddenInput()) #, initial=NOTIFY_URL)
