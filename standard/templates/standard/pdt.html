@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% ifequal transaction_status 'SUCCESS' %}
+<h1>Transaction complete</h1>
+<p>Thank you for your payment</p>
+<p>Please print this page for your records</p>
+
+<div>	
+	<table>
+	<tr><td>Payer:</td><td>{{ paypal_response_dict.first_name }} {{ paypal_response_dict.last_name }} </td></tr>
+	<tr><td>Payer Email:</td><td>{{ paypal_response_dict.payer_email }}</td></tr>	
+	<tr><td>Amount:</td><td>{{ paypal_response_dict.mc_currency }} {{ paypal_response_dict.mc_gross }}</td></tr>		
+	<tr><td>Reference:</td><td>{{ paypal_response_dict.txn_id }}</td></tr>
+	
+	</table>
+<div>
+	
+{% else %}	
+<h1>Transaction Failed</h1>
+<p>Sorry transaction failed, please try a different form of payment</p>	
+<p>Reason: {{payment_status}}</p>
+{% endifequal %}	
+	
+</div>
+{% endblock %}
+
+
