@@ -23,8 +23,6 @@ from django.core.urlresolvers import reverse
 POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
-
-
 class PayPalCommon(models.Model):
     """
     Common variables shared by IPN and PDT
@@ -184,7 +182,7 @@ class PayPalCommon(models.Model):
     case_type = models.CharField(max_length=24, blank=True)
     # reason_code = models.CharField(max_length=24, blank=True) # already have a reason_code above
     
-    # Variables not categorized in paypal docs
+    # Variables not categorized in paypal docs https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
     receipt_id= models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451 
     currency_code = models.CharField(max_length=32, default="USD", blank=True)
     handling_amount = models.FloatField(default=0, blank=True, null=True)
@@ -228,7 +226,41 @@ class PayPalCommon(models.Model):
             self.set_flag("Invalid secret.")
 
 
+    def verify(self, item_check_callable=None, test=True):
+        """
+        Verifies an IPN and a PDT.
+        Checks for obvious signs of weirdness in the payment and flags appropriately.
+        
+        Provide a callable that takes a PayPalIPN instances as a parameters and returns
+        a tuple (True, Non) if the item is valid. Should return (False, "reason") if the
+        item isn't valid. This function should check that `mc_gross`, `mc_currency`
+        `item_name` and `item_number` are all correct.
 
+        """
+        from paypal.standard.helpers import duplicate_txn_id       
+        result = self._postback(test)  
+        if result == True:
+            if self.is_transaction():
+                if self.payment_status != "Completed":
+                    self.set_flag("Invalid payment_status.")
+                if duplicate_txn_id(self):
+                    self.set_flag("Duplicate transaction ID.")
+                if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
+                    self.set_flag("Invalid receiver_email.")
+                if callable(item_check_callable):
+                    flag, reason = item_check_callable(self)
+                    if flag:
+                        self.set_flag(reason)
+            else:
+                # ### To-Do: Need to run a different series of checks on recurring payments.
+                pass
+        else:
+            self.set_flag("FAIL")
+            
+        
+        self.save()      
+        self.send_signals(result)
+    
 
 class PayPalIPN(PayPalCommon):
     """
@@ -274,39 +306,8 @@ class PayPalIPN(PayPalCommon):
         else:
             self.set_flag("Invalid postback.")
             return False
-                        
-    def verify(self, item_check_callable=None, test=True):
-        """
-        Verifies an IPN.
-        Checks for obvious signs of weirdness in the payment and flags appropriately.
         
-        Provide a callable that takes a PayPalIPN instances as a parameters and returns
-        a tuple (True, Non) if the item is valid. Should return (False, "reason") if the
-        item isn't valid. This function should check that `mc_gross`, `mc_currency`
-        `item_name` and `item_number` are all correct.
-
-        """
-        from paypal.standard.helpers import duplicate_txn_id        
-        if self._postback(test):
-            if self.is_transaction():
-                if self.payment_status != "Completed":
-                    self.set_flag("Invalid payment_status.")
-                if duplicate_txn_id(self):
-                    self.set_flag("Duplicate transaction ID.")
-                if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
-                    self.set_flag("Invalid receiver_email.")
-                if callable(item_check_callable):
-                    flag, reason = item_check_callable(self)
-                    if flag:
-                        self.set_flag(reason)
-            else:
-                # ### To-Do: Need to run a different series of checks on recurring payments.
-                pass
-        else:
-            self.set_flag("FAIL")
-            
-        
-        self.save()        
+    def send_signals(self, result):  
         if self.flag:
             payment_was_flagged.send(sender=self)
         else:
@@ -341,6 +342,9 @@ class PayPalPDT(PayPalCommon):
         Sends the transaction id and busines paypal token data back to PayPal which responds with SUCCESS or FAILED.
         Returns True if the postback is successful.
         """          
+        if not settings.PAYPAL_IDENTITY_TOKEN:
+            raise Exception("You must set settings.PAYPAL_IDENTITY_TOKEN in settings.py, you can get this token by enabling PDT in your paypal business account")
+        
         paypal_response = ""
         postback_dict={}    
         postback_dict["cmd"]="_notify-synch"
@@ -370,7 +374,7 @@ class PayPalPDT(PayPalCommon):
     
     def _parse_paypal_response(self, paypal_response):
         from forms import PayPalPDTForm
-        SUCCESS = False
+        result = False
         paypal_response_list = paypal_response.split('\n')
     
         paypal_response_dict = {}
@@ -381,7 +385,7 @@ class PayPalPDT(PayPalCommon):
                 self.st = unquoted_paypal_line.strip()
             else:
                 if self.st == 'SUCCESS':
-                    SUCCESS = True
+                    result = True
                     try:
                         
                         [k, v] = unquoted_paypal_line.split('=')                        
@@ -400,34 +404,11 @@ class PayPalPDT(PayPalCommon):
         pdt_form = PayPalPDTForm(fake_query_dict, instance=self)
         pdt_form.save()
         
-        return SUCCESS
+        return result
+  
     
-    def verify(self, item_check_callable=None, test=True):
-        """
-        Posts back PDT variables to get transaction status
-        """        
-        from paypal.standard.helpers import duplicate_txn_id
-        if not settings.PAYPAL_IDENTITY_TOKEN:
-            raise Exception("You must set settings.PAYPAL_IDENTITY_TOKEN in settings.py, you can get this token by enabling PDT in your paypal business account")
-        
-        success = self._postback(test) 
-        if success:
-            if self.is_transaction():
-                if self.payment_status != "Completed":
-                    self.set_flag("Invalid payment_status.")
-                if duplicate_txn_id(self, 1): # we have already saved our instance once in parsing the paypal response so our transaction exists
-                    self.set_flag("Duplicate transaction ID.")
-                if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
-                    self.set_flag("Invalid receiver_email.")
-                if callable(item_check_callable):
-                    flag, reason = item_check_callable(self)
-                    if flag:
-                        self.set_flag(reason)
-        else:
-            self.set_flag("FAIL")
-            
-        self.save()        
-        if success:
+    def send_signals(self, result):
+        if result == True:
             pdt_successful.send(sender=self)
         else:
             pdt_failed.send(sender=self)        
