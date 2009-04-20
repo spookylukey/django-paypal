@@ -10,7 +10,7 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
-from paypal.standard.models import PayPalIPN
+from paypal.standard.models import PayPalIPN, PayPalPDT
 
 # ### Todo: Can we put a default notify_url initial that defaults to the ipn view?
 # NOTIFY_URL = getattr(settings, 'PAYPAL_NOTIFY_URL', "%s%s" % (Site.objects.get_current(), reverse('paypal.standard.views.ipn')
@@ -38,6 +38,19 @@ class PayPalIPNForm(forms.ModelForm):
 
     class Meta:
         model = PayPalIPN
+
+
+class PayPalPDTForm(forms.ModelForm):
+    """
+    Form used to receive and record PayPal Return Data Transfers.  
+    
+    """
+    # PayPal dates have non-standard formats.
+    payment_date = forms.DateTimeField(required=False, input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
+    next_payment_date = forms.DateTimeField(required=False, input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
+
+    class Meta:
+        model = PayPalPDT
 
 
 class PayPalPaymentsForm(forms.Form):

@@ -3,16 +3,14 @@
 from django.http import *
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.views.decorators.http import require_POST
-
+from django.views.decorators.http import require_POST, require_GET
+from django.core.exceptions import ObjectDoesNotExist
 from paypal.standard.forms import *
 from paypal.standard.models import PayPalIPN
 from models import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 from urllib import unquote_plus
 import urllib2
 import logging
-
-log = logging.getLogger('paypal')
 
 # PayPal IPN Simulator:
 # https://developer.paypal.com/cgi-bin/devscr?cmd=_ipn-link-session
@@ -22,8 +20,9 @@ def ipn(request, item_check_callable=None):
     """
     PayPal IPN endpoint (notify_url).
     Used by both PayPal Payments Pro and Payments Standard to confirm transactions.
+    https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_instantpaymentnotif
     
-    """
+    """    
     form = PayPalIPNForm(request.POST)
     failed = False    
     if form.is_valid():
@@ -32,9 +31,11 @@ def ipn(request, item_check_callable=None):
         except Exception, e:
             error = repr(e)
             failed = True
+            logging.error(error)
     else:
         error = form.errors
         failed = True
+        logging.error(error)
         
     if failed:
         ipn_obj = PayPalIPN()
@@ -51,58 +52,52 @@ def ipn(request, item_check_callable=None):
                 ipn_obj.verify(item_check_callable)
             else:
                 ipn_obj.verify(item_check_callable, test=False)
-
-    ipn_obj.save()
+    
     return HttpResponse("OKAY")
 
-
-def pdt(request):
+@require_GET
+def pdt(request, item_check_callable=None):
     """
     Payment data transfer implementation
     https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_paymentdatatransfer
-    """    
-
-    if not settings.PAYPAL_IDENTITY_TOKEN:
-        raise Exception("You must set settings.PAYPAL_IDENTITY_TOKEN in settings.py, you can get this token by enabling PDT in your paypal business account")
+    e.g. url
+    http://www.yoursite.com/ad/payment/complete?tx=4WJ86550014687441&st=Completed&amt=225.00&cc=EUR&cm=a3e192b8%2d8fea%2d4a86%2db2e8%2dd5bf502e36be&item_number=&sig=LFeVvU3hPqTy6m7mN%2bqarxpZLII%2fiDgNyjBWaxhfWDBFiFW%2b%2bZnW8WzSwbH4Ja8K%2bSXsoQHOlV5V0YtJM%2fVdHaQmXlEWz8endvh2pOiYthgVAH%2bL32OTML1YSJrrQZvz5eF2bo9v0gPasxOwiHgQ%2bzeLos3fU4X2FTw2JxnB%2fQ4%3d
+    """
     
-    transaction_status = ''        
-    tx = request.GET.get('tx', '')    
-    
-    postback_dict={}    
-    postback_dict["cmd"]="_notify-synch"
-    postback_dict["at"]=settings.PAYPAL_IDENTITY_TOKEN    
-    postback_dict["tx"]=tx    
-    postback_params=urlencode(postback_dict)
-    
-    PP_URL = POSTBACK_ENDPOINT
-    if settings.DEBUG:
-        PP_URL = SANDBOX_ENDPOINT
-    
-    req = urllib2.Request(PP_URL)
-    req.add_header("Content-type", "application/x-www-form-urlencoded")
-    fo = urllib2.urlopen(PP_URL, postback_params)
-    paypal_response = fo.read()
-    fo.close()
-    paypal_response_list = paypal_response.split('\n')
-
-    paypal_response_dict = {}
-    i = 0
-    for paypal_line in paypal_response_list:
-        unquoted_paypal_line = unquote_plus(paypal_line)        
-        if i == 0:
-            transaction_status = unquoted_paypal_line.strip()
-        else:
-            if transaction_status == 'SUCCESS':
+    txn_id = request.GET.get('tx', None)
+    if txn_id is not None:
+        try:
+            pdt_obj = PayPalPDT.objects.get(txn_id=txn_id)
+        except ObjectDoesNotExist, e:
+            form = PayPalPDTForm(request.GET)
+            failed = False    
+            if form.is_valid():
                 try:
-                    [k, v] = unquoted_paypal_line.split('=')
-                    paypal_response_dict[k.strip()]=v.strip()
-                except ValueError, e:
-                    log.error("comfirm_pay_pal error, %s, st=%s"%(e, unquoted_paypal_line))
+                    pdt_obj = form.save(commit=False)
+                except Exception, e:
+                    error = repr(e)
+                    failed = True
+                    logging.error(error)
             else:
-                log.error('transaction_status = %s'%transaction_status)
-        i = i + 1  
-        
-    payment_status = ''    
+                error = form.errors
+                failed = True
+                logging.error(error)
             
-    return render_to_response('paypal/standard/pdt.html', {'tx': tx, 
-                             'paypal_response_dict': paypal_response_dict, 'transaction_status': transaction_status, 'payment_status': payment_status})
+            
+            if failed:
+                pdt_obj = PayPalPDT()
+                pdt_obj.set_flag("Invalid form. %s" % error)
+            
+            pdt_obj.init(request)
+        
+            if not failed:
+                # the pdt object get's saved during verify
+                if pdt_obj.test_ipn:
+                    pdt_obj.verify(item_check_callable)
+                else:
+                    pdt_obj.verify(item_check_callable, test=False)
+    else:
+        logging.warning("No tx in pdt get request")
+ 
+    context = RequestContext(request, locals())               
+    return render_to_response('paypal/standard/pdt.html', context)
