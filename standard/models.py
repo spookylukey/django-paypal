@@ -410,7 +410,8 @@ class PayPalPDT(PayPalCommon):
         if not settings.PAYPAL_IDENTITY_TOKEN:
             raise Exception("You must set settings.PAYPAL_IDENTITY_TOKEN in settings.py, you can get this token by enabling PDT in your paypal business account")
         
-        if self._postback(test):
+        success = self._postback(test) 
+        if success:
             if self.is_transaction():
                 if self.payment_status != "Completed":
                     self.set_flag("Invalid payment_status.")
@@ -426,10 +427,11 @@ class PayPalPDT(PayPalCommon):
             self.set_flag("FAIL")
             
         self.save()        
-        if self.flag:
-            pdt_failed.send(sender=self)
-        else:        
-            pdt_successful.send(sender=self)        
+        if success:
+            pdt_successful.send(sender=self)
+        else:
+            pdt_failed.send(sender=self)        
+                    
     
     def __unicode__(self):
         fmt = u"<PDT: %s %s>"
