@@ -100,4 +100,4 @@ def pdt(request, item_check_callable=None):
         logging.warning("No tx in pdt get request")
  
     context = RequestContext(request, locals())               
-    return render_to_response('paypal/standard/pdt.html', context)
+    return render_to_response('standard/pdt.html', context)
