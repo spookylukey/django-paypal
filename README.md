@@ -24,9 +24,9 @@ Usage:
 
         # settings.py
         ...
-        INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
+        INSTALLED_APPS = (... 'paypal.standard.ipn', 'paypal.standard.pdt', ...)
 
-Using PayPal Payments Standard:
+Using PayPal Payments Standard IPN:
 -------------------------------
 
 1.  First create an instance of the `PayPalPaymentsForm` in a view. 
@@ -35,6 +35,7 @@ Using PayPal Payments Standard:
         # views.py
         ...
         from paypal.standard.forms import PayPalPaymentsForm
+        from django.core.urlresolvers import reverse
         
         def view_that_asks_for_money(request):
         
@@ -44,7 +45,7 @@ Using PayPal Payments Standard:
                 "amount": "100000.00",
                 "item_name": "name of the item",
                 "invoice": "unique-invoice-id",
-                "notify_url": "http://www.example.com/your-ipn-location/",
+                "notify_url": reverse("paypal-ipn"),
                 "return_url": "http://www.example.com/your-return-location/",
                 "cancel_return": "http://www.example.com/your-cancel-location/",
             
@@ -58,14 +59,13 @@ Using PayPal Payments Standard:
 
 1.  When someone uses this button to buy something PayPal makes a HTTP POST to 
     your "notify_url". PayPal calls this Instant Payment Notification (IPN). 
-    The view `paypal.standard.ipn.views.ipn` handles IPN processing. Make sure it 
-    is the same as the `notify_url` you specified in `paypal_dict` above then add 
-    it to your `urls.py`:
+    The view `paypal.standard.ipn.views.ipn` handles IPN processing. To set the 
+    correct `notify_url` add the following to your `urls.py`:
 
         # urls.py
         ...
         urlpatterns = patterns('',
-            (r'^ipn/$', 'paypal.standard.ipn.views.ipn'),
+            (r'^paypal/ipn/', include('paypal.standard.ipn.urls')),
             ...
         )
 
@@ -81,9 +81,76 @@ Using PayPal Payments Standard:
         def show_me_the_money(sender, **kwargs):
             ipn_obj = sender
             # Undertake some action depending upon `ipn_obj`.
-            if ipn_obj.cust == "Upgrade all users!":
+            if ipn_obj.custom == "Upgrade all users!":
                 Users.objects.update(paid=True)        
         payment_was_successful.connect(show_me_the_money)
+        
+        
+Using PayPal Payments Standard PDT:
+-------------------------------
+Paypal Payment Data Transfer (PDT) allows you to display transaction details to a customer immediately on return to your site.
+Details on setting up PDT for your paypal account can be found here: https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_paymentdatatransfer
+You must include 'paypal.standard.pdt' in your INSTALLED_APPS to install PDT.
+
+
+1.  First create an instance of the `PayPalPaymentsForm` in a view. 
+    Call `render` on the instance to write out the HTML for the button.
+    Note we use the reverse url "paypal-pdt" to get our return url
+
+        # views.py
+        ...
+        from paypal.standard.forms import PayPalPaymentsForm
+        from django.core.urlresolvers import reverse
+        
+        def view_that_asks_for_money(request):
+        
+            # What you want the button to do.
+            paypal_dict = {
+                "business": "yourpaypalemail@example.com",
+                "amount": "100000.00",
+                "item_name": "name of the item",
+                "invoice": "unique-invoice-id",
+                "notify_url": "http://www.example.com/your-ipn-location/",
+                "return_url": reverse("paypal-pdt"),
+                "cancel_return": "http://www.example.com/your-cancel-location/",
+            
+            }
+            
+            # Create the instance.
+            form = PayPalPaymentsForm(initial=paypal_dict)
+            
+            # Output the button.
+            form.render()
+
+1.  After someone uses this button to buy something PayPal will return the user to your site at 
+    your "return_url" with some extra GET parameters. PayPal calls this Payment Data Transfer (PDT). 
+    The view `paypal.standard.pdt.views.pdt` handles PDT processing. to specify the correct
+     `return_url` add the following to your `urls.py`:
+
+        # urls.py
+        ...
+        urlpatterns = patterns('',
+            (r'^paypal/pdt/', include('paypal.standard.pdt.urls')),
+            ...
+        )
+
+1.  Connect actions to the signals generated when PayPal talks to your `return_url`.
+    Currently there are two signals `pdt_succesful` and `pdt_failed`.
+    Both live in `paypal.standard.pdt.signals`. You can connect to either of these signals
+    and update your data accordingly when payments are processed. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
+
+        # models.py (or somewhere)
+        
+        from paypal.standard.pdt.signals import pdt_successful
+        
+        def show_me_the_money(sender, **kwargs):
+            pdt_obj = sender
+            # Undertake some action depending upon `ipn_obj`.
+            if pdt_obj.custom == "Upgrade all users!":
+                Users.objects.update(paid=True)        
+        payment_was_successful.connect(show_me_the_money)
+        
+        
 
 Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------
