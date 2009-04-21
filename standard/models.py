@@ -386,10 +386,10 @@ class PayPalPDT(PayPalCommon):
             else:
                 if self.st == 'SUCCESS':
                     result = True
-                    try:
-                        
-                        [k, v] = unquoted_paypal_line.split('=')                        
-                        paypal_response_dict[k.strip()]=v.strip()
+                    try:                        
+                        if not unquoted_paypal_line.startswith(' -'):
+                            [k, v] = unquoted_paypal_line.split('=')                        
+                            paypal_response_dict[k.strip()]=v.strip()
                     except ValueError, e:
                         logging.error("comfirm_pay_pal error, %s, %s"%(e, unquoted_paypal_line))
                 else:
