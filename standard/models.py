@@ -341,7 +341,7 @@ class PayPalPDT(PayPalCommon):
         Perform PayPal PDT Postback validation.
         Sends the transaction id and busines paypal token data back to PayPal which responds with SUCCESS or FAILED.
         Returns True if the postback is successful.
-        """          
+        """
         if not settings.PAYPAL_IDENTITY_TOKEN:
             raise Exception("You must set settings.PAYPAL_IDENTITY_TOKEN in settings.py, you can get this token by enabling PDT in your paypal business account")
         
@@ -367,10 +367,10 @@ class PayPalPDT(PayPalCommon):
             paypal_response = fo.read()
             fo.close()
             
-        logging.info(paypal_response)
+        logging.debug(paypal_response)
         
-        SUCCESS = self._parse_paypal_response(paypal_response)
-        return SUCCESS
+        result = self._parse_paypal_response(paypal_response)
+        return result
     
     def _parse_paypal_response(self, paypal_response):
         from forms import PayPalPDTForm
@@ -397,12 +397,11 @@ class PayPalPDT(PayPalCommon):
                     logging.error('transaction_status = %s'%self.st)
             i = i + 1  
         
-        q = QueryDict('')
-        fake_query_dict = q.copy() # QueryDict instances are immutable so we need to make a copy()
+        fake_query_dict = QueryDict('', mutable=True)
         fake_query_dict.update(paypal_response_dict)
         fake_query_dict.update({'ipaddress': self.ipaddress, 'st': self.st, 'flag_info': self.flag_info})
         pdt_form = PayPalPDTForm(fake_query_dict, instance=self)
-        pdt_form.save()
+        pdt_form.save(commit=False)
         
         return result
   
