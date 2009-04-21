@@ -393,7 +393,7 @@ class PayPalPDT(PayPalCommon):
                     except ValueError, e:
                         logging.error("comfirm_pay_pal error, %s, %s"%(e, unquoted_paypal_line))
                 else:
-                    self.flag_info += paypal_line
+                    self.set_flag(paypal_line)
                     logging.error('transaction_status = %s'%self.st)
             i = i + 1  
         
