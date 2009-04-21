@@ -24,7 +24,7 @@ Usage:
 
         # settings.py
         ...
-        INSTALLED_APPS = (... 'paypal.standard', ...)
+        INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
 
 Using PayPal Payments Standard:
 -------------------------------
@@ -58,25 +58,25 @@ Using PayPal Payments Standard:
 
 1.  When someone uses this button to buy something PayPal makes a HTTP POST to 
     your "notify_url". PayPal calls this Instant Payment Notification (IPN). 
-    The view `paypal.standard.views.ipn` handles IPN processing. Make sure it 
+    The view `paypal.standard.ipn.views.ipn` handles IPN processing. Make sure it 
     is the same as the `notify_url` you specified in `paypal_dict` above then add 
     it to your `urls.py`:
 
         # urls.py
         ...
         urlpatterns = patterns('',
-            (r'^ipn/$', 'paypal.standard.views.ipn'),
+            (r'^ipn/$', 'paypal.standard.ipn.views.ipn'),
             ...
         )
 
 1.  Connect actions to the signals generated when PayPal talks to your `notify_url`.
     Currently there are two signals `payment_was_succesful` and `payment_was_flagged`.
-    Both live in `paypal.standard.signals`. You can connect to either of these signals
+    Both live in `paypal.standard.ipn.signals`. You can connect to either of these signals
     and update your data accordingly when payments are processed. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
 
         # models.py (or somewhere)
         
-        from paypal.standard.signals import payment_was_successful
+        from paypal.standard.ipn.signals import payment_was_successful
         
         def show_me_the_money(sender, **kwargs):
             ipn_obj = sender

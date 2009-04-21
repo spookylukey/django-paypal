@@ -10,7 +10,6 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
-from paypal.standard.models import PayPalIPN, PayPalPDT
 
 # ### Todo: Can we put a default notify_url initial that defaults to the ipn view?
 # NOTIFY_URL = getattr(settings, 'PAYPAL_NOTIFY_URL', "%s%s" % (Site.objects.get_current(), reverse('paypal.standard.views.ipn')
@@ -23,35 +22,13 @@ SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-click-but01.gif")
 SANDBOX_IMAGE = getattr(settings, "PAYPAL_SANDBOX_IMAGE", "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif")
 
-
-class PayPalIPNForm(forms.ModelForm):
-    """
-    Form used to receive and record PayPal IPN notifications.
-    
-    PayPal IPN test tool:
-    https://developer.paypal.com/us/cgi-bin/devscr?cmd=_tools-session    
-    
-    """
-    # PayPal dates have non-standard formats.
-    payment_date = forms.DateTimeField(required=False, input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
-    next_payment_date = forms.DateTimeField(required=False, input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
-
-    class Meta:
-        model = PayPalIPN
-
-
-class PayPalPDTForm(forms.ModelForm):
-    """
-    Form used to receive and record PayPal Return Data Transfers.  
-    
-    """
-    # PayPal dates have non-standard formats.
-    payment_date = forms.DateTimeField(required=False, input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
-    next_payment_date = forms.DateTimeField(required=False, input_formats=PayPalIPN.PAYPAL_DATE_FORMAT)
-
-    class Meta:
-        model = PayPalPDT
-
+# 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
+    # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
+    # PayPal dates have been spotted in the wild with these formats, beware!
+PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST",
+                      "%H:%M:%S %b. %d, %Y PDT",
+                      "%H:%M:%S %b %d, %Y PST",
+                      "%H:%M:%S %b %d, %Y PDT",)
 
 class PayPalPaymentsForm(forms.Form):
     """
@@ -276,3 +253,4 @@ class PayPalPaymentsExtendedForm(PayPalPaymentsForm):
     # business_night_phone_a
     # business_night_phone_b
     # business_night_phone_c
+    
