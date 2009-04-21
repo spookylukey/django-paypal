@@ -4,7 +4,6 @@ from django.http import *
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.http import require_POST, require_GET
-from django.core.exceptions import ObjectDoesNotExist
 from paypal.standard.forms import *
 from paypal.standard.models import PayPalIPN
 from models import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
@@ -68,7 +67,7 @@ def pdt(request, item_check_callable=None):
     if txn_id is not None:
         try:
             pdt_obj = PayPalPDT.objects.get(txn_id=txn_id)
-        except ObjectDoesNotExist, e:
+        except PayPalPDT.DoesNotExist, e:
             form = PayPalPDTForm(request.GET)
             failed = False    
             if form.is_valid():
