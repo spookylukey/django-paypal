@@ -1,23 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.db import models
-from django.conf import settings
-from django.utils.http import urlencode
-from django.http import QueryDict
 import urllib2
-from urllib import unquote_plus
+from django.db import models
+from paypal.standard.models import PayPalStandardBase
 from paypal.standard.ipn.signals import payment_was_successful, payment_was_flagged
-import logging
-from django.test.client import Client
-from django.core.urlresolvers import reverse
-from paypal.standard.models import PayPalStandardBase, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
+
 
 class PayPalIPN(PayPalStandardBase):
-    """
-    Logs PayPal IPN interactions.    
-    
-    """
-
+    """Logs PayPal IPN interactions."""
     class Meta:
         db_table = "paypal_ipn"
         verbose_name = "PayPal IPN"
@@ -28,9 +18,7 @@ class PayPalIPN(PayPalStandardBase):
             return fmt % ("Transaction", self.txn_id)
         else:
             return fmt % ("Recurring", self.recurring_payment_id)
-        
-    
-        
+
     def _postback(self, test=True):
         """
         Perform PayPal Postback validation.
@@ -39,18 +27,7 @@ class PayPalIPN(PayPalStandardBase):
         Returns True if the postback is verified.
         
         """
-        response = ""
-        if hasattr(settings, 'PAYPAL_TESTING'):
-            client = Client()
-            paypal_http_response = client.get(reverse('paypal-fake-ipn-response'))
-            response = paypal_http_response.content.strip()
-        else:
-            import urllib2
-            if test:
-                endpoint = SANDBOX_POSTBACK_ENDPOINT
-            else:
-                endpoint = POSTBACK_ENDPOINT
-            response = urllib2.urlopen(endpoint, "cmd=_notify-validate&%s" % self.query).read()
+        response = urllib2.urlopen(self.get_endpoint(test), "cmd=_notify-validate&%s" % self.query).read()
         if response == "VERIFIED":
             return True
         else:

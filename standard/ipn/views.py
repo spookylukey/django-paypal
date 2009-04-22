@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.http import *
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.views.decorators.http import require_POST, require_GET
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 from paypal.standard.ipn.forms import PayPalIPNForm
 from paypal.standard.ipn.models import PayPalIPN
-from paypal.standard.models import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
-from urllib import unquote_plus
-import urllib2
-import logging
 
 # PayPal IPN Simulator:
 # https://developer.paypal.com/cgi-bin/devscr?cmd=_ipn-link-session
@@ -30,11 +24,9 @@ def ipn(request, item_check_callable=None):
         except Exception, e:
             error = repr(e)
             failed = True
-            logging.error(error)
     else:
         error = form.errors
         failed = True
-        logging.error(error)
         
     if failed:
         ipn_obj = PayPalIPN()

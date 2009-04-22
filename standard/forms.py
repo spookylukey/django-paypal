@@ -1,21 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django import forms
-from django.forms.util import flatatt
 from django.conf import settings
 from django.utils.safestring import mark_safe
-from django.utils.encoding import force_unicode
-from django.core.urlresolvers import reverse
-from django.contrib.sites.models import Site
-from django.conf import settings
-
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 
-# ### Todo: Can we put a default notify_url initial that defaults to the ipn view?
-# NOTIFY_URL = getattr(settings, 'PAYPAL_NOTIFY_URL', "%s%s" % (Site.objects.get_current(), reverse('paypal.standard.views.ipn')
-NOTIFY_URL = None
 
-# API Endpoints.
+# API Endpoints. <--- same as endpoints used in standard - can these die?
 ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 # Images used to render zee buttons
@@ -103,10 +94,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
     
     """
     def _encrypt(self):
-        """
-        Use your key thing to encrypt things.
-        
-        """
+        """Use your key thing to encrypt things."""
         from M2Crypto import BIO, SMIME, X509
         CERT = settings.PAYPAL_PRIVATE_CERT
         PUB_CERT = settings.PAYPAL_PUBLIC_CERT
@@ -170,87 +158,3 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
             self.initial['notify_url'] += secret_param
         else:
             self.fields['notify_url'].initial += secret_param
-
-
-class PayPalPaymentsExtendedForm(PayPalPaymentsForm):
-    """
-    Idea for a PayPal form with all fields.
-    """
-    # ### Item Information
-    # undefined_quantity
-    # on0
-    # on1
-    # os0
-    # os1
-    
-    # ### Display Information
-    # add
-    # cbt
-    # cn
-    # cpp_header_image
-    # cpp_headerback_color
-    # cpp_payflow_color
-    # cs
-    # display
-    # image_url
-    # page_style
-    # shopping_url
-    # rm
-    
-    # ### Transaction Information
-    address_override = forms.CharField(widget=ValueHiddenInput())
-    currency_code = forms.CharField(widget=forms.HiddenInput(), initial="USD")
-    custom = forms.CharField(widget=ValueHiddenInput())
-    # handling
-    invoice = forms.CharField(widget=ValueHiddenInput())
-    # shipping
-    # shipping2
-    # tax
-    # tax_cart
-    # handling_cart
-    # paymentaction
-    # upload
-    
-    # ### Third-Party Shopping Carts
-    # amount_x
-    # handling_x
-    # item_name_x
-    # item_number_x
-    # on0_x
-    # on1_x
-    # os0_x
-    # os1_x
-    # quantity_x
-    # shipping_x
-    # shipping2_x
-    # tax_x
-    
-    # ### Address Overriding
-    address1 = forms.CharField(widget=ValueHiddenInput())
-    address2 = forms.CharField(widget=ValueHiddenInput())
-    city = forms.CharField(widget=ValueHiddenInput())
-    country = forms.CharField(widget=ValueHiddenInput())
-    first_name = forms.CharField(widget=ValueHiddenInput())
-    last_name = forms.CharField(widget=ValueHiddenInput())
-    # lc
-    # night_phone_a
-    # night_phone_b
-    # night_phone_c
-    state = forms.CharField(widget=ValueHiddenInput())
-    zip = forms.CharField(widget=ValueHiddenInput())
-    
-    # ### Business Account Sign-up
-    # business_address1
-    # business_address2
-    # business_city
-    # business_state
-    # business_country
-    # business_cs_email
-    # business_cs_phone_a
-    # business_cs_phone_b
-    # business_cs_phone_c
-    # business_url
-    # business_night_phone_a
-    # business_night_phone_b
-    # business_night_phone_c
-    

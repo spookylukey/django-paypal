@@ -1,20 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import string
-
+import string import split as L
 from django.contrib import admin
-
 from paypal.standard.pdt.models import PayPalPDT
 
-# ### ToDo: These fields groupings are just a best guess. Need to be rearranged
-# ### by somone with after using the system for some time.
 
-# ### ToDo: Maybe move these `fields` into the model as BUYER_FIELDS = "..."
-# ### so they can be accessed by forms etc.
-
-L = string.split
-
-    
+# ToDo: How similiar is this to PayPalIPNAdmin? Could we just inherit off one common admin model?
 class PayPalPDTAdmin(admin.ModelAdmin):
     date_hierarchy = 'payment_date'
     fieldsets = (

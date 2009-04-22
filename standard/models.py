@@ -2,13 +2,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
-from django.utils.http import urlencode
-from django.http import QueryDict
-import urllib2
-from urllib import unquote_plus
-import logging
-from django.test.client import Client
-from django.core.urlresolvers import reverse
 
 # ### ToDo: would be cool if PayPalIPN.query was a JSON field
 # ### or something else that let you get at the data better.
@@ -18,6 +11,8 @@ from django.core.urlresolvers import reverse
 # ### can we sort them out?
 
 # ### Todo: PayPalIPN choices fields? in or out?
+
+# ### Todo: Does anyone really want all these fields or just a subset?
 
 POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
@@ -73,14 +68,16 @@ class PayPalStandardBase(models.Model):
     auth_id = models.CharField(max_length=19, blank=True)
     auth_status = models.CharField(max_length=9, blank=True) 
     exchange_rate = models.FloatField(default=0, blank=True, null=True)
-    # fraud_managment_pending_filters_x = models.CharField(max_length=255, blank=True) # TODO: see https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
+    # TODO: see https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
+    # fraud_managment_pending_filters_x = models.CharField(max_length=255, blank=True) 
     invoice = models.CharField(max_length=127, blank=True)
     item_name = models.CharField(max_length=127, blank=True)
     item_number = models.CharField(max_length=127, blank=True)
     mc_currency = models.CharField(max_length=32, default="USD", blank=True)
     mc_fee = models.FloatField(default=0, blank=True, null=True)
     mc_gross = models.FloatField(default=0, blank=True, null=True)
-    # mc_gross_x = models.FloatField(default=0, blank=True, null=True) # TODO: x refers to an item number, needs a model with foreign key to this transaction
+    # TODO: x refers to an item number, needs a model with foreign key to this transaction
+    # mc_gross_x = models.FloatField(default=0, blank=True, null=True) 
     mc_handling = models.FloatField(default=0, blank=True, null=True)
     mc_shipping = models.FloatField(default=0, blank=True, null=True)
     mc_shippingx = models.FloatField(default=0, blank=True, null=True)
@@ -88,8 +85,10 @@ class PayPalStandardBase(models.Model):
     num_cart_items = models.IntegerField(blank=True, default=0, null=True)
     option_name1 = models.CharField(max_length=64, blank=True)
     option_name2 = models.CharField(max_length=64, blank=True)
-    # option_selection1_x = models.CharField(max_length=200, blank=True) # TODO: x refers to an item number, needs a model with foreign key to this transaction
-    # option_selection2_x = models.CharField(max_length=200, blank=True) # TODO: x refers to an item number, needs a model with foreign key to this transaction
+    # TODO: x refers to an item number, needs a model with foreign key to this transaction
+    # option_selection1_x = models.CharField(max_length=200, blank=True) 
+    # TODO: x refers to an item number, needs a model with foreign key to this transaction
+    # option_selection2_x = models.CharField(max_length=200, blank=True) 
     payer_status = models.CharField(max_length=10, blank=True)
     payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     # payment_fee = models.FloatField(default=0, blank=True, null=True) # DEPRECATED
@@ -173,7 +172,8 @@ class PayPalStandardBase(models.Model):
     case_type = models.CharField(max_length=24, blank=True)
     # reason_code = models.CharField(max_length=24, blank=True) # already have a reason_code above
     
-    # Variables not categorized in paypal docs https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
+    # Variables not categorized in paypal docs 
+    # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
     receipt_id= models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451 
     currency_code = models.CharField(max_length=32, default="USD", blank=True)
     handling_amount = models.FloatField(default=0, blank=True, null=True)
@@ -198,24 +198,17 @@ class PayPalStandardBase(models.Model):
         return len(self.recurring_payment_id) > 0
     
     def set_flag(self, info, code=None):
-        """
-        Sets a flag on the transaction and also sets a reason.
-        
-        """
+        """Sets a flag on the transaction and also sets a reason."""
         self.flag = True
         self.flag_info += info
         if code is not None:
             self.flag_code = code
         
     def verify_secret(self, form_instance, secret):
-        """
-        Verifies an IPN payment over SSL using EWP. 
-        
-        """
+        """Verifies an IPN payment over SSL using EWP. """
         from paypal.standard.helpers import check_secret
         if not check_secret(form_instance, secret):
             self.set_flag("Invalid secret.")
-
 
     def verify(self, item_check_callable=None, test=True):
         """
@@ -246,11 +239,18 @@ class PayPalStandardBase(models.Model):
                 # ### To-Do: Need to run a different series of checks on recurring payments.
                 pass
         else:
-            self.set_flag("FAIL")
+            self.set_flag("Postback failed.")
             
-        
         self.save()      
         self.send_signals(result)
         
     def send_signals(self, result):
+        """Define in concrete classes."""
         pass
+        
+    def get_endpoint(self, test):
+        if test:
+            return SANDBOX_POSTBACK_ENDPOINT
+        else:
+            return POSTBACK_ENDPOINT    
+    

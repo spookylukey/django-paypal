@@ -3,16 +3,13 @@
 from string import split as L
 
 from django.db import models
-from django.forms.models import model_to_dict
 from django.utils.http import urlencode
+from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 
 
 class PayPalNVP(models.Model):
-    """
-    Record of a NVP interaction with PayPal.
-    
-    """
+    """Record of a NVP interaction with PayPal."""
     TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"  # 2009-02-03T17:47:41Z
     RESTRICTED_FIELDS = L("expdate cvv2 acct")
     ADMIN_FIELDS = L("id user flag flag_code flag_info query response created_at updated_at ")
@@ -59,10 +56,7 @@ class PayPalNVP(models.Model):
         verbose_name = "PayPal NVP"
     
     def init(self, request, paypal_request, paypal_response):
-        """
-        Initialize a PayPalNVP instance from a HttpRequest.
-        
-        """
+        """Initialize a PayPalNVP instance from a HttpRequest."""
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
         if hasattr(request, "user") and request.user.is_authenticated():
             self.user = request.user
@@ -77,20 +71,14 @@ class PayPalNVP(models.Model):
             self.set_flag(paypal_response.get('l_longmessage0', ''), paypal_response.get('l_errorcode', ''))
 
     def set_flag(self, info, code=None):
-        """
-        Flag this instance for investigation.
-        
-        """
+        """Flag this instance for investigation."""
         self.flag = True
         self.flag_info += info
         if code is not None:
             self.flag_code = code
 
     def process(self, request, item):
-        """
-        Do a direct payment.
-        
-        """
+        """Do a direct payment."""
         from paypal.pro.helpers import PayPalWPP
         wpp = PayPalWPP(request)
 

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from django.conf import settings
+from django.contrib.auth.models import get_hexdigest
 
 
 def duplicate_txn_id(ipn_obj):
-    "Returns True if a record with this transaction id exists."
+    """Returns True if a record with this transaction id exists."""
     return ipn_obj._default_manager.filter(txn_id=ipn_obj.txn_id).count() > 0
     
 def make_secret(form_instance, secret_fields=None):
@@ -15,8 +17,6 @@ def make_secret(form_instance, secret_fields=None):
     # ### ToDo: amount is mc_gross on the IPN - where should mapping logic go?
     # ### ToDo: amount / mc_gross is not nessecarily returned as it was sent - how to use it? 10.00 vs. 10.0
     # ### ToDo: the secret should be based on the invoice or custom fields as well - otherwise its always the same.
-    from django.conf import settings
-    from django.contrib.auth.models import get_hexdigest
     
     # Build the secret with fields availible in both PaymentForm and the IPN. Order matters.
     if secret_fields is None:
@@ -41,6 +41,7 @@ def check_secret(form_instance, secret):
     """
     Returns true if received `secret` matches expected secret for form_instance.
     Used to verify IPN.
+    
     """
     # ### ToDo: add invoice & custom
     # secret_fields = ['business', 'item_name']
