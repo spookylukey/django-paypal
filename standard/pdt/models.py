@@ -7,7 +7,7 @@ from django.http import QueryDict
 from django.utils.http import urlencode
 from paypal.standard.models import PayPalStandardBase
 from paypal.standard.pdt.signals import pdt_failed, pdt_successful
-
+from urllib import unquote_plus
 
 if not settings.PAYPAL_IDENTITY_TOKEN:
     raise Exception("You must set settings.PAYPAL_IDENTITY_TOKEN in settings.py, you can get this token by enabling PDT in your paypal business account")
@@ -38,7 +38,7 @@ class PayPalPDT(PayPalStandardBase):
         """
         postback_dict = dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)
         postback_params = urlencode(postback_dict)
-        response = urllib2.urlopen(self.get_endpoint(), postback_params).read()
+        response = urllib2.urlopen(self.get_endpoint(test), postback_params).read()
         return self._parse_paypal_response(response)
     
     def _parse_paypal_response(self, response):
@@ -51,23 +51,23 @@ class PayPalPDT(PayPalStandardBase):
             unquoted_line = unquote_plus(line).strip()        
             if i == 0:
                 self.st = unquoted_line
-            else:
-                # ### Could this IF & result = True move up into the above IF
                 if self.st == "SUCCESS":
                     result = True
-                    try:                        
-                        if not unquoted_line.startswith(' -'):
-                            k, v = unquoted_line.split('=')                        
-                            response_dict[k.strip()] = v.strip()
-                    # ### Why would this happen?
-                    except ValueError, e:
-                        pass
                 else:
                     # ### What's going to happen if there are multiple errors?
                     self.set_flag(line)
+            else:
+                try:                        
+                    if not unquoted_line.startswith(' -'):
+                        k, v = unquoted_line.split('=')                        
+                        response_dict[k.strip()] = v.strip()
+                # ### Why would this happen?
+                except ValueError, e:
+                    pass
+                
         
         qd = QueryDict('', mutable=True)
-        qd.update(paypal_response_dict)
+        qd.update(response_dict)
         qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info))
         pdt_form = PayPalPDTForm(qd, instance=self)
         pdt_form.save(commit=False)
