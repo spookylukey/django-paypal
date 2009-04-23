@@ -8,7 +8,7 @@ from paypal.standard.pdt.forms import PayPalPDTForm
 
 
 @require_GET
-def pdt(request, item_check_callable=None, model_class=PayPalPDT, form_class=PayPalPDTForm):
+def pdt(request, item_check_callable=None):
     """
     Payment data transfer implementation
     https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_paymentdatatransfer
@@ -19,14 +19,15 @@ def pdt(request, item_check_callable=None, model_class=PayPalPDT, form_class=Pay
     pdt_obj = None
     txn_id = request.GET.get('tx')
     if txn_id is not None:        
+        # if an existing transaction with the id tx exists: use it
         try:
-            pdt_obj = model_class.objects.get(txn_id=txn_id)        
-        except model_class.DoesNotExist, e:
+            pdt_obj = PayPalPDT.objects.get(txn_id=txn_id)        
+        except PayPalPDT.DoesNotExist, e:
             # this is a new transaction so we continue processing PDT request
             pass
         
         if pdt_obj is None:
-            form = form_class(request.GET)
+            form = PayPalPDTForm(request.GET)
             failed = False    
             if form.is_valid():
                 try:
@@ -39,7 +40,7 @@ def pdt(request, item_check_callable=None, model_class=PayPalPDT, form_class=Pay
                 failed = True
             
             if failed:
-                pdt_obj = model_class()
+                pdt_obj = PayPalPDT()
                 pdt_obj.set_flag("Invalid form. %s" % error)
             
             pdt_obj.init(request)
@@ -51,9 +52,7 @@ def pdt(request, item_check_callable=None, model_class=PayPalPDT, form_class=Pay
                 else:
                     pdt_obj.verify(item_check_callable, test=False)
     else:
-        pdt_obj = model_class()
-        pdt_obj.set_flag("No transaction id supplied")
-        pdt_obj.save()    
+        pass # we ignore any PDT requests that don't have a transaction id    
  
     context = RequestContext(request, locals())               
     return render_to_response('pdt/pdt.html', context)
