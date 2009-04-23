@@ -2,17 +2,33 @@
 run this with ./manage.py test website
 see http://www.djangoproject.com/documentation/testing/ for details
 """
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.shortcuts import render_to_response
+from django.template import Context
+from django.template.loader import get_template
 from django.test import TestCase
 from django.test.client import Client
-from django.shortcuts import render_to_response
-from django.template import RequestContext
 from paypal.standard.ipn.models import PayPalIPN
-import logging
-from django.conf import settings
-import paypal
-from django.core.urlresolvers import reverse
 
-IPN_POST_PARAMS = {"protection_eligibility":"Ineligible",
+class DummyPayPalIPN():
+    
+    def __init__(self, st='VERIFIED'):
+        self.st = st
+            
+    def _postback(self, test=True):
+        """
+        Perform a Fake PayPal IPN Postback request.
+        """
+        t = get_template('ipn/fake_ipn_response.html')
+        c = Context({'st':self.st})
+        html = t.render(c)
+        return html
+
+
+class IPNTest(TestCase):    
+    def setUp(self):        
+        self.IPN_POST_PARAMS = {"protection_eligibility":"Ineligible",
     "last_name":"User",
     "txn_id":"51403485VH153354B",
     "receiver_email":settings.PAYPAL_RECEIVER_EMAIL,
@@ -45,24 +61,17 @@ IPN_POST_PARAMS = {"protection_eligibility":"Ineligible",
     "mc_gross":"10.00",
     "quantity":"1",}
 
-def fake_ipn_response(request):
-    st = request.GET.get('st', 'VERIFIED')    
-    c = RequestContext(request, locals())
-    return render_to_response('ipn/fake_ipn_response.html', c)
-
-class IPNTest(TestCase):    
-    def setUp(self):
-        paypal.standard.models.POSTBACK_ENDPOINT = reverse('paypal-fake-ipn-response')
-        paypal.standard.models.SANDBOX_POSTBACK_ENDPOINT = reverse('paypal-fake-ipn-response')
-        settings.PAYPAL_TESTING=True
-        self.signals_flag = False
+        
+        # monkey patch the PayPalIPN._postback function
+        self.dppipn = DummyPayPalIPN()
+        PayPalIPN._postback = self.dppipn._postback
         
         # Every test needs a client.
         self.client = Client()        
         
     def test_correct_ipn(self):       
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = IPN_POST_PARAMS.copy()        
+        post_params = self.IPN_POST_PARAMS        
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(PayPalIPN.objects.all()), 1)        
@@ -71,7 +80,7 @@ class IPNTest(TestCase):
   
     def test_incorrect_receiver_email(self):       
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = IPN_POST_PARAMS.copy()
+        post_params = self.IPN_POST_PARAMS
         post_params.update({"receiver_email":"incorrect_email@someotherbusiness.com"})
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
@@ -82,7 +91,7 @@ class IPNTest(TestCase):
         
     def test_invalid_payment_status(self):       
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = IPN_POST_PARAMS.copy()
+        post_params = self.IPN_POST_PARAMS
         post_params.update({"payment_status":"Failed",})            
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
@@ -93,16 +102,26 @@ class IPNTest(TestCase):
 
     def test_duplicate_txn_id(self):       
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = IPN_POST_PARAMS.copy()        
+        post_params = self.IPN_POST_PARAMS        
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(PayPalIPN.objects.all()), 1)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, False)
-        post_params = IPN_POST_PARAMS.copy()  
+        post_params = self.IPN_POST_PARAMS  
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(PayPalIPN.objects.all()), 2)
         ipn_obj = PayPalIPN.objects.all().order_by('-created_at')[0]
         self.assertEqual(ipn_obj.flag, True)
         self.assertEqual(ipn_obj.flag_info, "Duplicate transaction ID.")
+        
+    def test_failed_ipn(self):
+        self.dppipn = DummyPayPalIPN(st='INVALID')
+        PayPalIPN._postback = self.dppipn._postback
+        post_params = self.IPN_POST_PARAMS        
+        response = self.client.post(reverse('paypal-ipn'), post_params)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(PayPalIPN.objects.all()), 1)
+        ipn_obj = PayPalIPN.objects.all()[0]
+        self.assertEqual(ipn_obj.flag, True)

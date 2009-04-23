@@ -33,9 +33,7 @@ class DummyPayPalPDT():
             
     def _postback(self, test=True):
         """
-        Perform a Fake PayPal PDT Postback validation.
-        Sends the transaction id and busines paypal token data back to PayPal which responds with SUCCESS or FAILED.
-        Returns True if the postback is successful.        
+        Perform a Fake PayPal PDT Postback request.
         """
         t = get_template('pdt/fake_pdt_response.html')
         c = Context(self.context_dict)
