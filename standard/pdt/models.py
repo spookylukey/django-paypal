@@ -39,7 +39,7 @@ class PayPalPDT(PayPalStandardBase):
         postback_dict = dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)
         postback_params = urlencode(postback_dict)
         response = urllib2.urlopen(self.get_endpoint(test), postback_params).read()
-        return self._parse_paypal_response(response)
+        return response
     
     def _parse_paypal_response(self, response):
         # ### Could this function be cleaned up a bit?
@@ -53,10 +53,11 @@ class PayPalPDT(PayPalStandardBase):
                 self.st = unquoted_line
                 if self.st == "SUCCESS":
                     result = True
-                else:
+            else:
+                if self.st != "SUCCESS":
                     # ### What's going to happen if there are multiple errors?
                     self.set_flag(line)
-            else:
+                    break
                 try:                        
                     if not unquoted_line.startswith(' -'):
                         k, v = unquoted_line.split('=')                        
