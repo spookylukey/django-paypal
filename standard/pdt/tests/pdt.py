@@ -2,128 +2,119 @@
 run this with ./manage.py test website
 see http://www.djangoproject.com/documentation/testing/ for details
 """
-from django.test import TestCase
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.core.urlresolvers import reverse
-from django.http import HttpRequest, QueryDict
-from paypal.standard.pdt.models import PayPalPDT
-from paypal.standard.pdt.forms import PayPalPDTForm
-from paypal.standard.pdt.signals import pdt_successful, pdt_failed
-from paypal.standard.pdt.views import pdt as pdt_view
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.shortcuts import render_to_response
+from django.template import Context
+from django.template.loader import get_template
+from django.test import TestCase
+from django.test.client import Client
+from paypal.standard.pdt.forms import PayPalPDTForm
+from paypal.standard.pdt.models import PayPalPDT
+from paypal.standard.pdt.signals import pdt_successful, pdt_failed
 
-def fake_pdt_response(fake_request={}):
-    st = fake_request.get('st', 'SUCCESS')
-    custom = fake_request.get('custom', 'cb736658-3aad-4694-956f-d0aeade80194')
-    txn_id = fake_request.get('txn_id', '1ED550410S3402306')
-    mc_gross = fake_request.get('mc_gross', '225.00')
-    business_email = fake_request.get('business', settings.PAYPAL_RECEIVER_EMAIL)
-    c = RequestContext(fake_request, locals())
-    return render_to_response('pdt/fake_pdt_response.html', c)
 
-class DummyPayPalPDT(PayPalPDT):
-    class Meta:
-        proxy = True
+class DummyPayPalPDT():
+    
+    def __init__(self, update_context_dict={}):
+        self.context_dict = {'st': 'SUCCESS', 'custom':'cb736658-3aad-4694-956f-d0aeade80194',
+                             'txn_id':'1ED550410S3402306', 'mc_gross': '225.00', 
+                             'business': settings.PAYPAL_RECEIVER_EMAIL, 'error': 'Error code: 1234'}
+        
+        self.context_dict.update(update_context_dict)
+        
+    def update_with_get_params(self, get_params):
+        if get_params.has_key('tx'):
+            self.context_dict['txn_id'] = get_params.get('tx')
+        if get_params.has_key('amt'):
+            self.context_dict['mc_gross'] = get_params.get('amt')
+        if get_params.has_key('cm'):
+            self.context_dict['custom'] = get_params.get('cm')
             
     def _postback(self, test=True):
         """
-        Perform PayPal PDT Postback validation.
+        Perform a Fake PayPal PDT Postback validation.
         Sends the transaction id and busines paypal token data back to PayPal which responds with SUCCESS or FAILED.
-        Returns True if the postback is successful.
-        
+        Returns True if the postback is successful.        
         """
-        fake_request = {'custom': self.cm, 'txn_id': self.tx, 'mc_gross': self.amt}
-        response = fake_pdt_response(fake_request)
-        return self._parse_paypal_response(response.content)
-
-class DummyPayPalPDTForm(PayPalPDTForm):    
-    class Meta:
-        model=DummyPayPalPDT
+        t = get_template('pdt/fake_pdt_response.html')
+        c = Context(self.context_dict)
+        html = t.render(c)
+        return html
 
 class PDTTest(TestCase):    
     def setUp(self):
-        self.signals_flag = False        
+        # set up some dummy PDT get parameters
+        self.get_params = {"tx":"4WJ86550014687441", "st":"Completed", "amt":"225.00", "cc":"EUR",
+                      "cm":"a3e192b8%2d8fea%2d4a86%2db2e8%2dd5bf502e36be", "item_number":"",
+                      "sig":"blahblahblah"}
+        
+        # monkey patch the PayPalPDT._postback function
+        self.dpppdt = DummyPayPalPDT()
+        self.dpppdt.update_with_get_params(self.get_params)
+        PayPalPDT._postback = self.dpppdt._postback
+        
+        # Every test needs a client.
+        self.client = Client()
 
     def test_parse_paypal_response(self):
-        paypal_response = fake_pdt_response()
-        self.assertContains(paypal_response, 'SUCCESS', status_code=200)        
+        dpppdt = DummyPayPalPDT()
+        paypal_response = dpppdt._postback()
+        assert('SUCCESS' in paypal_response)
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
-        pdt_obj = DummyPayPalPDT()
+        pdt_obj = PayPalPDT()
         pdt_obj.ipaddress = '127.0.0.1'
-        pdt_obj._parse_paypal_response(paypal_response.content)
+        pdt_obj._parse_paypal_response(paypal_response)
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
         self.assertEqual(pdt_obj.txn_id, '1ED550410S3402306')
         
-        
     def test_pdt(self):        
-        self.assertEqual(len(PayPalPDT.objects.all()), 0)
-        get_params = {"tx":"4WJ86550014687441", "st":"Completed", "amt":"225.00", "cc":"EUR",
-                      "cm":"a3e192b8%2d8fea%2d4a86%2db2e8%2dd5bf502e36be", "item_number":"",
-                      "sig":"blahblahblah"}
-        qd = QueryDict('', mutable=True)
-        qd.update(get_params)    
-        request = HttpRequest()
-        request.GET = qd
-        request.method = 'GET'
-        paypal_response = pdt_view(request, model_class=DummyPayPalPDT, form_class=DummyPayPalPDTForm)
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)        
+        self.dpppdt.update_with_get_params(self.get_params)
+        paypal_response = self.client.get(reverse('paypal-pdt'), self.get_params)
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
 
     def test_pdt_signals(self):
-        self.assertEqual(self.signals_flag, False)        
+        self.successful_pdt_fired = False        
+        self.failed_pdt_fired = False
         
         def successful_pdt(sender, **kwargs):
-            self.signals_flag = True            
-        
+            self.successful_pdt_fired = True
         pdt_successful.connect(successful_pdt)
+            
+        def failed_pdt(sender, **kwargs):
+            self.failed_pdt_fired = True 
+        pdt_failed.connect(failed_pdt)
         
-        self.assertEqual(len(PayPalPDT.objects.all()), 0)
-        get_params = {"tx":"4WJ86550014687441", "st":"Completed", "amt":"225.00", "cc":"EUR",
-                      "cm":"a3e192b8%2d8fea%2d4a86%2db2e8%2dd5bf502e36be", "item_number":"",
-                      "sig":"blahblahblah"}
-        qd = QueryDict('', mutable=True)
-        qd.update(get_params)    
-        request = HttpRequest()
-        request.GET = qd
-        request.method = 'GET'
-        paypal_response = pdt_view(request, model_class=DummyPayPalPDT, form_class=DummyPayPalPDTForm)
-        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
-        
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)        
+        paypal_response = self.client.get(reverse('paypal-pdt'), self.get_params)
+        self.assertContains(paypal_response, 'Transaction complete', status_code=200)        
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
-        self.assertEqual(self.signals_flag, True)
-        
+        self.assertTrue(self.successful_pdt_fired)
+        self.assertFalse(self.failed_pdt_fired)        
         pdt_obj = PayPalPDT.objects.all()[0]
         self.assertEqual(pdt_obj.flag, False)
         
     def test_double_pdt_get(self):
-        self.assertEqual(len(PayPalPDT.objects.all()), 0)        
-        
-        
-        get_params = {"tx":"4WJ86550014687441", "st":"Completed", "amt":"225.00", "cc":"EUR",
-                      "cm":"a3e192b8%2d8fea%2d4a86%2db2e8%2dd5bf502e36be", "item_number":"",
-                      "sig":"blahblahblah"}
-        qd = QueryDict('', mutable=True)
-        qd.update(get_params)    
-        request = HttpRequest()
-        request.GET = qd
-        request.method = 'GET'
-        paypal_response = pdt_view(request, model_class=DummyPayPalPDT, form_class=DummyPayPalPDTForm)
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)            
+        paypal_response = self.client.get(reverse('paypal-pdt'), self.get_params)
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
-        
-        pdt_obj = PayPalPDT.objects.all()[0]
-        self.assertEqual(pdt_obj.flag, False)
-        
-        paypal_response = pdt_view(request, model_class=DummyPayPalPDT, form_class=DummyPayPalPDTForm)
+        pdt_obj = PayPalPDT.objects.all()[0]        
+        self.assertEqual(pdt_obj.flag, False)        
+        paypal_response = self.client.get(reverse('paypal-pdt'), self.get_params)
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
-        self.assertEqual(len(PayPalPDT.objects.all()), 1) # we don't create a new pdt
-        
+        self.assertEqual(len(PayPalPDT.objects.all()), 1) # we don't create a new pdt        
         pdt_obj = PayPalPDT.objects.all()[0]
         self.assertEqual(pdt_obj.flag, False)
 
-
-
+    def test_no_txn_id_in_pdt(self):
+        self.dpppdt.context_dict.pop('txn_id')
+        self.get_params={}
+        paypal_response = self.client.get(reverse('paypal-pdt'), self.get_params)
+        self.assertContains(paypal_response, 'Transaction Failed', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)
 
     
     
