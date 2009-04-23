@@ -28,6 +28,9 @@ class PayPalIPN(PayPalStandardBase):
         
         """
         response = urllib2.urlopen(self.get_endpoint(test), "cmd=_notify-validate&%s" % self.query).read()
+        return response
+    
+    def _parse_paypal_response(self, response):
         if response == "VERIFIED":
             return True
         else:
