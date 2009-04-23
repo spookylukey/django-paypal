@@ -222,7 +222,8 @@ class PayPalStandardBase(models.Model):
 
         """
         from paypal.standard.helpers import duplicate_txn_id       
-        result = self._postback(test)  
+        html_content = self._postback(test)
+        result = self._parse_paypal_response(html_content)  
         if result == True:
             if self.is_transaction():
                 if self.payment_status != "Completed":
