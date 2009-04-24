@@ -162,7 +162,10 @@ class PayPalStandardBase(models.Model):
     response = models.TextField(blank=True)  # What we got back.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    # Where did it come from?
+    from_view = models.CharField(max_length=6, null=True, blank=True)
+
     class Meta:
         abstract = True
 
@@ -245,6 +248,11 @@ class PayPalStandardBase(models.Model):
 
     def send_signals(self):
         """Shout for the world to hear whether a txn was successful."""
+
+        # Don't do anything if we're not notifying!
+        if self.from_view != 'notify':
+            return
+
         # Transaction signals:
         if self.is_transaction():
             if self.flag:
