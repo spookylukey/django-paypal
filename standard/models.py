@@ -3,12 +3,7 @@
 from django.db import models
 from django.conf import settings
 
-"""
-ToDo:
-* If PayPalStandardBase.query was a JSONField you could access it more easily.
-* PayPalStandardBase has a huge # of fields - could you define which ones you wanted?
 
-"""
 POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
@@ -173,6 +168,18 @@ class PayPalStandardBase(models.Model):
     def is_transaction(self):
         return len(self.txn_id) > 0
     
+    def is_subscription_cancellation(self):
+        return self.txn_type == "subscr_cancel"
+    
+    def is_subscription_end_of_term(self):
+        return self.txn_type == "subscr_eot"
+    
+    def is_subscription_modified(self):
+        return self.txn_type == "subscr_modify"
+    
+    def is_subscription_signup(self):
+        return self.txn_type == "subscr_signup"
+    
     def is_recurring(self):
         return len(self.recurring_payment_id) > 0
     
@@ -220,10 +227,26 @@ class PayPalStandardBase(models.Model):
                 pass
         else:
             self.set_flag("Postback failed.")
+        
+        self.save()
+        self.send_signals(result)
+
+    def verify_secret(self, form_instance, secret):
+        """
+        Verifies an IPN payment over SSL using EWP. 
+            self.set_flag("Postback failed.")
             
         self.save()      
         self.send_signals(result)
         
+        """
+        from paypal.standard.helpers import check_secret
+        if not check_secret(form_instance, secret):
+            self.set_flag("Invalid secret.")
+
+        self.save()
+        self.send_signals()
+
     def get_endpoint(self, test):
         if test:
             return SANDBOX_POSTBACK_ENDPOINT
@@ -234,7 +257,7 @@ class PayPalStandardBase(models.Model):
         self.query = request.GET.urlencode()
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
-    def send_signals(self, result):
+    def send_signals(self, result=None):
         raise NotImplementedError
         
     def _postback(self, test=True):

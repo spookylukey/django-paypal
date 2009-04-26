@@ -1,22 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+ToDo:
+* Endpoints suck. Should be in a helper somewhere.
+* Move all settings in conf.py so we can raise errors right away.
+
+"""
 from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.models import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
-# ### ToDo: These endpoints suck. In the model or a helper function somewhere.
-# ### ToDo: Move settings into some conf.py file so we can raise errors right away
+
 TEST = getattr(settings, "PAYPAL_TEST", False)
-
-
-# API Endpoints. <--- same as endpoints used in standard - can these die?
-ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
-SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
-# Images used to render zee buttons
-IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-click-but01.gif")
-SANDBOX_IMAGE = getattr(settings, "PAYPAL_SANDBOX_IMAGE", "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif")
 
 # 20:18:05 Jan 30, 2009 PST - PST timfaezone support is not included out of the box.
 # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
@@ -40,9 +37,20 @@ class PayPalPaymentsForm(forms.Form):
     u'<form action="https://www.paypal.com/cgi-bin/webscr" method="post"> ...'
     
     """
-    # Choices.
-    CMD_CHOIES = (("_xclick", "Buy now or Donations"), ("_cart", "Shopping cart"))
-    SHIPPING_CHOIES = ((1, "No shipping"), (0, "Shipping"))
+    # API Endpoints.
+    ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
+    IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-click-but01.gif")
+    SUBSCRIPTION_IMAGE = "https://www.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif"
+    
+    SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+    SANDBOX_IMAGE = getattr(settings, "PAYPAL_SANDBOX_IMAGE", "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif")
+    SUBSCRIPTION_SANDBOX_IMAGE = "https://www.sandbox.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif"
+    
+    CMD_CHOICES = (("_xclick", "Buy now or Donations"), ("_cart", "Shopping cart"), ("_xclick-subscriptions", "Subscribe"))
+    SHIPPING_CHOICES = ((1, "No shipping"), (0, "Shipping"))
+    NO_NOTE_CHOICES = (("1", "No Note"), ("0", "Include Note"))
+    RECURRING_PAYMENT_CHOICES = (("1", "Subscription Payments Recur"), ("0", "Subscription payments do not recur"))
+    REATTEMPT_ON_FAIL_CHOICES = (("1", "reattempt billing on Failure"), ("0", "Do Not reattempt on failure"))
         
     # Where the money goes.
     RECEIVER_EMAIL = settings.PAYPAL_RECEIVER_EMAIL
@@ -53,6 +61,14 @@ class PayPalPaymentsForm(forms.Form):
     item_name = forms.CharField(widget=ValueHiddenInput())
     item_number = forms.CharField(widget=ValueHiddenInput())
     quantity = forms.CharField(widget=ValueHiddenInput())
+    
+    # Subscription Related.
+    a3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Price
+    p3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Duration
+    t3 = forms.CharField(widget=ValueHiddenInput())  # Subscription unit of Duration, default to Month
+    src = forms.CharField(widget=ValueHiddenInput()) # Is billing recurring? default to yes
+    sra = forms.CharField(widget=ValueHiddenInput()) # Reattempt billing on failed cc transaction
+    no_note = forms.CharField(widget=ValueHiddenInput())
 
     # Localization / PayPal Setup
     lc = forms.CharField(widget=ValueHiddenInput())
@@ -65,13 +81,17 @@ class PayPalPaymentsForm(forms.Form):
     return_url = forms.CharField(widget=ReservedValueHiddenInput(attrs={"name":"return"}))
     custom = forms.CharField(widget=ValueHiddenInput())
     invoice = forms.CharField(widget=ValueHiddenInput())
-
+    
     # Default fields.
-    cmd = forms.ChoiceField(widget=forms.HiddenInput(), initial=CMD_CHOIES[0][0])
+    cmd = forms.ChoiceField(widget=forms.HiddenInput(), initial=CMD_CHOICES[0][0])
     charset = forms.CharField(widget=forms.HiddenInput(), initial="utf-8")
     currency_code = forms.CharField(widget=forms.HiddenInput(), initial="USD")
-    no_shipping = forms.ChoiceField(widget=forms.HiddenInput(), choices=SHIPPING_CHOIES, initial=SHIPPING_CHOIES[0][0])
+    no_shipping = forms.ChoiceField(widget=forms.HiddenInput(), choices=SHIPPING_CHOICES, initial=SHIPPING_CHOICES[0][0])
 
+    def __init__(self, button_type="buy", *args, **kwargs):
+        super(PayPalPaymentsForm, self).__init__(self, *args, **kwargs)
+        self.button_type = button_type
+    
     def render(self):
         return mark_safe(u"""<form action="%s" method="post">
     %s
@@ -80,15 +100,18 @@ class PayPalPaymentsForm(forms.Form):
     
     def get_endpoint(self):
         if TEST:
-            return SANDBOX_ENDPOINT
+            return self.SANDBOX_ENDPOINT
         else:
-            return ENDPOINT
+            return self.ENDPOINT
         
     def get_image(self):
-        if TEST:
-            return SANDBOX_IMAGE
-        else:
-            return IMAGE
+        return {(True, True): self.SUBSCRIPTION_SANDBOX_IMAGE,
+                (True, False): self.SANDBOX_IMAGE,
+                (False, True): self.SUBSCRIPTION_IMAGE,
+                (False, False): self.IMAGE}[TEST, self.is_subscription()]
+
+    def is_subscription(self):
+        return self.button_type == "subscribe"
 
 
 class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
@@ -172,3 +195,5 @@ class PayPalStandardBaseForm(forms.ModelForm):
     # PayPal dates have non-standard formats.
     payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
     next_payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
+    subscr_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
+    subscr_effective = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)

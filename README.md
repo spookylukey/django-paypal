@@ -70,9 +70,17 @@ Using PayPal Payments Standard IPN:
         )
 
 1.  Connect actions to the signals generated when PayPal talks to your `notify_url`.
-    Currently there are two signals `payment_was_succesful` and `payment_was_flagged`.
-    Both live in `paypal.standard.ipn.signals`. You can connect to either of these signals
-    and update your data accordingly when payments are processed. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
+    Currently there are six signals 
+    - `payment_was_succesful` 
+    - `payment_was_flagged`
+    - `subscription_was_cancelled` - Sent when a subscription cancellation is received/ processed
+    - `subscription_was_eot` - Sent when a subscription End of Term is received/ processed
+    - `subscription_was_modified` - (untested) - Sent when a subscription is modified by user
+    - `subscription_was_signed_up` - Sent when a subscription is first created; payments are sent every month after.
+       This one is useful for welcome emails and the like.
+
+	All signals live in `paypal.standard.signals`. You can connect to these signals
+    and update your data accordingly [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
 
         # models.py (or somewhere)
         
@@ -151,6 +159,29 @@ You must include 'paypal.standard.pdt' in your INSTALLED_APPS to install PDT.
         payment_was_successful.connect(show_me_the_money)
         
         
+
+1.  For subscription actions, you'll need to add a parameter to tell it to use the subscription buttons and the command, plus any subscription-specific settings
+        paypal_dict = {
+            "cmd": "_xclick-subscriptions",
+            "business": "your_account@paypal",
+            "a3": "9.99",                      # monthly price 
+            "p3": 1,                           # duration of each unit (depends on unit)
+            "t3": "M",                         # duration unit ("M for Month")
+            "src": "1",                        # make payments recur
+            "sra": "1",                        # reattempt payment on payment error
+            "no_note": "1",                    # remove extra notes (optional)
+            "item_name": "my cool subscription",
+            "notify_url": "http://www.example.com/your-ipn-location/",
+            "return_url": "http://www.example.com/your-return-location/",
+            "cancel_return": "http://www.example.com/your-cancel-location/",
+        }
+
+        # Create the instance.
+        form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
+        
+        # Output the button.
+        form.render()
+
 
 Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import urllib2
 from paypal.standard.models import PayPalStandardBase
-from paypal.standard.ipn.signals import payment_was_successful, payment_was_flagged
+from paypal.standard.ipn.signals import *
 
 
 class PayPalIPN(PayPalStandardBase):
@@ -29,8 +29,20 @@ class PayPalIPN(PayPalStandardBase):
             self.set_flag("Invalid postback.")
             return False
 
-    def send_signals(self, result):  
-        if self.flag:
-            payment_was_flagged.send(sender=self)
+    def send_signals(self):
+        # Transaction signals:
+        if self.is_transaction():
+            if self.flag:
+                payment_was_flagged.send(sender=self)
+            else:
+                payment_was_successful.send(sender=self)
         else:
-            payment_was_successful.send(sender=self)
+            # Subscription signals:
+            if self.is_subscription_cancellation():
+                subscription_was_cancelled.send(sender=self)
+            elif self.is_subscription_signup():
+                subscription_was_signed_up.send(sender=self)
+            elif self.is_subscription_end_of_term():
+                subscription_was_eot.send(sender=self)
+            elif self.is_subscription_modified():
+                subscription_was_modified.send(sender=self)

@@ -27,6 +27,11 @@ class PayPalPDTAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
             "fields": L("business item_name item_number quantity receiver_email receiver_id custom invoice memo")
         }),
+        ("Subscriber", {
+            "description": "The information about the Subscription.",
+            'classes': ('collapse',),
+            "fields": L("subscr_id subscr_date subscr_effective")
+        }),
         ("Recurring", {
             "description": "Information about recurring Payments.",
             "classes": ("collapse",),
