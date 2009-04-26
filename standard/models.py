@@ -245,7 +245,7 @@ class PayPalStandardBase(models.Model):
         self.send_signals(result)
         
     def send_signals(self, result):
-        """Define in concrete classes."""
+        """Define in concrete class."""
         pass
         
     def get_endpoint(self, test):

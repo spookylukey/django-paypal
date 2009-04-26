@@ -140,6 +140,13 @@ class PayPalPro(object):
         self.context.setdefault("errors", "Please correct the errors below and try again.")
         return render_to_response(self.payment_template, self.context, RequestContext(self.request))
 
+    def get_endpoint(self):
+        if TEST:
+            return SANDBOX_EXPRESS_ENDPOINT
+        else:
+            return EXPRESS_ENDPOINT
+
+
     def redirect_to_express(self):
         """
         First step of ExpressCheckout. Redirect the request to PayPal using the 
@@ -153,11 +160,7 @@ class PayPalPro(object):
                              AMT=self.item['amt'], 
                              RETURNURL=self.item['returnurl'], 
                              CANCELURL=self.item['cancelurl'])
-            if TEST:
-                express_endpoint = SANDBOX_EXPRESS_ENDPOINT
-            else:
-                express_endpoint = EXPRESS_ENDPOINT
-            pp_url = express_endpoint % urlencode(pp_params)
+            pp_url = self.get_endpoint() % urlencode(pp_params)
             return HttpResponseRedirect(pp_url)
         else:
             self.context = {'errors': 'There was a problem contacting PayPal. Please try again later.'}
