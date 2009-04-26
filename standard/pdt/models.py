@@ -12,13 +12,13 @@ from paypal.standard.pdt.signals import pdt_failed, pdt_successful
 class PayPalSettingsError(Exception):
     """Raised when settings are incorrect."""
 
-if not settings.PAYPAL_IDENTITY_TOKEN:
+if not hasattr(settings.PAYPAL_IDENTITY_TOKEN):
     raise PayPalSettingsError("You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
 IDENTITY_TOKEN = settings.PAYPAL_IDENTITY_TOKEN
 
 
 class PayPalPDT(PayPalStandardBase):
-    amt = models.FloatField(default=0, blank=True, null=True)
+    amt = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     cm = models.CharField(max_length=255, blank=True)
     sig = models.CharField(max_length=255, blank=True)
     tx = models.CharField(max_length=255, blank=True)
