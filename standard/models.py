@@ -77,14 +77,14 @@ class PayPalIPN(models.Model):
     # Website payments standard.
     auth_id = models.CharField(max_length=19, blank=True)
     auth_exp = models.CharField(max_length=28, blank=True)
-    auth_amount = models.FloatField(default=0, blank=True, null=True)
+    auth_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     auth_status = models.CharField(max_length=9, blank=True) 
-    mc_gross = models.FloatField(default=0, blank=True, null=True)
-    mc_fee = models.FloatField(default=0, blank=True, null=True)
+    mc_gross = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
+    mc_fee = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     mc_currency = models.CharField(max_length=32, default="USD", blank=True)
     currency_code = models.CharField(max_length=32, default="USD", blank=True)
     payment_cycle= models.CharField(max_length=32, blank=True) #Monthly
-    payment_fee = models.FloatField(default=0, blank=True, null=True)
+    payment_fee = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     payment_status = models.CharField(max_length=9, blank=True)
     payment_type = models.CharField(max_length=7, blank=True)
@@ -97,9 +97,9 @@ class PayPalIPN(models.Model):
 
     # Recurring Payments:
     profile_status = models.CharField(max_length=32, blank=True) 
-    initial_payment_amount = models.FloatField(default=0, blank=True, null=True)
-    amount_per_cycle = models.FloatField(default=0, blank=True, null=True)
-    outstanding_balance = models.FloatField(default=0, blank=True, null=True)
+    initial_payment_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
+    amount_per_cycle = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
+    outstanding_balance = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     period_type = models.CharField(max_length=32, blank=True)
     product_name = models.CharField(max_length=128, blank=True)
     product_type= models.CharField(max_length=128, blank=True)
