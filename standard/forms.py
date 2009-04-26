@@ -4,6 +4,11 @@ from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
+from paypal.standard.models import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
+
+# ### ToDo: These endpoints suck. In the model or a helper function somewhere.
+# ### ToDo: Move settings into some conf.py file so we can raise errors right away
+TEST = getattr(settings, "PAYPAL_TEST", False)
 
 
 # API Endpoints. <--- same as endpoints used in standard - can these die?
@@ -13,9 +18,9 @@ SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-click-but01.gif")
 SANDBOX_IMAGE = getattr(settings, "PAYPAL_SANDBOX_IMAGE", "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif")
 
-# 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
-    # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
-    # PayPal dates have been spotted in the wild with these formats, beware!
+# 20:18:05 Jan 30, 2009 PST - PST timfaezone support is not included out of the box.
+# PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
+# PayPal dates have been spotted in the wild with these formats, beware!
 PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST",
                       "%H:%M:%S %b. %d, %Y PDT",
                       "%H:%M:%S %b %d, %Y PST",
@@ -35,8 +40,6 @@ class PayPalPaymentsForm(forms.Form):
     u'<form action="https://www.paypal.com/cgi-bin/webscr" method="post"> ...'
     
     """
-    # ### ToDo: Add notify_url initial value.
-    
     # Choices.
     CMD_CHOIES = (("_xclick", "Buy now or Donations"), ("_cart", "Shopping cart"))
     SHIPPING_CHOIES = ((1, "No shipping"), (0, "Shipping"))
@@ -57,7 +60,7 @@ class PayPalPaymentsForm(forms.Form):
     cbt = forms.CharField(widget=ValueHiddenInput())
 
     # IPN control.
-    notify_url = forms.CharField(widget=ValueHiddenInput()) #, initial=NOTIFY_URL)
+    notify_url = forms.CharField(widget=ValueHiddenInput())
     cancel_return = forms.CharField(widget=ValueHiddenInput())
     return_url = forms.CharField(widget=ReservedValueHiddenInput(attrs={"name":"return"}))
     custom = forms.CharField(widget=ValueHiddenInput())
@@ -69,19 +72,23 @@ class PayPalPaymentsForm(forms.Form):
     currency_code = forms.CharField(widget=forms.HiddenInput(), initial="USD")
     no_shipping = forms.ChoiceField(widget=forms.HiddenInput(), choices=SHIPPING_CHOIES, initial=SHIPPING_CHOIES[0][0])
 
-    def _render(self, endpoint, image):
-        return mark_safe(u"""
-            <form action="%s" method="post">
-                %s
-                <input type="image" src="%s" border="0" name="submit" alt="Paypal" />
-            </form>
-        """ % (endpoint, self.as_p(), image)) 
-    
     def render(self):
-        return self._render(ENDPOINT, IMAGE)
-
-    def sandbox(self):
-        return self._render(SANDBOX_ENDPOINT, SANDBOX_IMAGE)
+        return mark_safe(u"""<form action="%s" method="post">
+    %s
+    <input type="image" src="%s" border="0" name="submit" alt="Paypal" />
+</form>""" % (self.get_endpoint(), self.as_p(), self.get_image())) 
+    
+    def get_endpoint(self):
+        if TEST:
+            return SANDBOX_ENDPOINT
+        else:
+            return ENDPOINT
+        
+    def get_image(self):
+        if TEST:
+            return SANDBOX_IMAGE
+        else:
+            return IMAGE
 
 
 class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
@@ -158,3 +165,10 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
             self.initial['notify_url'] += secret_param
         else:
             self.fields['notify_url'].initial += secret_param
+
+
+class PayPalStandardBaseForm(forms.ModelForm):
+    """Form used to receive and record PayPal IPN/PDT."""
+    # PayPal dates have non-standard formats.
+    payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
+    next_payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)

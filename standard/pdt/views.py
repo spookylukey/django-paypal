@@ -8,27 +8,22 @@ from paypal.standard.pdt.forms import PayPalPDTForm
 
 
 @require_GET
-def pdt(request, item_check_callable=None):
-    """
-    Payment data transfer implementation
-    https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_paymentdatatransfer
-    e.g. url
-    http://www.yoursite.com/ad/payment/complete?tx=4WJ86550014687441&st=Completed&amt=225.00&cc=EUR&cm=a3e192b8%2d8fea%2d4a86%2db2e8%2dd5bf502e36be&item_number=&sig=LFeVvU3hPqTy6m7mN%2bqarxpZLII%2fiDgNyjBWaxhfWDBFiFW%2b%2bZnW8WzSwbH4Ja8K%2bSXsoQHOlV5V0YtJM%2fVdHaQmXlEWz8endvh2pOiYthgVAH%2bL32OTML1YSJrrQZvz5eF2bo9v0gPasxOwiHgQ%2bzeLos3fU4X2FTw2JxnB%2fQ4%3d
-    
-    """
+def pdt(request, item_check_callable=None, template="pdt/pdt.html", context=None):
+    """Payment data transfer implementation: http://tinyurl.com/c9jjmw"""
+    context = context or {}
     pdt_obj = None
     txn_id = request.GET.get('tx')
     if txn_id is not None:        
-        # if an existing transaction with the id tx exists: use it
+        # If an existing transaction with the id tx exists: use it
         try:
             pdt_obj = PayPalPDT.objects.get(txn_id=txn_id)        
-        except PayPalPDT.DoesNotExist, e:
-            # this is a new transaction so we continue processing PDT request
+        except PayPalPDT.DoesNotExist:
+            # This is a new transaction so we continue processing PDT request
             pass
         
         if pdt_obj is None:
+            failed = False
             form = PayPalPDTForm(request.GET)
-            failed = False    
             if form.is_valid():
                 try:
                     pdt_obj = form.save(commit=False)
@@ -54,5 +49,5 @@ def pdt(request, item_check_callable=None):
     else:
         pass # we ignore any PDT requests that don't have a transaction id    
  
-    context = RequestContext(request, locals())               
-    return render_to_response('pdt/pdt.html', context)
+    context.update({"failed":failed, "pdt_obj":pdt_obj})          
+    return render_to_response(template, context, RequestContext(request))

@@ -3,25 +3,18 @@
 from django.db import models
 from django.conf import settings
 
-# ### ToDo: would be cool if PayPalIPN.query was a JSON field
-# ### or something else that let you get at the data better.
+"""
+ToDo:
+* If PayPalStandardBase.query was a JSONField you could access it more easily.
+* PayPalStandardBase has a huge # of fields - could you define which ones you wanted?
 
-# ### ToDo: Should the signal be in `set_flag` or `verify`?
-# ### ToDo: There are a # of fields that appear to be duplicates from PayPal
-# ### can we sort them out?
-
-# ### Todo: PayPalIPN choices fields? in or out?
-
-# ### Todo: Does anyone really want all these fields or just a subset?
-
+"""
 POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
+
 class PayPalStandardBase(models.Model):
-    """
-    Common variables shared by IPN and PDT
-    https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
-    """
+    """Common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
@@ -68,16 +61,12 @@ class PayPalStandardBase(models.Model):
     auth_id = models.CharField(max_length=19, blank=True)
     auth_status = models.CharField(max_length=9, blank=True) 
     exchange_rate = models.FloatField(default=0, blank=True, null=True)
-    # TODO: see https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
-    # fraud_managment_pending_filters_x = models.CharField(max_length=255, blank=True) 
     invoice = models.CharField(max_length=127, blank=True)
     item_name = models.CharField(max_length=127, blank=True)
     item_number = models.CharField(max_length=127, blank=True)
     mc_currency = models.CharField(max_length=32, default="USD", blank=True)
     mc_fee = models.FloatField(default=0, blank=True, null=True)
     mc_gross = models.FloatField(default=0, blank=True, null=True)
-    # TODO: x refers to an item number, needs a model with foreign key to this transaction
-    # mc_gross_x = models.FloatField(default=0, blank=True, null=True) 
     mc_handling = models.FloatField(default=0, blank=True, null=True)
     mc_shipping = models.FloatField(default=0, blank=True, null=True)
     mc_shippingx = models.FloatField(default=0, blank=True, null=True)
@@ -85,16 +74,9 @@ class PayPalStandardBase(models.Model):
     num_cart_items = models.IntegerField(blank=True, default=0, null=True)
     option_name1 = models.CharField(max_length=64, blank=True)
     option_name2 = models.CharField(max_length=64, blank=True)
-    # TODO: x refers to an item number, needs a model with foreign key to this transaction
-    # option_selection1_x = models.CharField(max_length=200, blank=True) 
-    # TODO: x refers to an item number, needs a model with foreign key to this transaction
-    # option_selection2_x = models.CharField(max_length=200, blank=True) 
     payer_status = models.CharField(max_length=10, blank=True)
     payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
-    # payment_fee = models.FloatField(default=0, blank=True, null=True) # DEPRECATED
-    # payment_fee_x = models.FloatField(default=0, blank=True, null=True) # DEPRECATED
     payment_gross = models.FloatField(default=0, blank=True, null=True)
-    # payment_gross_x = models.FloatField(default=0, blank=True, null=True) # DEPRECATED
     payment_status = models.CharField(max_length=9, blank=True)
     payment_type = models.CharField(max_length=7, blank=True)
     pending_reason = models.CharField(max_length=14, blank=True)
@@ -114,22 +96,6 @@ class PayPalStandardBase(models.Model):
     auction_closing_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     auction_multi_item = models.IntegerField(blank=True, default=0, null=True)
     for_auction = models.FloatField(default=0, blank=True, null=True)
-    
-    
-    # Mass Pay Variables (Not Implemented, needs a separate model, for each transaction x)
-    """
-    masspay_txn_id_x = models.CharField(max_length=19, blank=True)
-    mc_currency_x = models.CharField(max_length=32, default="USD", blank=True)
-    mc_fee_x = models.FloatField(default=0, blank=True, null=True)
-    mc_gross_x = models.FloatField(default=0, blank=True, null=True)
-    mc_handlingx = models.FloatField(default=0, blank=True, null=True)
-    payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
-    payment_status = models.CharField(max_length=9, blank=True)
-    reason_code = models.CharField(max_length=15, blank=True)
-    receiver_email_x = models.EmailField(max_length=127, blank=True)
-    status_x = models.CharField(max_length=9, blank=True)
-    unique_id_x = models.CharField(max_length=13, blank=True)
-    """
         
     # Recurring Payments Variables
     amount = models.FloatField(default=0, blank=True, null=True)
@@ -170,16 +136,30 @@ class PayPalStandardBase(models.Model):
     case_creation_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     case_id = models.CharField(max_length=14, blank=True)
     case_type = models.CharField(max_length=24, blank=True)
-    # reason_code = models.CharField(max_length=24, blank=True) # already have a reason_code above
     
-    # Variables not categorized in paypal docs 
-    # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_IPNandPDTVariables
+    # Variables not categorized
     receipt_id= models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451 
     currency_code = models.CharField(max_length=32, default="USD", blank=True)
     handling_amount = models.FloatField(default=0, blank=True, null=True)
     transaction_subject = models.CharField(max_length=255, blank=True)
 
-    # Additional information - full IPN/PDT query and time fields.    
+    # Mass Pay Variables (Not Implemented, needs a separate model, for each transaction x)
+    # fraud_managment_pending_filters_x = models.CharField(max_length=255, blank=True) 
+    # option_selection1_x = models.CharField(max_length=200, blank=True) 
+    # option_selection2_x = models.CharField(max_length=200, blank=True) 
+    # masspay_txn_id_x = models.CharField(max_length=19, blank=True)
+    # mc_currency_x = models.CharField(max_length=32, default="USD", blank=True)
+    # mc_fee_x = models.FloatField(default=0, blank=True, null=True)
+    # mc_gross_x = models.FloatField(default=0, blank=True, null=True)
+    # mc_handlingx = models.FloatField(default=0, blank=True, null=True)
+    # payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
+    # payment_status = models.CharField(max_length=9, blank=True)
+    # reason_code = models.CharField(max_length=15, blank=True)
+    # receiver_email_x = models.EmailField(max_length=127, blank=True)
+    # status_x = models.CharField(max_length=9, blank=True)
+    # unique_id_x = models.CharField(max_length=13, blank=True)
+
+    # Non-PayPal Variables - full IPN/PDT query and time fields.    
     ipaddress = models.IPAddressField(blank=True)
     flag = models.BooleanField(default=False, blank=True)
     flag_code = models.CharField(max_length=16, blank=True)
@@ -215,15 +195,15 @@ class PayPalStandardBase(models.Model):
         Verifies an IPN and a PDT.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
         
-        Provide a callable that takes a PayPalIPN instances as a parameters and returns
-        a tuple (True, Non) if the item is valid. Should return (False, "reason") if the
+        Provide a callable that takes a PayPalIPN instance as a parameters and returns
+        a tuple (True, None) if the item is valid. Should return (False, "reason") if the
         item isn't valid. This function should check that `mc_gross`, `mc_currency`
         `item_name` and `item_number` are all correct.
 
         """
         from paypal.standard.helpers import duplicate_txn_id       
-        html_content = self._postback(test)
-        result = self._parse_paypal_response(html_content)  
+        response = self._postback(test)
+        result = self._parse_paypal_response(response)  
         if result == True:
             if self.is_transaction():
                 if self.payment_status != "Completed":
@@ -245,13 +225,21 @@ class PayPalStandardBase(models.Model):
         self.save()      
         self.send_signals(result)
         
-    def send_signals(self, result):
-        """Define in concrete class."""
-        pass
-        
     def get_endpoint(self, test):
         if test:
             return SANDBOX_POSTBACK_ENDPOINT
         else:
             return POSTBACK_ENDPOINT    
-    
+
+    def init(self, request):
+        self.query = request.GET.urlencode()
+        self.ipaddress = request.META.get('REMOTE_ADDR', '')
+
+    def send_signals(self, result):
+        raise NotImplementedError
+        
+    def _postback(self, test=True):
+        raise NotImplementedError
+        
+    def _parse_paypal_response(self, response):
+        raise NotImplementedError

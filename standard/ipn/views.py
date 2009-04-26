@@ -13,20 +13,20 @@ def ipn(request, item_check_callable=None):
     """
     PayPal IPN endpoint (notify_url).
     Used by both PayPal Payments Pro and Payments Standard to confirm transactions.
-    https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_instantpaymentnotif
+    http://tinyurl.com/d9vu9d
     
     """    
-    form = PayPalIPNForm(request.POST)
     failed = False    
+    form = PayPalIPNForm(request.POST)
     if form.is_valid():
         try:
             ipn_obj = form.save(commit=False)
         except Exception, e:
-            error = repr(e)
             failed = True
+            error = repr(e)
     else:
-        error = form.errors
         failed = True
+        error = form.errors
         
     if failed:
         ipn_obj = PayPalIPN()

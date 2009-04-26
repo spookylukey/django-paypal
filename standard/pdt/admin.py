@@ -39,6 +39,5 @@ class PayPalPDTAdmin(admin.ModelAdmin):
         }),
     )
     list_display = L("__unicode__ flag invoice custom payment_status created_at")
-    search_fields = L("txn_id recurring_payment_id")    
-    
+    search_fields = L("txn_id recurring_payment_id")
 admin.site.register(PayPalPDT, PayPalPDTAdmin)

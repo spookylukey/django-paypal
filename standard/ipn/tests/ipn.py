@@ -1,70 +1,54 @@
-"""
-run this with ./manage.py test website
-see http://www.djangoproject.com/documentation/testing/ for details
-"""
 from django.conf import settings
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
-from django.template import Context
-from django.template.loader import get_template
 from django.test import TestCase
 from django.test.client import Client
 from paypal.standard.ipn.models import PayPalIPN
 
-class DummyPayPalIPN():
-    
+class DummyPayPalIPN(PayPalIPN):    
     def __init__(self, st='VERIFIED'):
         self.st = st
             
     def _postback(self, test=True):
-        """
-        Perform a Fake PayPal IPN Postback request.
-        """
-        t = get_template('ipn/fake_ipn_response.html')
-        c = Context({'st':self.st})
-        html = t.render(c)
-        return html
+        """Perform a Fake PayPal IPN Postback request."""
+        return HttpResponse(self.st)
 
 
 class IPNTest(TestCase):    
     def setUp(self):        
-        self.IPN_POST_PARAMS = {"protection_eligibility":"Ineligible",
-    "last_name":"User",
-    "txn_id":"51403485VH153354B",
-    "receiver_email":settings.PAYPAL_RECEIVER_EMAIL,
-    "payment_status":"Completed",
-    "payment_gross":"10.00",
-    "tax":"0.00",
-    "residence_country":"US",
-    "invoice":"0004",
-    "payer_status":"verified",
-    "txn_type":"express_checkout",
-    "handling_amount":"0.00",
-    "payment_date":"23:04:06 Feb 02, 2009 PST",
-    "first_name":"Test",
-    "item_name":"",
-    "charset":"windows-1252",
-    "custom":"website_id=13&user_id=21",
-    "notify_version":"2.6",
-    "transaction_subject":"",
-    "test_ipn":"1",
-    "item_number":"",
-    "receiver_id":"258DLEHY2BDK6",
-    "payer_id":"BN5JZ2V7MLEV4",
-    "verify_sign":"An5ns1Kso7MWUdW4ErQKJJJ4qi4-AqdZy6dD.sGO3sDhTf1wAbuO2IZ7",
-    "payment_fee":"0.59",
-    "mc_fee":"0.59",
-    "mc_currency":"USD",
-    "shipping":"0.00",
-    "payer_email":"bishan_1233269544_per@gmail.com",
-    "payment_type":"instant",
-    "mc_gross":"10.00",
-    "quantity":"1",}
-
-        
-        # monkey patch the PayPalIPN._postback function
-        self.dppipn = DummyPayPalIPN()
-        PayPalIPN._postback = self.dppipn._postback
+        self.IPN_POST_PARAMS = {
+            "protection_eligibility":"Ineligible",
+            "last_name":"User",
+            "txn_id":"51403485VH153354B",
+            "receiver_email":settings.PAYPAL_RECEIVER_EMAIL,
+            "payment_status":"Completed",
+            "payment_gross":"10.00",
+            "tax":"0.00",
+            "residence_country":"US",
+            "invoice":"0004",
+            "payer_status":"verified",
+            "txn_type":"express_checkout",
+            "handling_amount":"0.00",
+            "payment_date":"23:04:06 Feb 02, 2009 PST",
+            "first_name":"Test",
+            "item_name":"",
+            "charset":"windows-1252",
+            "custom":"website_id=13&user_id=21",
+            "notify_version":"2.6",
+            "transaction_subject":"",
+            "test_ipn":"1",
+            "item_number":"",
+            "receiver_id":"258DLEHY2BDK6",
+            "payer_id":"BN5JZ2V7MLEV4",
+            "verify_sign":"An5ns1Kso7MWUdW4ErQKJJJ4qi4-AqdZy6dD.sGO3sDhTf1wAbuO2IZ7",
+            "payment_fee":"0.59",
+            "mc_fee":"0.59",
+            "mc_currency":"USD",
+            "shipping":"0.00",
+            "payer_email":"bishan_1233269544_per@gmail.com",
+            "payment_type":"instant",
+            "mc_gross":"10.00",
+            "quantity":"1",}
         
         # Every test needs a client.
         self.client = Client()        

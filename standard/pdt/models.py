@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from urllib import unquote_plus
 import urllib2
 from django.db import models
 from django.conf import settings
@@ -7,10 +8,12 @@ from django.http import QueryDict
 from django.utils.http import urlencode
 from paypal.standard.models import PayPalStandardBase
 from paypal.standard.pdt.signals import pdt_failed, pdt_successful
-from urllib import unquote_plus
+
+class PayPalSettingsError(Exception):
+    """Raised when settings are incorrect."""
 
 if not settings.PAYPAL_IDENTITY_TOKEN:
-    raise Exception("You must set settings.PAYPAL_IDENTITY_TOKEN in settings.py, you can get this token by enabling PDT in your paypal business account")
+    raise PayPalSettingsError("You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
 IDENTITY_TOKEN = settings.PAYPAL_IDENTITY_TOKEN
 
 
@@ -24,10 +27,13 @@ class PayPalPDT(PayPalStandardBase):
     class Meta:
         db_table = "paypal_pdt"
         verbose_name = "PayPal PDT"
-    
-    def init(self, request):
-        self.query = request.GET.urlencode()
-        self.ipaddress = request.META.get('REMOTE_ADDR', '')
+
+    def __unicode__(self):
+        fmt = u"<PDT: %s %s>"
+        if self.is_transaction():
+            return fmt % ("Transaction", self.txn_id)
+        else:
+            return fmt % ("Recurring", self.recurring_payment_id)
 
     def _postback(self, test=True):
         """
@@ -42,7 +48,6 @@ class PayPalPDT(PayPalStandardBase):
         return response
     
     def _parse_paypal_response(self, response):
-        # ### Could this function be cleaned up a bit?
         from paypal.standard.pdt.forms import PayPalPDTForm
         result = False
         response_list = response.split('\n')
@@ -55,38 +60,24 @@ class PayPalPDT(PayPalStandardBase):
                     result = True
             else:
                 if self.st != "SUCCESS":
-                    # ### What's going to happen if there are multiple errors?
                     self.set_flag(line)
                     break
                 try:                        
                     if not unquoted_line.startswith(' -'):
                         k, v = unquoted_line.split('=')                        
                         response_dict[k.strip()] = v.strip()
-                # ### Why would this happen?
                 except ValueError, e:
                     pass
-                
         
         qd = QueryDict('', mutable=True)
         qd.update(response_dict)
         qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info))
         pdt_form = PayPalPDTForm(qd, instance=self)
-        pdt_form.save(commit=False)
-        
+        pdt_form.save(commit=False)        
         return result
   
-    
     def send_signals(self, result):
         if result:
             pdt_successful.send(sender=self)
         else:
-            pdt_failed.send(sender=self)        
-                    
-    
-    def __unicode__(self):
-        fmt = u"<PDT: %s %s>"
-        if self.is_transaction():
-            return fmt % ("Transaction", self.txn_id)
-        else:
-            return fmt % ("Recurring", self.recurring_payment_id)
-    
+            pdt_failed.send(sender=self)
