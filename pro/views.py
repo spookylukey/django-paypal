@@ -93,30 +93,22 @@ class PayPalPro(object):
         self.context = context or {}
 
     def __call__(self, request):
-        """
-        Return the appropriate response for the state of the transaction.
-        
-        """
+        """Return the appropriate response for the state of the transaction."""
         self.request = request
         if request.method == "GET":
-            # express indicates the first step of ExpressFlow.
             if self.should_redirect_to_express():
                 return self.redirect_to_express()
-            # token / PayerID indicates the second step of ExpressFlow.
             elif self.should_render_confirm_form():
                 return self.render_confirm_form()
-            # Otherwise render the DirectPayment form.
             elif self.should_render_payment_form():
                 return self.render_payment_form() 
         else:
-            # Third step of ExpressFlow.
             if self.should_validate_confirm_form():
                 return self.validate_confirm_form()
-            # Process the DirectPayment form.
             elif self.should_validate_payment_form():
                 return self.validate_payment_form()
         
-        # If was returned default to the rendering the payment form.
+        # If nothing was returned default to the rendering the payment form.
         return self.render_payment_form()
 
     def should_redirect_to_express(self):
