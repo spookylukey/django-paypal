@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.forms.util import flatatt
-from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 
 
 class ValueHiddenInput(forms.HiddenInput):
     """
-    Widget that renders only if it has data.
+    Widget that renders only if it has a value.
     Used to remove unused fields from PayPal buttons.
     
     """

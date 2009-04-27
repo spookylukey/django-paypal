@@ -5,32 +5,29 @@ Django PayPal
 About
 -----
 
-Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro. The current implementation is geared towards selling items with no shipping.
+Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro.
 
-Before diving in further a quick overview of PayPal's different payment methods might help. **[PayPal Payments Standard](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WebsitePaymentsStandard_IntegrationGuide.pdf)** is the "Buy it Now" button you may have
-seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process **[Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf)** (IPN). Most people would agree that this method sucks (who wants to send people to PayPal's website)? But it is quick to implement and doesn't require any of your pages to use SSL.
+Before diving in, a quick review of PayPal's payment methods is in order! [PayPal Payments Standard](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WebsitePaymentsStandard_IntegrationGuide.pdf) is the "Buy it Now" buttons you may have
+seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process [Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf) (IPN) but you may know it as [webhooks](http://blog.webhooks.org). This method kinda sucks because it drops your customers off at PayPal's website but it's easy to implement and doesn't require SSL.
 
-**PayPal Payments Pro** allows you to accept payments on your website. It contains two payment flows - **Direct Payment** allows the user to enter credit card information on your website and pay on your website. **Express Checkout** sends the user over to PayPal to confirm their payment method before redirecting back to your website for confirmation. PayPal rules state that both methods must be implemented.
+PayPal Payments Pro allows you to accept payments on your website. It contains two distinct payment flows - Direct Payment allows the user to enter credit card information on your website and pay on your website. Express Checkout sends the user over to PayPal to confirm their payment method before redirecting back to your website for confirmation. PayPal rules state that both methods must be implemented.
 
 
-Usage:
-------
+Using PayPal Payments Standard IPN:
+-------------------------------
 
 1. Download the code from GitHub:
 
         git clone git://github.com/johnboxall/django-paypal.git paypal
-    
-1. Edit `settings.py` and add  `paypal.standard` or `paypal.pro` to your `INSTALLED_APPS`:
+
+1. Edit `settings.py` and add  `paypal.standard.ipn` to your `INSTALLED_APPS`:
 
         # settings.py
         ...
-        INSTALLED_APPS = (... 'paypal.standard', ...)
+        INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
 
-Using PayPal Payments Standard:
--------------------------------
-
-1.  First create an instance of the `PayPalPaymentsForm` in a view. 
-    Call `render` on the instance to write out the HTML for the button.
+1.  Create an instance of the `PayPalPaymentsForm` in the view where you would like the custom to pay.
+    Call `render` on the instance in your template to write out the HTML.
 
         # views.py
         ...
@@ -41,7 +38,7 @@ Using PayPal Payments Standard:
             # What you want the button to do.
             paypal_dict = {
                 "business": "yourpaypalemail@example.com",
-                "amount": "100000.00",
+                "amount": "10000000.00",
                 "item_name": "name of the item",
                 "invoice": "unique-invoice-id",
                 "notify_url": "http://www.example.com/your-ipn-location/",
@@ -52,44 +49,116 @@ Using PayPal Payments Standard:
             
             # Create the instance.
             form = PayPalPaymentsForm(initial=paypal_dict)
+            return render_to_response("payment.html", {"form":form})
             
-            # Output the button.
-            form.render()
+            
+        # payment.html
+        ...
+        <h1>Show me the money!</h1>
+        {{ form.render }}
 
 1.  When someone uses this button to buy something PayPal makes a HTTP POST to 
     your "notify_url". PayPal calls this Instant Payment Notification (IPN). 
-    The view `paypal.standard.views.ipn` handles IPN processing. Make sure it 
-    is the same as the `notify_url` you specified in `paypal_dict` above then add 
-    it to your `urls.py`:
+    The view `paypal.standard.ipn.views.ipn` handles IPN processing. To set the 
+    correct `notify_url` add the following to your `urls.py`:
 
         # urls.py
         ...
         urlpatterns = patterns('',
-            (r'^ipn/$', 'paypal.standard.views.ipn'),
-            ...
+            (r'^something/hard/to/guess/', include('paypal.standard.ipn.urls')),
         )
 
-1.  Connect actions to the signals generated when PayPal talks to your `notify_url`.
-    Currently there are two signals `payment_was_succesful` and `payment_was_flagged`.
-    Both live in `paypal.standard.signals`. You can connect to either of these signals
-    and update your data accordingly when payments are processed. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
+1.  Whenever an IPN is processed a signal will be sent with the result of the 
+    transaction. Connect the signals to actions to perform the needed operations
+    when a successful payment is recieved.
+    
+    There are two signals for basic transactions:
+    - `payment_was_succesful` 
+    - `payment_was_flagged`
+    
+    And four signals for subscriptions:
+    - `subscription_cancel` - Sent when a subscription is cancelled.
+    - `subscription_eot` - Sent when a subscription expires.
+    - `subscription_modify` - Sent when a subscription is modified.
+    - `subscription_signup` - Sent when a subscription is created.
 
-        # models.py (or somewhere)
-        
-        from paypal.standard.signals import payment_was_successful
+	You can connect to these signals and update your data accordingly [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
+
+        # models.py
+        ...
+        from paypal.standard.ipn.signals import payment_was_successful
         
         def show_me_the_money(sender, **kwargs):
             ipn_obj = sender
             # Undertake some action depending upon `ipn_obj`.
-            if ipn_obj.cust == "Upgrade all users!":
+            if ipn_obj.custom == "Upgrade all users!":
                 Users.objects.update(paid=True)        
         payment_was_successful.connect(show_me_the_money)
+        
+        
+Using PayPal Payments Standard PDT:
+-------------------------------
+
+Paypal Payment Data Transfer (PDT) allows you to display transaction details to a customer immediately on return to your site unlike PayPal IPN which may take some seconds. [You will need to enable PDT in your PayPal account to use it.your PayPal account to use it](https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_paymentdatatransfer).
+
+1. Download the code from GitHub:
+
+        git clone git://github.com/johnboxall/django-paypal.git paypal
+
+1. Edit `settings.py` and add  `paypal.standard.pdt` to your `INSTALLED_APPS`:
+
+        # settings.py
+        ...
+        INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
+
+1.  Create a view that uses `PayPalPaymentsForm` just like in PayPal IPN.
+
+1.  After someone uses this button to buy something PayPal will return the user to your site at 
+    your "return_url" with some extra GET parameters. PayPal calls this Payment Data Transfer (PDT). 
+    The view `paypal.standard.pdt.views.pdt` handles PDT processing. to specify the correct
+     `return_url` add the following to your `urls.py`:
+
+        # urls.py
+        ...
+        urlpatterns = patterns('',
+            (r'^paypal/pdt/', include('paypal.standard.pdt.urls')),
+            ...
+        )
+
+Using PayPal Payments Standard with Subscriptions:
+-------------------------------
+
+1.  For subscription actions, you'll need to add a parameter to tell it to use the subscription buttons and the command, plus any 
+    subscription-specific settings:
+
+        # views.py
+        ...
+        paypal_dict = {
+            "cmd": "_xclick-subscriptions",
+            "business": "your_account@paypal",
+            "a3": "9.99",                      # monthly price 
+            "p3": 1,                           # duration of each unit (depends on unit)
+            "t3": "M",                         # duration unit ("M for Month")
+            "src": "1",                        # make payments recur
+            "sra": "1",                        # reattempt payment on payment error
+            "no_note": "1",                    # remove extra notes (optional)
+            "item_name": "my cool subscription",
+            "notify_url": "http://www.example.com/your-ipn-location/",
+            "return_url": "http://www.example.com/your-return-location/",
+            "cancel_return": "http://www.example.com/your-cancel-location/",
+        }
+
+        # Create the instance.
+        form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
+        
+        # Output the button.
+        form.render()
+
 
 Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------
 
-Use this method to encrypt your button so sneaky gits don't try to hack
-it. Thanks to [Jon Atkinson](http://jonatkinson.co.uk/) for the [tutorial](http://jonatkinson.co.uk/paypal-encrypted-buttons-django/).
+Use this method to encrypt your button so sneaky gits don't try to hack it. Thanks to [Jon Atkinson](http://jonatkinson.co.uk/) for the [tutorial](http://jonatkinson.co.uk/paypal-encrypted-buttons-django/).
 
 1. Encrypted buttons require the `M2Crypto` library:
 
@@ -163,7 +232,7 @@ Use postbacks for validation if:
             # Works just like before!
             form.render()
             
-1. Verify that your IPN endpoint is running on SSL - request.is_secure() should return True!
+1. Verify that your IPN endpoint is running on SSL - `request.is_secure()` should return `True`!
 
 
 Using PayPal Payments Pro
@@ -219,11 +288,9 @@ PayPal Payments Pro is the more awesome version of PayPal that lets you accept p
 ToDo:
 =====
 
-* Shared Secrets: I'm not master of encryption and the Shared Secrets implementation is just a stab in the dark. The implementation should be vetted before production use.
+* A a shared conf file for all settings.
 
-* Fixmes: Scattered throughout the code are triple hash ### FIXME comments with little actionable items.
-
-* Testing: Not enough coverage.
+* Shared Secrets: The implementation is untested.
 
 * Query Fields: Lots of fields store QueryDict dumps b/c we're not sure exactly what we're getting - would be cool to be able to access those fields like they were a dict (JSONField)
 

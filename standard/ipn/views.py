@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.http import *
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.http import HttpResponse
 from django.views.decorators.http import require_POST
-
-from paypal.standard.forms import *
-from paypal.standard.models import PayPalIPN
+from paypal.standard.ipn.forms import PayPalIPNForm
+from paypal.standard.ipn.models import PayPalIPN
 
 # PayPal IPN Simulator:
 # https://developer.paypal.com/cgi-bin/devscr?cmd=_ipn-link-session
@@ -16,19 +13,20 @@ def ipn(request, item_check_callable=None):
     """
     PayPal IPN endpoint (notify_url).
     Used by both PayPal Payments Pro and Payments Standard to confirm transactions.
+    http://tinyurl.com/d9vu9d
     
-    """
-    form = PayPalIPNForm(request.POST)
+    """    
     failed = False    
+    form = PayPalIPNForm(request.POST)
     if form.is_valid():
         try:
             ipn_obj = form.save(commit=False)
         except Exception, e:
-            error = repr(e)
             failed = True
+            error = repr(e)
     else:
-        error = form.errors
         failed = True
+        error = form.errors
         
     if failed:
         ipn_obj = PayPalIPN()
@@ -45,6 +43,5 @@ def ipn(request, item_check_callable=None):
                 ipn_obj.verify(item_check_callable)
             else:
                 ipn_obj.verify(item_check_callable, test=False)
-
-    ipn_obj.save()
+    
     return HttpResponse("OKAY")
