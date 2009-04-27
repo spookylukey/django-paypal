@@ -1,21 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-ToDo:
-* Endpoints suck. Should be in a helper somewhere.
-* Move all settings in conf.py so we can raise errors right away.
-
-"""
 from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
+from paypal.standard.conf import TEST
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.models import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
 
-TEST = getattr(settings, "PAYPAL_TEST", False)
-
-# 20:18:05 Jan 30, 2009 PST - PST timfaezone support is not included out of the box.
+# 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
 # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
 # PayPal dates have been spotted in the wild with these formats, beware!
 PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST",
@@ -110,6 +103,9 @@ class PayPalPaymentsForm(forms.Form):
                 (False, True): self.SUBSCRIPTION_IMAGE,
                 (False, False): self.IMAGE}[TEST, self.is_subscription()]
 
+    def is_transaction(self):
+        return self.button_type == "buy"
+
     def is_subscription(self):
         return self.button_type == "subscribe"
 
@@ -125,6 +121,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
     """
     def _encrypt(self):
         """Use your key thing to encrypt things."""
+        # ### ToDo: Could we move this to conf.py?
         from M2Crypto import BIO, SMIME, X509
         CERT = settings.PAYPAL_PRIVATE_CERT
         PUB_CERT = settings.PAYPAL_PUBLIC_CERT

@@ -9,12 +9,16 @@ from django.utils.http import urlencode
 from paypal.standard.models import PayPalStandardBase
 from paypal.standard.pdt.signals import pdt_failed, pdt_successful
 
+# ### Todo: Move this logic to conf.py:
+# if paypal.standard.pdt is in installed apps
+# ... then check for this setting in conf.py
 class PayPalSettingsError(Exception):
     """Raised when settings are incorrect."""
 
 if not hasattr(settings.PAYPAL_IDENTITY_TOKEN):
     raise PayPalSettingsError("You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
 IDENTITY_TOKEN = settings.PAYPAL_IDENTITY_TOKEN
+
 
 
 class PayPalPDT(PayPalStandardBase):
@@ -38,8 +42,8 @@ class PayPalPDT(PayPalStandardBase):
     def _postback(self, test=True):
         """
         Perform PayPal PDT Postback validation.
-        Sends the transaction id and busines paypal token data back to PayPal which responds with SUCCESS or FAILED.
-        Returns True if the postback is successful.
+        Sends the transaction ID and business token to PayPal which responses with
+        SUCCESS or FAILED.
         
         """
         postback_dict = dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)
@@ -47,7 +51,7 @@ class PayPalPDT(PayPalStandardBase):
         response = urllib2.urlopen(self.get_endpoint(test), postback_params).read()
         return response
     
-    def _parse_paypal_response(self, response):
+    def _verify_postback(self, response):
         from paypal.standard.pdt.forms import PayPalPDTForm
         result = False
         response_list = response.split('\n')

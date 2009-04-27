@@ -3,13 +3,11 @@
 from django.db import models
 from django.conf import settings
 
-
-POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
-SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
 
 class PayPalStandardBase(models.Model):
-    """Common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
+    """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
@@ -167,6 +165,9 @@ class PayPalStandardBase(models.Model):
         
     def is_transaction(self):
         return len(self.txn_id) > 0
+
+    def is_recurring(self):
+        return len(self.recurring_payment_id) > 0
     
     def is_subscription_cancellation(self):
         return self.txn_type == "subscr_cancel"
@@ -179,9 +180,6 @@ class PayPalStandardBase(models.Model):
     
     def is_subscription_signup(self):
         return self.txn_type == "subscr_signup"
-    
-    def is_recurring(self):
-        return len(self.recurring_payment_id) > 0
     
     def set_flag(self, info, code=None):
         """Sets a flag on the transaction and also sets a reason."""
@@ -201,7 +199,7 @@ class PayPalStandardBase(models.Model):
         Verifies an IPN and a PDT.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
         
-        Provide a callable that takes a PayPalIPN instance as a parameters and returns
+        Provide a callable that takes an instance of this class as a parameter and returns
         a tuple (True, None) if the item is valid. Should return (False, "reason") if the
         item isn't valid. This function should check that `mc_gross`, `mc_currency`
         `item_name` and `item_number` are all correct.
@@ -209,14 +207,14 @@ class PayPalStandardBase(models.Model):
         """
         from paypal.standard.helpers import duplicate_txn_id       
         response = self._postback(test)
-        result = self._parse_paypal_response(response)  
+        result = self._verify_postback(response)  
         if result == True:
             if self.is_transaction():
                 if self.payment_status != "Completed":
                     self.set_flag("Invalid payment_status. (%s)" % self.payment_status)
                 if duplicate_txn_id(self):
-                    self.set_flag("Duplicate transaction ID.")
-                if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
+                    self.set_flag("Duplicate transaction ID. (%s)") % self.txn_id)
+                if self.receiver_email != RECEIVER_EMAIL:
                     self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)
                 if callable(item_check_callable):
                     flag, reason = item_check_callable(self)
@@ -232,18 +230,10 @@ class PayPalStandardBase(models.Model):
         self.send_signals(result)
 
     def verify_secret(self, form_instance, secret):
-        """
-        Verifies an IPN payment over SSL using EWP. 
-            self.set_flag("Postback failed.")
-            
-        self.save()      
-        self.send_signals(result)
-        
-        """
+        """Verifies an IPN payment over SSL using EWP."""
         from paypal.standard.helpers import check_secret
         if not check_secret(form_instance, secret):
-            self.set_flag("Invalid secret.")
-
+            self.set_flag("Invalid secret. (%s)") % secret
         self.save()
         self.send_signals()
 
@@ -263,5 +253,5 @@ class PayPalStandardBase(models.Model):
     def _postback(self, test=True):
         raise NotImplementedError
         
-    def _parse_paypal_response(self, response):
+    def _verify_postback(self, response):
         raise NotImplementedError
