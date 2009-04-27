@@ -72,6 +72,8 @@ class PayPalPro(object):
     success_url / fail_url: URLs to be redirected to when the payment is comlete or fails.
     
     """
+    # ERRORS = should move errors into dict.
+    
     def __init__(self, item=None, 
                  payment_form_cls=PaymentForm, 
                  payment_template="pro/payment.html",
@@ -98,35 +100,47 @@ class PayPalPro(object):
         self.request = request
         if request.method == "GET":
             # express indicates the first step of ExpressFlow.
-            if 'express' in request.GET:
+            if self.should_redirect_to_express():
                 return self.redirect_to_express()
             # token / PayerID indicates the second step of ExpressFlow.
-            elif 'token' in request.GET and 'PayerID' in request.GET:
+            elif self.should_render_confirm_form():
                 return self.render_confirm_form()
             # Otherwise render the DirectPayment form.
-            else:
+            elif self.should_render_payment_form():
                 return self.render_payment_form() 
         else:
             # Third step of ExpressFlow.
-            if 'token' in request.POST and 'PayerID' in request.POST:
+            if self.should_validate_confirm_form():
                 return self.validate_confirm_form()
             # Process the DirectPayment form.
-            else:
+            elif self.should_validate_payment_form():
                 return self.validate_payment_form()
+        
+        # If was returned default to the rendering the payment form.
+        return self.render_payment_form()
+
+    def should_redirect_to_express(self):
+        return 'express' in self.request.GET
+        
+    def should_render_confirm_form(self):
+        return 'token' in self.request.GET and 'PayerID' in self.request.GET
+        
+    def should_render_payment_form(self):
+        return True
+
+    def should_validate_confirm_form(self):
+        return 'token' in self.request.POST and 'PayerID' in self.request.POST  
+        
+    def should_validate_payment_form(self):
+        return True
 
     def render_payment_form(self):
-        """
-        Display the DirectPayment for entering payment information.
-        
-        """
+        """Display the DirectPayment for entering payment information."""
         self.context['form'] = self.payment_form_cls()
         return render_to_response(self.payment_template, self.context, RequestContext(self.request))
 
     def validate_payment_form(self):
-        """
-        Try to validate and then process the DirectPayment form.
-        
-        """
+        """Try to validate and then process the DirectPayment form."""
         form = self.payment_form_cls(self.request.POST)        
         if form.is_valid():
             success = form.process(self.request, self.item)
@@ -172,7 +186,7 @@ class PayPalPro(object):
         contains hidden fields with the token / PayerID from PayPal.
         
         """
-        initial = {'token': self.request.GET['token'], 'PayerID': self.request.GET['PayerID']}
+        initial = dict(token=self.request.GET['token'], PayerID=self.request.GET['PayerID'])
         self.context['form'] = self.confirm_form_cls(initial=initial)
         return render_to_response(self.confirm_template, self.context, RequestContext(self.request))
 
