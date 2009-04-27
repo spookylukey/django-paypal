@@ -7,7 +7,6 @@ from django.conf import settings
 from django.http import QueryDict
 from django.utils.http import urlencode
 from paypal.standard.models import PayPalStandardBase
-from paypal.standard.pdt.signals import pdt_failed, pdt_successful
 
 # ### Todo: Move this logic to conf.py:
 # if paypal.standard.pdt is in installed apps
@@ -28,7 +27,7 @@ class PayPalPDT(PayPalStandardBase):
     tx = models.CharField(max_length=255, blank=True)
     st = models.CharField(max_length=32, blank=True)
     
-    format = u"<PDT: %s %s>"
+    FORMAT = u"<PDT: %s %s>"
     
     class Meta:
         db_table = "paypal_pdt"
@@ -73,10 +72,3 @@ class PayPalPDT(PayPalStandardBase):
         qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info))
         pdt_form = PayPalPDTForm(qd, instance=self)
         pdt_form.save(commit=False)  
-  
-    def send_signals(self, result):
-        # ### Any reason these need to be different signals than PayPalIPN?
-        if self.flag:
-            pdt_successful.send(sender=self)
-        else:
-            pdt_failed.send(sender=self)

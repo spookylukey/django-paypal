@@ -3,6 +3,7 @@
 from django.db import models
 from django.conf import settings
 
+from paypal.standard.signals import *
 from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
@@ -167,9 +168,9 @@ class PayPalStandardBase(models.Model):
 
     def __unicode__(self):
         if self.is_transaction():
-            return self.format % ("Transaction", self.txn_id)
+            return self.FORMAT % ("Transaction", self.txn_id)
         else:
-            return self.format % ("Recurring", self.recurring_payment_id)
+            return self.FORMAT % ("Recurring", self.recurring_payment_id)
         
     def is_transaction(self):
         return len(self.txn_id) > 0
@@ -240,7 +241,26 @@ class PayPalStandardBase(models.Model):
         if self.test_ipn:
             return SANDBOX_POSTBACK_ENDPOINT
         else:
-            return POSTBACK_ENDPOINT    
+            return POSTBACK_ENDPOINT
+
+    def send_signals(self):
+        """Shout for the world to hear whether a txn was successful."""
+        # Transaction signals:
+        if self.is_transaction():
+            if self.flag:
+                payment_was_flagged.send(sender=self)
+            else:
+                payment_was_successful.send(sender=self)
+        # Subscription signals:
+        else:
+            if self.is_subscription_cancellation():
+                subscription_cancel.send(sender=self)
+            elif self.is_subscription_signup():
+                subscription_signup.send(sender=self)
+            elif self.is_subscription_end_of_term():
+                subscription_eot.send(sender=self)
+            elif self.is_subscription_modified():
+                subscription_modify.send(sender=self) 
 
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
@@ -253,8 +273,4 @@ class PayPalStandardBase(models.Model):
         
     def _verify_postback(self):
         """Check self.response is valid andcall self.set_flag if there is an error."""
-        raise NotImplementedError
-        
-    def send_signals(self):
-        """Send success/fail signals based on self.flag."""
         raise NotImplementedError
