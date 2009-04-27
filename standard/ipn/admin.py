@@ -40,9 +40,9 @@ class PayPalIPNAdmin(admin.ModelAdmin):
         ("Admin", {
             "description": "Additional Info.",
             "classes": ('collapse',),
-            "fields": L("test_ipn ipaddress query flag_code flag_info")
+            "fields": L("test_ipn ipaddress query response flag_code flag_info")
         }),
     )
-    list_display = L("__unicode__ flag invoice custom payment_status created_at")
+    list_display = L("__unicode__ flag flag_info invoice custom payment_status created_at")
     search_fields = L("txn_id recurring_payment_id")
 admin.site.register(PayPalIPN, PayPalIPNAdmin)
