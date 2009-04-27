@@ -7,16 +7,11 @@ from paypal.standard.ipn.signals import *
 
 class PayPalIPN(PayPalStandardBase):
     """Logs PayPal IPN interactions."""
+    format = u"<IPN: %s %s>"
+
     class Meta:
         db_table = "paypal_ipn"
         verbose_name = "PayPal IPN"
-
-    def __unicode__(self):
-        fmt = u"<IPN: %s %s>"
-        if self.is_transaction():
-            return fmt % ("Transaction", self.txn_id)
-        else:
-            return fmt % ("Recurring", self.recurring_payment_id)
 
     def _postback(self):
         """Perform PayPal Postback validation."""

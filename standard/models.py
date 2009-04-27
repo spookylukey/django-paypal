@@ -164,6 +164,12 @@ class PayPalStandardBase(models.Model):
     
     class Meta:
         abstract = True
+
+    def __unicode__(self):
+        if self.is_transaction():
+            return self.format % ("Transaction", self.txn_id)
+        else:
+            return self.format % ("Recurring", self.recurring_payment_id)
         
     def is_transaction(self):
         return len(self.txn_id) > 0
@@ -230,25 +236,23 @@ class PayPalStandardBase(models.Model):
         self.send_signals()
 
     def get_endpoint(self):
+        """Set Sandbox endpoint if the test variable is present."""
         if self.test_ipn:
             return SANDBOX_POSTBACK_ENDPOINT
         else:
             return POSTBACK_ENDPOINT    
 
     def initialize(self, request):
-    
-        print request.method
-        print getattr(request, request.method).urlencode()
-    
+        """Store the data we'll need to make the postback from the request object."""
         self.query = getattr(request, request.method).urlencode()
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
         
     def _postback(self):
-        """Should postback to PayPal and store the response in self.response."""
+        """Perform postback to PayPal and store the response in self.response."""
         raise NotImplementedError
         
     def _verify_postback(self):
-        """Should check self.response and call self.set_flag if there is an error."""
+        """Check self.response is valid andcall self.set_flag if there is an error."""
         raise NotImplementedError
         
     def send_signals(self):
