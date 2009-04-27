@@ -194,7 +194,7 @@ class PayPalStandardBase(models.Model):
         if not check_secret(form_instance, secret):
             self.set_flag("Invalid secret.")
 
-    def verify(self, item_check_callable=None, test=True):
+    def verify(self, item_check_callable=None):
         """
         Verifies an IPN and a PDT.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
@@ -206,14 +206,14 @@ class PayPalStandardBase(models.Model):
 
         """
         from paypal.standard.helpers import duplicate_txn_id       
-        response = self._postback(test)
+        response = self._postback()
         result = self._verify_postback(response)  
         if result == True:
             if self.is_transaction():
                 if self.payment_status != "Completed":
                     self.set_flag("Invalid payment_status. (%s)" % self.payment_status)
                 if duplicate_txn_id(self):
-                    self.set_flag("Duplicate transaction ID. (%s)") % self.txn_id)
+                    self.set_flag("Duplicate transaction ID. (%s)" % self.txn_id)
                 if self.receiver_email != RECEIVER_EMAIL:
                     self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)
                 if callable(item_check_callable):
@@ -237,8 +237,8 @@ class PayPalStandardBase(models.Model):
         self.save()
         self.send_signals()
 
-    def get_endpoint(self, test):
-        if test:
+    def get_endpoint(self):
+        if self.test_ipn:
             return SANDBOX_POSTBACK_ENDPOINT
         else:
             return POSTBACK_ENDPOINT    
@@ -250,7 +250,7 @@ class PayPalStandardBase(models.Model):
     def send_signals(self, result=None):
         raise NotImplementedError
         
-    def _postback(self, test=True):
+    def _postback(self):
         raise NotImplementedError
         
     def _verify_postback(self, response):

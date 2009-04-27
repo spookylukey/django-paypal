@@ -18,9 +18,12 @@ class PayPalIPN(PayPalStandardBase):
         else:
             return fmt % ("Recurring", self.recurring_payment_id)
 
-    def _postback(self, test=True):
+    def _postback(self):
         """Perform PayPal Postback validation."""
-        return urllib2.urlopen(self.get_endpoint(test), "cmd=_notify-validate&%s" % self.query).read()
+        
+        print self.query
+        
+        return urllib2.urlopen(self.get_endpoint(), "cmd=_notify-validate&%s" % self.query).read()
     
     def _verify_postback(self, response):
         if response == "VERIFIED":
@@ -29,15 +32,15 @@ class PayPalIPN(PayPalStandardBase):
             self.set_flag("Invalid postback. (%s)" % response)
             return False
 
-    def send_signals(self):
+    def send_signals(self, result):
         # Transaction signals:
         if self.is_transaction():
             if self.flag:
                 payment_was_flagged.send(sender=self)
             else:
                 payment_was_successful.send(sender=self)
+        # Subscription signals:
         else:
-            # Subscription signals:
             if self.is_subscription_cancellation():
                 subscription_cancel.send(sender=self)
             elif self.is_subscription_signup():

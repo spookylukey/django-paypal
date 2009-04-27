@@ -3,7 +3,7 @@
 from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
-from paypal.standard.conf import TEST
+from paypal.standard.conf import *
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.models import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
@@ -29,24 +29,14 @@ class PayPalPaymentsForm(forms.Form):
     >>> f.render()
     u'<form action="https://www.paypal.com/cgi-bin/webscr" method="post"> ...'
     
-    """
-    # API Endpoints.
-    ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
-    IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-click-but01.gif")
-    SUBSCRIPTION_IMAGE = "https://www.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif"
-    
-    SANDBOX_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
-    SANDBOX_IMAGE = getattr(settings, "PAYPAL_SANDBOX_IMAGE", "https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif")
-    SUBSCRIPTION_SANDBOX_IMAGE = "https://www.sandbox.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif"
-    
+    """    
     CMD_CHOICES = (("_xclick", "Buy now or Donations"), ("_cart", "Shopping cart"), ("_xclick-subscriptions", "Subscribe"))
     SHIPPING_CHOICES = ((1, "No shipping"), (0, "Shipping"))
-    NO_NOTE_CHOICES = (("1", "No Note"), ("0", "Include Note"))
-    RECURRING_PAYMENT_CHOICES = (("1", "Subscription Payments Recur"), ("0", "Subscription payments do not recur"))
-    REATTEMPT_ON_FAIL_CHOICES = (("1", "reattempt billing on Failure"), ("0", "Do Not reattempt on failure"))
+    NO_NOTE_CHOICES = ((1, "No Note"), (0, "Include Note"))
+    RECURRING_PAYMENT_CHOICES = ((1, "Subscription Payments Recur"), (0, "Subscription payments do not recur"))
+    REATTEMPT_ON_FAIL_CHOICES = ((1, "reattempt billing on Failure"), (0, "Do Not reattempt on failure"))
         
     # Where the money goes.
-    RECEIVER_EMAIL = settings.PAYPAL_RECEIVER_EMAIL
     business = forms.CharField(widget=ValueHiddenInput(), initial=RECEIVER_EMAIL)
 
     # Item information.
@@ -82,26 +72,26 @@ class PayPalPaymentsForm(forms.Form):
     no_shipping = forms.ChoiceField(widget=forms.HiddenInput(), choices=SHIPPING_CHOICES, initial=SHIPPING_CHOICES[0][0])
 
     def __init__(self, button_type="buy", *args, **kwargs):
-        super(PayPalPaymentsForm, self).__init__(self, *args, **kwargs)
+        super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
     
     def render(self):
         return mark_safe(u"""<form action="%s" method="post">
     %s
-    <input type="image" src="%s" border="0" name="submit" alt="Paypal" />
+    <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
 </form>""" % (self.get_endpoint(), self.as_p(), self.get_image())) 
     
     def get_endpoint(self):
         if TEST:
-            return self.SANDBOX_ENDPOINT
+            return SANDBOX_POSTBACK_ENDPOINT
         else:
-            return self.ENDPOINT
+            return POSTBACK_ENDPOINT
         
     def get_image(self):
-        return {(True, True): self.SUBSCRIPTION_SANDBOX_IMAGE,
-                (True, False): self.SANDBOX_IMAGE,
-                (False, True): self.SUBSCRIPTION_IMAGE,
-                (False, False): self.IMAGE}[TEST, self.is_subscription()]
+        return {(True, True): SUBSCRIPTION_SANDBOX_IMAGE,
+                (True, False): SANDBOX_IMAGE,
+                (False, True): SUBSCRIPTION_IMAGE,
+                (False, False): IMAGE}[TEST, self.is_subscription()]
 
     def is_transaction(self):
         return self.button_type == "buy"
@@ -121,8 +111,8 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
     """
     def _encrypt(self):
         """Use your key thing to encrypt things."""
-        # ### ToDo: Could we move this to conf.py?
         from M2Crypto import BIO, SMIME, X509
+        # ### ToDo: Could we move this to conf.py?
         CERT = settings.PAYPAL_PRIVATE_CERT
         PUB_CERT = settings.PAYPAL_PUBLIC_CERT
         PAYPAL_CERT = settings.PAYPAL_CERT
@@ -161,8 +151,8 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
     	
     def as_p(self):
         return mark_safe(u"""
-        	<input type="hidden" name="cmd" value="_s-xclick" />
-        	<input type="hidden" name="encrypted" value="%s" />            
+<input type="hidden" name="cmd" value="_s-xclick" />
+<input type="hidden" name="encrypted" value="%s" />            
         """ % self._encrypt())
 
 
@@ -190,6 +180,7 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
 class PayPalStandardBaseForm(forms.ModelForm):
     """Form used to receive and record PayPal IPN/PDT."""
     # PayPal dates have non-standard formats.
+    time_created = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
     payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
     next_payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
     subscr_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
