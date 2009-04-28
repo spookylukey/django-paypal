@@ -14,9 +14,10 @@ from paypal.standard.models import PayPalStandardBase
 class PayPalSettingsError(Exception):
     """Raised when settings are incorrect."""
 
-if not hasattr(settings.PAYPAL_IDENTITY_TOKEN):
+try:
+    IDENTITY_TOKEN = settings.PAYPAL_IDENTITY_TOKEN
+except:
     raise PayPalSettingsError("You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
-IDENTITY_TOKEN = settings.PAYPAL_IDENTITY_TOKEN
 
 
 
@@ -71,4 +72,8 @@ class PayPalPDT(PayPalStandardBase):
         qd.update(response_dict)
         qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info))
         pdt_form = PayPalPDTForm(qd, instance=self)
-        pdt_form.save(commit=False)  
+        pdt_form.save(commit=False)
+        
+    def send_signals(self):
+        # Sendt the PDT signals...
+        pass

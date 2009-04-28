@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
-
-from paypal.standard.signals import *
 from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
@@ -243,29 +241,14 @@ class PayPalStandardBase(models.Model):
         else:
             return POSTBACK_ENDPOINT
 
-    def send_signals(self):
-        """Shout for the world to hear whether a txn was successful."""
-        # Transaction signals:
-        if self.is_transaction():
-            if self.flag:
-                payment_was_flagged.send(sender=self)
-            else:
-                payment_was_successful.send(sender=self)
-        # Subscription signals:
-        else:
-            if self.is_subscription_cancellation():
-                subscription_cancel.send(sender=self)
-            elif self.is_subscription_signup():
-                subscription_signup.send(sender=self)
-            elif self.is_subscription_end_of_term():
-                subscription_eot.send(sender=self)
-            elif self.is_subscription_modified():
-                subscription_modify.send(sender=self) 
-
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
         self.query = getattr(request, request.method).urlencode()
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
+
+    def send_signals(self):
+        """After a transaction is completed use this to send success/fail signals"""
+        raise NotImplementedError
         
     def _postback(self):
         """Perform postback to PayPal and store the response in self.response."""
