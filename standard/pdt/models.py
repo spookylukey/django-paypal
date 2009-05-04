@@ -20,7 +20,6 @@ except:
     raise PayPalSettingsError("You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
 
 
-
 class PayPalPDT(PayPalStandardBase):
     amt = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     cm = models.CharField(max_length=255, blank=True)
@@ -75,5 +74,5 @@ class PayPalPDT(PayPalStandardBase):
         pdt_form.save(commit=False)
         
     def send_signals(self):
-        # Sendt the PDT signals...
+        # Send the PDT signals...
         pass

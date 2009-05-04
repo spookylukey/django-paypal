@@ -20,11 +20,13 @@ Using PayPal Payments Standard IPN:
 
         git clone git://github.com/johnboxall/django-paypal.git paypal
 
-1. Edit `settings.py` and add  `paypal.standard.ipn` to your `INSTALLED_APPS`:
+1. Edit `settings.py` and add  `paypal.standard.ipn` to your `INSTALLED_APPS` and `PAYPAL_RECEIVER_EMAIL`:
 
         # settings.py
         ...
         INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
+        ...
+        PAYPAL_RECEIVER_EMAIL = "yourpaypalemail@example.com"
 
 1.  Create an instance of the `PayPalPaymentsForm` in the view where you would like the custom to pay.
     Call `render` on the instance in your template to write out the HTML.
