@@ -217,7 +217,7 @@ class PayPalStandardBase(models.Model):
             if self.is_transaction():
                 if self.payment_status != "Completed":
                     self.set_flag("Invalid payment_status (%s). " % self.payment_status)
-                if duplicate_txn_id(self):
+                if duplicate_txn_id(self, self.from_view):
                     self.set_flag("Duplicate transaction ID (%s). " % self.txn_id)
                 if self.receiver_email != RECEIVER_EMAIL:
                     self.set_flag("Invalid receiver_email (%s). " % self.receiver_email)
