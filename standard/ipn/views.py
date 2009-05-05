@@ -14,9 +14,12 @@ def handle_ipn_post(request, item_check_callable=None, from_view='notify'):
         try:
             ipn_obj = form.save(commit=False)
         except Exception, e:
+            ### FIXME: This needs to contain as much data as possible from the POST!
             ipn_obj = PayPalIPN()
             ipn_obj.set_flag("Exception while processing. (%s)" % form.errors)
     else:
+        ### FIXME: This needs to contain as much data as possible from the POST!
+        ipn_obj = PayPalIPN()
         ipn_obj.set_flag("Invalid form. (%s)" % form.errors)
 
     # notify/return/cancel
