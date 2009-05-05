@@ -53,7 +53,7 @@ class PayPalStandardBase(models.Model):
     auth_exp = models.CharField(max_length=28, blank=True)
     auth_id = models.CharField(max_length=19, blank=True)
     auth_status = models.CharField(max_length=9, blank=True) 
-    exchange_rate = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
+    exchange_rate = models.DecimalField(max_digits=64, decimal_places=16, default=0, blank=True, null=True)
     invoice = models.CharField(max_length=127, blank=True)
     item_name = models.CharField(max_length=127, blank=True)
     item_number = models.CharField(max_length=127, blank=True)
