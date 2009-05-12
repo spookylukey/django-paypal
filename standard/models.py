@@ -5,11 +5,26 @@ from django.conf import settings
 from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
+ST_PP_ACTIVE = 'Active'
+ST_PP_CANCELLED = 'Cancelled'
+ST_PP_CLEARED = 'Cleared'
+ST_PP_COMPLETED = 'Completed'
+ST_PP_DENIED = 'Denied'
+ST_PP_PAID = 'Paid'
+ST_PP_PENDING = 'Pending'
+ST_PP_PROCESSED = 'Processed'
+ST_PP_REFUSED = 'Refused'
+ST_PP_REVERSED = 'Reversed'
+ST_PP_REWARDED = 'Rewarded'
+ST_PP_UNCLAIMED = 'Unclaimed'
+ST_PP_UNCLEARED = 'Uncleared'
+
 
 class PayPalStandardBase(models.Model):
     """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
+    PAYMENT_STATUS_CHOICES = (ST_PP_ACTIVE, ST_PP_CANCELLED, ST_PP_CLEARED, ST_PP_COMPLETED, ST_PP_DENIED, ST_PP_PAID, ST_PP_PENDING, ST_PP_PROCESSED, ST_PP_REFUSED, ST_PP_REVERSED, ST_PP_REWARDED, ST_PP_UNCLAIMED, ST_PP_UNCLEARED)
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
     # ADDRESS_STATUS_CHOICES = "confirmed unconfirmed".split()
     # PAYER_STATUS_CHOICES = "verified / unverified".split()
@@ -53,7 +68,7 @@ class PayPalStandardBase(models.Model):
     auth_exp = models.CharField(max_length=28, blank=True)
     auth_id = models.CharField(max_length=19, blank=True)
     auth_status = models.CharField(max_length=9, blank=True) 
-    exchange_rate = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
+    exchange_rate = models.DecimalField(max_digits=64, decimal_places=16, default=0, blank=True, null=True)
     invoice = models.CharField(max_length=127, blank=True)
     item_name = models.CharField(max_length=127, blank=True)
     item_number = models.CharField(max_length=127, blank=True)
@@ -213,7 +228,7 @@ class PayPalStandardBase(models.Model):
         self._verify_postback()  
         if not self.flag:
             if self.is_transaction():
-                if self.payment_status != "Completed":
+                if self.payment_status not in self.PAYMENT_STATUS_CHOICES:
                     self.set_flag("Invalid payment_status (%s). " % self.payment_status)
                 if duplicate_txn_id(self, self.from_view):
                     self.set_flag("Duplicate transaction ID (%s). " % self.txn_id)
