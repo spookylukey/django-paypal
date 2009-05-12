@@ -160,7 +160,10 @@ class PayPalStandardBase(models.Model):
     response = models.TextField(blank=True)  # What we got back.
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    # Where did it come from?
+    from_view = models.CharField(max_length=6, null=True, blank=True)
+
     class Meta:
         abstract = True
 
@@ -212,7 +215,7 @@ class PayPalStandardBase(models.Model):
             if self.is_transaction():
                 if self.payment_status != "Completed":
                     self.set_flag("Invalid payment_status (%s). " % self.payment_status)
-                if duplicate_txn_id(self):
+                if duplicate_txn_id(self, self.from_view):
                     self.set_flag("Duplicate transaction ID (%s). " % self.txn_id)
                 if self.receiver_email != RECEIVER_EMAIL:
                     self.set_flag("Invalid receiver_email (%s). " % self.receiver_email)
@@ -241,15 +244,36 @@ class PayPalStandardBase(models.Model):
         else:
             return POSTBACK_ENDPOINT
 
+    def send_signals(self):
+        """Shout for the world to hear whether a txn was successful."""
+
+        # Don't do anything if we're not notifying!
+        if self.from_view != 'notify':
+            return
+
+        # Transaction signals:
+        if self.is_transaction():
+            if self.flag:
+                payment_was_flagged.send(sender=self)
+            else:
+                payment_was_successful.send(sender=self)
+        # Subscription signals:
+        else:
+            if self.is_subscription_cancellation():
+                subscription_cancel.send(sender=self)
+            elif self.is_subscription_signup():
+                subscription_signup.send(sender=self)
+            elif self.is_subscription_end_of_term():
+                subscription_eot.send(sender=self)
+            elif self.is_subscription_modified():
+                subscription_modify.send(sender=self) 
+
+
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
         self.query = getattr(request, request.method).urlencode()
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
-    def send_signals(self):
-        """After a transaction is completed use this to send success/fail signals"""
-        raise NotImplementedError
-        
     def _postback(self):
         """Perform postback to PayPal and store the response in self.response."""
         raise NotImplementedError

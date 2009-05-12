@@ -4,9 +4,9 @@ from django.conf import settings
 from django.contrib.auth.models import get_hexdigest
 
 
-def duplicate_txn_id(ipn_obj):
-    """Returns True if a record with this transaction id exists."""
-    return ipn_obj._default_manager.filter(txn_id=ipn_obj.txn_id).count() > 0
+def duplicate_txn_id(ipn_obj, from_view='notify'):
+    "Returns True if a record with this transaction id exists."
+    return ipn_obj._default_manager.filter(txn_id=ipn_obj.txn_id, from_view=from_view).count() > 0
     
 def make_secret(form_instance, secret_fields=None):
     """
