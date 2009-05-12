@@ -22,6 +22,7 @@ class DummyPayPalPDT():
                              'business': settings.PAYPAL_RECEIVER_EMAIL, 'error': 'Error code: 1234'}
         
         self.context_dict.update(update_context_dict)
+        self.response = ''
         
     def update_with_get_params(self, get_params):
         if get_params.has_key('tx'):
@@ -31,13 +32,14 @@ class DummyPayPalPDT():
         if get_params.has_key('cm'):
             self.context_dict['custom'] = get_params.get('cm')
             
-    def _postback(self, test=True):
+    def _postback(self):
         """
         Perform a Fake PayPal PDT Postback request.
-        """
+        """        
         t = get_template('pdt/fake_pdt_response.html')
         c = Context(self.context_dict)
         html = t.render(c)
+        self.response = html
         return html
 
 class PDTTest(TestCase):    
@@ -55,14 +57,15 @@ class PDTTest(TestCase):
         # Every test needs a client.
         self.client = Client()
 
-    def test_parse_paypal_response(self):
+    def test_verify_postback(self):
         dpppdt = DummyPayPalPDT()
         paypal_response = dpppdt._postback()
         assert('SUCCESS' in paypal_response)
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
         pdt_obj = PayPalPDT()
         pdt_obj.ipaddress = '127.0.0.1'
-        pdt_obj._parse_paypal_response(paypal_response)
+        pdt_obj.response = paypal_response
+        pdt_obj._verify_postback()
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
         self.assertEqual(pdt_obj.txn_id, '1ED550410S3402306')
         

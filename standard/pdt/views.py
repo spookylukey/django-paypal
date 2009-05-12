@@ -13,6 +13,7 @@ def pdt(request, item_check_callable=None, template="pdt/pdt.html", context=None
     context = context or {}
     pdt_obj = None
     txn_id = request.GET.get('tx')
+    failed = False
     if txn_id is not None:        
         # If an existing transaction with the id tx exists: use it
         try:
@@ -22,7 +23,6 @@ def pdt(request, item_check_callable=None, template="pdt/pdt.html", context=None
             pass
         
         if pdt_obj is None:
-            failed = False
             form = PayPalPDTForm(request.GET)
             if form.is_valid():
                 try:
@@ -38,14 +38,11 @@ def pdt(request, item_check_callable=None, template="pdt/pdt.html", context=None
                 pdt_obj = PayPalPDT()
                 pdt_obj.set_flag("Invalid form. %s" % error)
             
-            pdt_obj.init(request)
+            pdt_obj.initialize(request)
         
             if not failed:
                 # The PDT object gets saved during verify
-                if pdt_obj.test_ipn:
-                    pdt_obj.verify(item_check_callable)
-                else:
-                    pdt_obj.verify(item_check_callable, test=False)
+                pdt_obj.verify(item_check_callable)
     else:
         pass # we ignore any PDT requests that don't have a transaction id    
  

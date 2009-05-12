@@ -23,3 +23,9 @@ subscription_modify = Signal()
 
 # Sent when a subscription ends.
 subscription_signup = Signal()
+
+# Sent when a successful pdt occurs
+pdt_successful = Signal()
+
+# Sent when a failed pdt occurs
+pdt_failed = Signal()

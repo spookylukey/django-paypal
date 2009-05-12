@@ -11,7 +11,7 @@ class DummyPayPalIPN(PayPalIPN):
             
     def _postback(self, test=True):
         """Perform a Fake PayPal IPN Postback request."""
-        return HttpResponse(self.st)
+        return self.st
 
 
 class IPNTest(TestCase):    
@@ -50,6 +50,9 @@ class IPNTest(TestCase):
             "mc_gross":"10.00",
             "quantity":"1",}
         
+        self.dppipn = DummyPayPalIPN()
+        PayPalIPN._postback = self.dppipn._postback
+        
         # Every test needs a client.
         self.client = Client()        
         
@@ -71,7 +74,7 @@ class IPNTest(TestCase):
         self.assertEqual(len(PayPalIPN.objects.all()), 1)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, True)
-        self.assertEqual(ipn_obj.flag_info, "Invalid receiver_email.")
+        self.assertEqual(ipn_obj.flag_info, "Invalid receiver_email (incorrect_email@someotherbusiness.com).")
         
     def test_invalid_payment_status(self):       
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
@@ -82,7 +85,7 @@ class IPNTest(TestCase):
         self.assertEqual(len(PayPalIPN.objects.all()), 1)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, True)
-        self.assertEqual(ipn_obj.flag_info, "Invalid payment_status.")
+        self.assertEqual(ipn_obj.flag_info, "Invalid payment_status (Failed).")
 
     def test_duplicate_txn_id(self):       
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
@@ -98,7 +101,7 @@ class IPNTest(TestCase):
         self.assertEqual(len(PayPalIPN.objects.all()), 2)
         ipn_obj = PayPalIPN.objects.all().order_by('-created_at')[0]
         self.assertEqual(ipn_obj.flag, True)
-        self.assertEqual(ipn_obj.flag_info, "Duplicate transaction ID.")
+        self.assertEqual(ipn_obj.flag_info, "Duplicate transaction ID (51403485VH153354B).")
         
     def test_failed_ipn(self):
         self.dppipn = DummyPayPalIPN(st='INVALID')
