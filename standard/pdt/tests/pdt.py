@@ -46,7 +46,7 @@ class PDTTest(TestCase):
     def setUp(self):
         # set up some dummy PDT get parameters
         self.get_params = {"tx":"4WJ86550014687441", "st":"Completed", "amt":"225.00", "cc":"EUR",
-                      "cm":"a3e192b8%2d8fea%2d4a86%2db2e8%2dd5bf502e36be", "item_number":"",
+                      "cm":"a3e192b8-8fea-4a86-b2e8-d5bf502e36be", "item_number":"",
                       "sig":"blahblahblah"}
         
         # monkey patch the PayPalPDT._postback function
@@ -116,6 +116,16 @@ class PDTTest(TestCase):
         paypal_response = self.client.get(reverse('paypal-pdt'), self.get_params)
         self.assertContains(paypal_response, 'Transaction Failed', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
+        
+        
+    def test_custom_passthrough(self):
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)        
+        self.dpppdt.update_with_get_params(self.get_params)
+        paypal_response = self.client.get(reverse('paypal-pdt'), self.get_params)
+        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 1)
+        pdt_obj = PayPalPDT.objects.all()[0]
+        self.assertEqual(pdt_obj.custom, self.get_params['cm'] )
 
     
     
