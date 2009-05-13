@@ -8,6 +8,7 @@ from django.http import QueryDict
 from django.utils.http import urlencode
 from paypal.standard.models import PayPalStandardBase
 from signals import pdt_successful, pdt_failed
+from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
 # ### Todo: Move this logic to conf.py:
 # if paypal.standard.pdt is in installed apps
@@ -44,6 +45,13 @@ class PayPalPDT(PayPalStandardBase):
         postback_dict = dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)
         postback_params = urlencode(postback_dict)
         return urllib2.urlopen(self.get_endpoint(), postback_params).read()
+    
+    def get_endpoint(self):
+        """Use the sandbox when in DEBUG mode as we don't have a test_ipn variable in pdt."""
+        if settings.DEBUG:
+            return SANDBOX_POSTBACK_ENDPOINT
+        else:
+            return POSTBACK_ENDPOINT
     
     def _verify_postback(self):
         # ### Now we don't really care what result was, just whether a flag was set or not.
