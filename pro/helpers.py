@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib
-import urllib2
-import time
-import datetime
-import pprint
+import urllib, urllib2, time, datetime, pprint
 
 from django.conf import settings
 from django.forms.models import fields_for_model
@@ -24,23 +20,19 @@ NVP_FIELDS = fields_for_model(PayPalNVP).keys()
 
 
 def paypal_time(time_obj=None):
-    """
-    Returns a time suitable for `profilestartdate` or other PayPal time fields.
-    
-    """
+    """Returns a time suitable for PayPal time fields."""
     if time_obj is None:
         time_obj = time.gmtime()
     return time.strftime(PayPalNVP.TIMESTAMP_FORMAT, time_obj)
     
 def paypaltime2datetime(s):
-    """
-    Convert a PayPal time string to a DateTime.
-    
-    """
+    """Convert a PayPal time string to a DateTime."""
     return datetime.datetime(*(time.strptime(s, PayPalNVP.TIMESTAMP_FORMAT)[:6]))
 
+
 class PayPalError(Exception):
-    pass
+    """Error thrown when something be wrong."""
+    
 
 class PayPalWPP(object):
     """
@@ -54,10 +46,7 @@ class PayPalWPP(object):
 
     """
     def __init__(self, request, params=BASE_PARAMS):
-        """
-        Required - USER / PWD / SIGNATURE / VERSION
-
-        """
+        """Required - USER / PWD / SIGNATURE / VERSION"""
         self.request = request
         if TEST:
             self.endpoint = SANDBOX_ENDPOINT
@@ -67,14 +56,11 @@ class PayPalWPP(object):
         self.signature = urllib.urlencode(self.signature_values) + "&"
 
     def doDirectPayment(self, params):
-        """
-        Do direct payment. Woot, this is where we take the money from the guy.        
-        
-        """
+        """Call PayPal DoDirectPayment method."""
         defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
         required = L("creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
         nvp_obj = self._fetch(params, required, defaults)
-        # ### Could check cvv2match / avscode are both 'X' or '0'
+        # @@@ Could check cvv2match / avscode are both 'X' or '0'
         # qd = django.http.QueryDict(nvp_obj.response)
         # if qd.get('cvv2match') not in ['X', '0']:
         #   nvp_obj.set_flag("Invalid cvv2match: %s" % qd.get('cvv2match')
@@ -161,11 +147,7 @@ class PayPalWPP(object):
         raise NotImplementedError
 
     def _is_recurring(self, params):
-        """
-        Helper tries to determine whether an item is recurring by looking at
-        the parameters included. billingfrequency is not given for one time payments.
-        
-        """
+        """Returns True if the item passed is a recurring transaction."""
         return 'billingfrequency' in params
 
     def _recurring_setExpressCheckout_adapter(self, params):
@@ -185,10 +167,7 @@ class PayPalWPP(object):
         return params
 
     def _fetch(self, params, required, defaults):
-        """
-        Make the NVP request and store the response.
-        
-        """
+        """Make the NVP request and store the response."""
         defaults.update(params)
         pp_params = self._check_and_update_params(required, defaults)        
         pp_string = self.signature + urllib.urlencode(pp_params)
@@ -201,14 +180,10 @@ class PayPalWPP(object):
         pprint.pprint(response_params)
 
         # Put all fields from NVP into everything so we can pass it to `create`.
-        everything = {}
-        def merge(*dicts):
-            for d in dicts:
-                for k, v in d.iteritems():
-                    if k in NVP_FIELDS:
-                        everything[k] = v
-                        
-        merge(defaults, response_params)
+        everything = defaults
+        for k, v in response_params.iteritems():
+            if k in NVP_FIELDS:
+                everything[k] = v
 
         # PayPal timestamp has to be set correctly to be stored.
         if 'timestamp' in everything:
@@ -220,10 +195,7 @@ class PayPalWPP(object):
         return nvp_obj
         
     def _request(self, data):
-        """
-        Moved out to make testing easier.
-        
-        """
+        """Moved out to make testing easier."""
         return urllib2.urlopen(self.endpoint, data).read()
 
     def _check_and_update_params(self, required, params):
