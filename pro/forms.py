@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 
-from paypal.pro.fields import CreditCardField, CreditCardExpiryField, 
-    CreditCardCVV2Field, CountryField
+from paypal.pro.fields import CreditCardField, CreditCardExpiryField, CreditCardCVV2Field, CountryField
 
 
 class PaymentForm(forms.Form):

@@ -4,6 +4,7 @@ import urllib, urllib2, time, datetime, pprint
 
 from django.conf import settings
 from django.forms.models import fields_for_model
+from django.utils.datastructures import MergeDict
 
 from paypal.pro.models import PayPalNVP, L
 
@@ -43,7 +44,6 @@ class PayPalWPP(object):
 
     Name-Value Pair API Developer Guide and Reference:
     https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_NVPAPI_DeveloperGuide.pdf
-
     """
     def __init__(self, request, params=BASE_PARAMS):
         """Required - USER / PWD / SIGNATURE / VERSION"""
@@ -91,10 +91,7 @@ class PayPalWPP(object):
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
         required =L("returnurl cancelurl amt token payerid")
         nvp_obj = self._fetch(params, required, defaults)
-        if nvp_obj.flag:
-            return False
-        else:
-            return True
+        return not nvp_obj.flag
         
     def createRecurringPaymentsProfile(self, params, direct=False):
         """
@@ -114,10 +111,7 @@ class PayPalWPP(object):
         nvp_obj = self._fetch(params, required, defaults)
         
         # Flag if profile_type != ActiveProfile
-        if nvp_obj.flag:
-            return False
-        else:
-            return True
+        return not nvp_obj.flag
 
     def getExpressCheckoutDetails(self, params):
         raise NotImplementedError
@@ -154,7 +148,6 @@ class PayPalWPP(object):
         """
         The recurring payment interface to SEC is different than the recurring payment
         interface to ECP. This adapts a normal call to look like a SEC call.
-        
         """
         params['l_billingtype0'] = "RecurringPayments"
         params['l_billingagreementdescription0'] = params['desc']
@@ -179,17 +172,17 @@ class PayPalWPP(object):
         print '\nPayPal Response:'
         pprint.pprint(response_params)
 
-        # Put all fields from NVP into everything so we can pass it to `create`.
-        everything = defaults
-        for k, v in response_params.iteritems():
+        # Gather all NVP parameters to pass to a new instance.
+        nvp_params = {}
+        for k, v in MergeDict(defaults, response_params).items():
             if k in NVP_FIELDS:
-                everything[k] = v
+                nvp_params[k] = v    
 
-        # PayPal timestamp has to be set correctly to be stored.
-        if 'timestamp' in everything:
-            everything['timestamp'] = paypaltime2datetime(everything['timestamp'])
+        # PayPal timestamp has to be formatted.
+        if 'timestamp' in nvp_params:
+            nvp_params['timestamp'] = paypaltime2datetime(nvp_params['timestamp'])
 
-        nvp_obj = PayPalNVP(**everything)
+        nvp_obj = PayPalNVP(**nvp_params)
         nvp_obj.init(self.request, params, response_params)
         nvp_obj.save()
         return nvp_obj

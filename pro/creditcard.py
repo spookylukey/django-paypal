@@ -36,7 +36,7 @@ class CreditCard(object):
         return self.number.isdigit()
 
     def is_mod10(self):
-        """Returns True if the card number is valid according to mod10."""
+        """Returns True if number is valid according to mod10."""
         double = 0
         total = 0
         for i in range(len(self.number) - 1, -1, -1):
@@ -46,7 +46,7 @@ class CreditCard(object):
         return (total % 10) == 0
 
     def is_test(self):
-        """Make sure its not a junk card."""
+        """Returns True if number is a test card number."""
         return self.number in TEST_NUMBERS
 
     def get_type(self):
