@@ -74,7 +74,6 @@ class PayPalWPP(object):
         Optionally, the SetExpressCheckout API operation can set up billing agreements for
         reference transactions and recurring payments.
         Returns a NVP instance - check for token and payerid to continue!
-        
         """
         if self._is_recurring(params):
             params = self._recurring_setExpressCheckout_adapter(params)
@@ -86,7 +85,6 @@ class PayPalWPP(object):
     def doExpressCheckoutPayment(self, params):
         """
         Check the dude out:
-        
         """
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
         required =L("returnurl cancelurl amt token payerid")
@@ -97,7 +95,6 @@ class PayPalWPP(object):
         """
         Set direct to True to indicate that this is being called as a directPayment.
         Returns True PayPal successfully creates the profile otherwise False.
-        
         """
         defaults = {"method": "CreateRecurringPaymentsProfile"}
         required = L("profilestartdate billingperiod billingfrequency amt")
@@ -192,6 +189,10 @@ class PayPalWPP(object):
         return urllib2.urlopen(self.endpoint, data).read()
 
     def _check_and_update_params(self, required, params):
+        """
+        Ensure all required parameters were passed to the API call and format
+        them correctly.
+        """
         for r in required:
             if r not in params:
                 raise PayPalError("Missing required param: %s" % r)    
@@ -200,6 +201,7 @@ class PayPalWPP(object):
         return (dict((k.upper(), v) for k, v in params.iteritems()))
 
     def _parse_response(self, response):
+        """Turn the PayPal response into a dict"""
         response_tokens = {}
         for kv in response.split('&'):
             key, value = kv.split("=")
