@@ -107,11 +107,13 @@ Paypal Payment Data Transfer (PDT) allows you to display transaction details to 
 
         git clone git://github.com/johnboxall/django-paypal.git paypal
 
-1. Edit `settings.py` and add  `paypal.standard.pdt` to your `INSTALLED_APPS`:
+1. Edit `settings.py` and add  `paypal.standard.pdt` to your `INSTALLED_APPS`. Also set `PAYPAL_IDENTITY_TOKEN` - you can find the correct value of this setting from the PayPal website:
 
         # settings.py
         ...
-        INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
+        INSTALLED_APPS = (... 'paypal.standard.pdt', ...)
+        
+        PAYPAL_IDENTITY_TOKEN = "xxx"
 
 1.  Create a view that uses `PayPalPaymentsForm` just like in PayPal IPN.
 
