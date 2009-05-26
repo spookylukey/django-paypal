@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.contrib.auth.models import get_hexdigest
 
 
 def duplicate_txn_id(ipn_obj):
@@ -14,6 +13,8 @@ def make_secret(form_instance, secret_fields=None):
     selection of variables in params. Should only be used with SSL.
     
     """
+    # @@@ Moved here as temporary fix to avoid dependancy on auth.models.
+    from django.contrib.auth.models import get_hexdigest
     # ### ToDo: amount is mc_gross on the IPN - where should mapping logic go?
     # ### ToDo: amount / mc_gross is not nessecarily returned as it was sent - how to use it? 10.00 vs. 10.0
     # ### ToDo: the secret should be based on the invoice or custom fields as well - otherwise its always the same.
