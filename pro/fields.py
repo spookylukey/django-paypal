@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-import re        
-import datetime
-from datetime import date, datetime
+# -*- coding: utf-8 -*-
+from datetime import date
 from calendar import monthrange
 
 from django import forms
@@ -12,37 +11,28 @@ from paypal.pro.creditcard import verify_credit_card
 
 
 class CreditCardField(forms.CharField):
-    """
-    Form field for checking out a credit card.
-
-    """
+    """Form field for checking out a credit card."""
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 20)
         super(CreditCardField, self).__init__(*args, **kwargs)
         
     def clean(self, value):
-        """
-        Raises a ValidationError if the card is not valid.
-        Also sets card type!
-        
-        """
-        card_type = verify_credit_card(value)
-        if card_type is None:
+        """Raises a ValidationError if the card is not valid and stashes card type."""
+        self.card_type = verify_credit_card(value)
+        if self.card_type is None:
             raise forms.ValidationError("Invalid credit card number.")
-
-        self.card_type = card_type
         return value
 
 
 # Credit Card Expiry Fields from:
 # http://www.djangosnippets.org/snippets/907/
 class CreditCardExpiryWidget(forms.MultiWidget):
-    """
-    MultiWidget for representing CC expiry date.
-    
-    """
+    """MultiWidget for representing credit card expiry date."""
     def decompress(self, value):
-        return [value.month, value.year] if value else [None, None]
+        if value:
+            return [value.month, value.year]
+        else:
+            return [None, None]
 
     def format_output(self, rendered_widgets):
         html = u' / '.join(rendered_widgets)

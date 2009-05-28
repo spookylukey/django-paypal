@@ -21,5 +21,5 @@ subscription_eot = Signal()
 # Sent when a subscription was modified.
 subscription_modify = Signal()
 
-# Sent when a subscription ends.
+# Sent when a subscription is created.
 subscription_signup = Signal()

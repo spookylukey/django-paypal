@@ -6,10 +6,7 @@ from paypal.pro.fields import CreditCardField, CreditCardExpiryField, CreditCard
 
 
 class PaymentForm(forms.Form):
-    """
-    Form used to process direct payments.
-    
-    """
+    """Form used to process direct payments."""
     firstname = forms.CharField(255, label="First Name")
     lastname = forms.CharField(255, label="Last Name")
     street = forms.CharField(255, label="Street Address")
@@ -22,10 +19,7 @@ class PaymentForm(forms.Form):
     cvv2 = CreditCardCVV2Field(label="Card Security Code")
 
     def process(self, request, item):
-        """
-        Process a PayPal direct payment.
-        
-        """
+        """Process a PayPal direct payment."""
         from paypal.pro.helpers import PayPalWPP
         wpp = PayPalWPP(request) 
         params = self.cleaned_data
@@ -46,9 +40,6 @@ class PaymentForm(forms.Form):
 
 
 class ConfirmForm(forms.Form):
-    """
-    Hidden form used by ExpressPay flow to keep track of payer information.
-    
-    """
+    """Hidden form used by ExpressPay flow to keep track of payer information."""
     token = forms.CharField(max_length=255, widget=forms.HiddenInput())
     PayerID = forms.CharField(max_length=255, widget=forms.HiddenInput())

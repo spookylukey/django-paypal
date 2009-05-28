@@ -12,6 +12,8 @@ seen floating around the internets. Buyers click on the button and are taken to 
 
 PayPal Payments Pro allows you to accept payments on your website. It contains two distinct payment flows - Direct Payment allows the user to enter credit card information on your website and pay on your website. Express Checkout sends the user over to PayPal to confirm their payment method before redirecting back to your website for confirmation. PayPal rules state that both methods must be implemented.
 
+There is currently an active discussion over the handling of some of the finer points of the PayPal API and the evolution of this code base - check it out over at [Django PayPal on Google Groups](http://groups.google.com/group/django-paypal).
+
 
 Using PayPal Payments Standard IPN:
 -------------------------------
@@ -107,11 +109,13 @@ Paypal Payment Data Transfer (PDT) allows you to display transaction details to 
 
         git clone git://github.com/johnboxall/django-paypal.git paypal
 
-1. Edit `settings.py` and add  `paypal.standard.pdt` to your `INSTALLED_APPS`:
+1. Edit `settings.py` and add  `paypal.standard.pdt` to your `INSTALLED_APPS`. Also set `PAYPAL_IDENTITY_TOKEN` - you can find the correct value of this setting from the PayPal website:
 
         # settings.py
         ...
-        INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
+        INSTALLED_APPS = (... 'paypal.standard.pdt', ...)
+        
+        PAYPAL_IDENTITY_TOKEN = "xxx"
 
 1.  Create a view that uses `PayPalPaymentsForm` just like in PayPal IPN.
 
@@ -286,6 +290,7 @@ PayPal Payments Pro is the more awesome version of PayPal that lets you accept p
 1. Add the IPN endpoints to your `urls.py` to receive callbacks from PayPal.
 
 1. Profit.
+
 
 ToDo:
 =====

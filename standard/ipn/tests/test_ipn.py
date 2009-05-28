@@ -4,18 +4,18 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 from paypal.standard.ipn.models import PayPalIPN
-
-class DummyPayPalIPN(PayPalIPN):    
+ 
+class DummyPayPalIPN(PayPalIPN):
     def __init__(self, st='VERIFIED'):
         self.st = st
             
     def _postback(self, test=True):
         """Perform a Fake PayPal IPN Postback request."""
         return self.st
-
-
-class IPNTest(TestCase):    
-    def setUp(self):        
+ 
+ 
+class IPNTest(TestCase):
+    def setUp(self):
         self.IPN_POST_PARAMS = {
             "protection_eligibility":"Ineligible",
             "last_name":"User",
@@ -54,18 +54,18 @@ class IPNTest(TestCase):
         PayPalIPN._postback = self.dppipn._postback
         
         # Every test needs a client.
-        self.client = Client()        
+        self.client = Client()
         
-    def test_correct_ipn(self):       
+    def test_correct_ipn(self):
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = self.IPN_POST_PARAMS        
+        post_params = self.IPN_POST_PARAMS
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(PayPalIPN.objects.all()), 1)        
+        self.assertEqual(len(PayPalIPN.objects.all()), 1)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, False)
   
-    def test_incorrect_receiver_email(self):       
+    def test_incorrect_receiver_email(self):
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
         post_params = self.IPN_POST_PARAMS
         post_params.update({"receiver_email":"incorrect_email@someotherbusiness.com"})
@@ -76,26 +76,26 @@ class IPNTest(TestCase):
         self.assertEqual(ipn_obj.flag, True)
         self.assertEqual(ipn_obj.flag_info, "Invalid receiver_email (incorrect_email@someotherbusiness.com).")
         
-    def test_invalid_payment_status(self):       
+    def test_invalid_payment_status(self):
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
         post_params = self.IPN_POST_PARAMS
-        post_params.update({"payment_status":"Failed",})            
+        post_params.update({"payment_status":"Failed",})
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(PayPalIPN.objects.all()), 1)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, True)
         self.assertEqual(ipn_obj.flag_info, "Invalid payment_status (Failed).")
-
-    def test_duplicate_txn_id(self):       
+ 
+    def test_duplicate_txn_id(self):
         self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = self.IPN_POST_PARAMS        
+        post_params = self.IPN_POST_PARAMS
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(PayPalIPN.objects.all()), 1)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, False)
-        post_params = self.IPN_POST_PARAMS  
+        post_params = self.IPN_POST_PARAMS
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(PayPalIPN.objects.all()), 2)
@@ -106,7 +106,7 @@ class IPNTest(TestCase):
     def test_failed_ipn(self):
         self.dppipn = DummyPayPalIPN(st='INVALID')
         PayPalIPN._postback = self.dppipn._postback
-        post_params = self.IPN_POST_PARAMS        
+        post_params = self.IPN_POST_PARAMS
         response = self.client.post(reverse('paypal-ipn'), post_params)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(PayPalIPN.objects.all()), 1)

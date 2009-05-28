@@ -2,7 +2,9 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import QueryDict
+from django.forms import ValidationError
 
+from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import PayPalWPP
 
 
@@ -35,7 +37,15 @@ class RequestFactory(Client):
         # Fake PayPal responses
 #         self.responses = {
 #             "DoDirectPayment": "Dodirect pay!!!",}
-    
+
+
+class CreditCardFieldTest(TestCase):
+    def testCreditCardField(self):
+        field = CreditCardField()
+        field.clean('4797503429879309')
+        self.assertEquals(field.card_type, "Visa")
+        self.assertRaises(ValidationError, CreditCardField().clean, '1234567890123455')
+
         
 class PayPalWPPTestCase(TestCase):
     def setUp(self):
