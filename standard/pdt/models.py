@@ -44,7 +44,7 @@ class PayPalPDT(PayPalStandardBase):
         """
         postback_dict = dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)
         postback_params = urlencode(postback_dict)
-        self.response = urllib2.urlopen(self.get_endpoint(), postback_params).read()
+        return urllib2.urlopen(self.get_endpoint(), postback_params).read()
     
     def get_endpoint(self):
         """Use the sandbox when in DEBUG mode as we don't have a test_ipn variable in pdt."""
