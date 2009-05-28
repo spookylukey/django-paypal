@@ -18,6 +18,7 @@ def ipn(request, item_check_callable=None):
     
     """    
     flag = None
+    ipn_obj = None
     form = PayPalIPNForm(request.POST)
     if form.is_valid():
         try:
@@ -27,8 +28,12 @@ def ipn(request, item_check_callable=None):
     else:
         flag = "Invalid form. (%s)" % form.errors
 
-    if flag is not None:
-        ipn_obj = PayPalIPN()
+    if ipn_obj is None:
+        ipn_obj = PayPalIPN()    
+
+    ipn_obj.initialize(request)
+
+    if flag:
         ipn_obj.set_flag(flag)
     else:
         # Secrets should only be used over SSL.
@@ -37,6 +42,6 @@ def ipn(request, item_check_callable=None):
         else:
             ipn_obj.verify(item_check_callable)
 
-    ipn_obj.initialize(request)
+    
     ipn_obj.save()
     return HttpResponse("OKAY")

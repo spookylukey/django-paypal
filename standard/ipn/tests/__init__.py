@@ -1,1 +1,1 @@
-from ipn import *
+from test_ipn import *

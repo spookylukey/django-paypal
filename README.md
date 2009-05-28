@@ -12,7 +12,7 @@ seen floating around the internets. Buyers click on the button and are taken to 
 
 PayPal Payments Pro allows you to accept payments on your website. It contains two distinct payment flows - Direct Payment allows the user to enter credit card information on your website and pay on your website. Express Checkout sends the user over to PayPal to confirm their payment method before redirecting back to your website for confirmation. PayPal rules state that both methods must be implemented.
 
-[Django PayPal at Google Groups](http://groups.google.com/group/django-paypal)
+There is currently an active discussion over the handling of some of the finer points of the PayPal API and the evolution of this code base - check it out over at [Django PayPal on Google Groups](http://groups.google.com/group/django-paypal).
 
 
 Using PayPal Payments Standard IPN:
