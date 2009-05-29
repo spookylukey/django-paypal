@@ -7,8 +7,8 @@ from django.conf import settings
 from django.http import QueryDict
 from django.utils.http import urlencode
 from paypal.standard.models import PayPalStandardBase
-from signals import pdt_successful, pdt_failed
 from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
+from paypal.standard.pdt.signals import pdt_successful, pdt_failed
 
 # ### Todo: Move this logic to conf.py:
 # if paypal.standard.pdt is in installed apps
