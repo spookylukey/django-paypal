@@ -52,7 +52,9 @@ class PayPalPaymentsForm(forms.Form):
     src = forms.CharField(widget=ValueHiddenInput()) # Is billing recurring? default to yes
     sra = forms.CharField(widget=ValueHiddenInput()) # Reattempt billing on failed cc transaction
     no_note = forms.CharField(widget=ValueHiddenInput())
-
+    modify = forms.IntegerField(widget=ValueHiddenInput()) # Are we modifying an existing subscription?
+    # Can be either 1 or 2. 1 = modify or allow new subscription creation, 2 = modify only
+    
     # Localization / PayPal Setup
     lc = forms.CharField(widget=ValueHiddenInput())
     page_style = forms.CharField(widget=ValueHiddenInput())
