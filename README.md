@@ -5,7 +5,8 @@ Django PayPal
 About
 -----
 
-Django PayPal is a pluggable application that implements with PayPal Payments Standard and Payments Pro.
+Django PayPal is a pluggable application that implements with PayPal Payments 
+Standard and Payments Pro.
 
 Before diving in, a quick review of PayPal's payment methods is in order! [PayPal Payments Standard](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WebsitePaymentsStandard_IntegrationGuide.pdf) is the "Buy it Now" buttons you may have
 seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process [Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf) (IPN) but you may know it as [webhooks](http://blog.webhooks.org). This method kinda sucks because it drops your customers off at PayPal's website but it's easy to implement and doesn't require SSL.
@@ -22,7 +23,8 @@ Using PayPal Payments Standard IPN:
 
         git clone git://github.com/johnboxall/django-paypal.git paypal
 
-1. Edit `settings.py` and add  `paypal.standard.ipn` to your `INSTALLED_APPS` and `PAYPAL_RECEIVER_EMAIL`:
+1. Edit `settings.py` and add  `paypal.standard.ipn` to your `INSTALLED_APPS` 
+   and `PAYPAL_RECEIVER_EMAIL`:
 
         # settings.py
         ...
@@ -30,8 +32,9 @@ Using PayPal Payments Standard IPN:
         ...
         PAYPAL_RECEIVER_EMAIL = "yourpaypalemail@example.com"
 
-1.  Create an instance of the `PayPalPaymentsForm` in the view where you would like the custom to pay.
-    Call `render` on the instance in your template to write out the HTML.
+1.  Create an instance of the `PayPalPaymentsForm` in the view where you would 
+    like to collect money. Call `render` on the instance in your template to 
+    write out the HTML.
 
         # views.py
         ...
@@ -53,12 +56,14 @@ Using PayPal Payments Standard IPN:
             
             # Create the instance.
             form = PayPalPaymentsForm(initial=paypal_dict)
-            return render_to_response("payment.html", {"form":form})
+            context = {"form": form}
+            return render_to_response("payment.html", context)
             
             
-        # payment.html
+        <!-- payment.html -->
         ...
         <h1>Show me the money!</h1>
+        <!-- writes out the form tag automatically -->
         {{ form.render }}
 
 1.  When someone uses this button to buy something PayPal makes a HTTP POST to 
@@ -86,7 +91,7 @@ Using PayPal Payments Standard IPN:
     - `subscription_modify` - Sent when a subscription is modified.
     - `subscription_signup` - Sent when a subscription is created.
 
-	You can connect to these signals and update your data accordingly [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
+	Connect to these signals and update your data accordingly. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
 
         # models.py
         ...
@@ -241,53 +246,76 @@ Use postbacks for validation if:
 1. Verify that your IPN endpoint is running on SSL - `request.is_secure()` should return `True`!
 
 
-Using PayPal Payments Pro
--------------------------
+Using PayPal Payments Pro (WPP)
+-------------------------------
 
-PayPal Payments Pro is the more awesome version of PayPal that lets you accept payments on your site. Note that PayPal Pro uses a lot of the code from `paypal.standard` so you'll need to include both apps. Specifically IPN is still used for payment confirmation. There is a fairly good [explanation of the WPP basics on the PayPal Forums](http://www.pdncommunity.com/pdn/board/message?board.id=wppro&thread.id=192).
+WPP is the more awesome version of PayPal that lets you accept payments on your 
+site. WPP reuses code from `paypal.standard` so you'll need to include both 
+apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommunity.com/pdn/board/message?board.id=wppro&thread.id=192).
 
 
-1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your `INSTALLED_APPS`, also set your PayPal settings:
+1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your 
+   `INSTALLED_APPS`, also set your PayPal settings:
 
         # settings.py
         ...
         INSTALLED_APPS = (... 'paypal.standard', 'paypal.pro', ...)
-        PAYPAL_TEST = True         # Start in Testing Mode
-        PAYPAL_WPP_USER = ???      # Get from PayPal website!
-        PAYPAL_WPP_PASSWORD = ???
-        PAYPAL_WPP_SIGNATURE = ???
+        PAYPAL_TEST = True           # Testing mode on
+        PAYPAL_WPP_USER = "???"      # Get from PayPal
+        PAYPAL_WPP_PASSWORD = "???"
+        PAYPAL_WPP_SIGNATURE = "???"
 
+1. Run `python manage.py syncdb` to add the required tables.
 
-1. Write a view wrapper for `paypal.pro.views.PayPalPro` and add it to your `urls.py`:
+1. Write a wrapper view for `paypal.pro.views.PayPalPro`:
 
+        # views.py
         from paypal.pro.views import PayPalPro
 
         def buy_my_item(request):
-            item = {'amt':"10.00",              # amount to charge for item
-                    'inv':"inventory#",         # unique tracking variable paypal
-                    'custom':"tracking#",       # custom tracking variable for you
-                    'cancelurl':"http://...",   # Express checkout cancel url
-                    'returnurl':"http://..."}   # Express checkout return url
+          item = {"amt": "10.00",             # amount to charge for item
+                  "inv": "inventory",         # unique tracking variable paypal
+                  "custom": "tracking",       # custom tracking variable for you
+                  "cancelurl": "http://...",  # Express checkout cancel url
+                  "returnurl": "http://..."}  # Express checkout return url
         
-        kw = {'item':'item',                            # what you're selling
-               'payment_template': 'template',          # template to use for payment form
-               'confirm_template': 'confirm_template',  # form class to use for Express checkout confirmation
-               'payment_form_cls': 'payment_form_cls',  # form class to use for payment
-               'success_url': '/success',               # where to redirect after successful payment
-               }
-        ppp = PayPalPro(**kw)
-        return ppp(request)
-        
+          kw = {"item": item,                            # what you're selling
+                "payment_template": "payment.html",      # template name for payment
+                "confirm_template": "confirmation.html", # template name for confirmation
+                "success_url": "/success/"}              # redirect location after success
+                
+          ppp = PayPalPro(**kw)
+          return ppp(request)
+
+
+1. Create templates for payment and confirmation. By default both templates are 
+   populated with the context variable `form` which contains either a 
+   `PaymentForm` or a `Confirmation` form.
+
+    <!-- payment.html -->
+    <h1>Show me the money</h1>
+    <form method="post" action="">
+      {{ form }}
+      <input type="submit" value="Pay Up">
+    </form>
+    
+    <!-- confirmation.html -->
+    <h1>Are you sure you want to buy this thing?</h1>
+    <form method="post" action="">
+      {{ form }}
+      <input type="submit" value="Yes I Yams">
+    </form>
+
+1. Add your view to `urls.py`, and add the IPN endpoint to receive callbacks 
+   from PayPal:
+
         # urls.py
-        
+        ...
         urlpatterns = ('',
             ...
-            (r'^payment-url/$', 'myproject.views.pro')
-            ...
+            (r'^payment-url/$', 'myproject.views.buy_my_item')
+            (r'^some/obscure/name/', include('paypal.standard.ipn.urls')),
         )
-        
-
-1. Add the IPN endpoints to your `urls.py` to receive callbacks from PayPal.
 
 1. Profit.
 
@@ -307,6 +335,8 @@ Links:
 ------
 
 1. [Set your IPN Endpoint on the PayPal Sandbox](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify)
+
+2. [Django PayPal on Google Groups](http://groups.google.com/group/django-paypal)
 
 License (MIT)
 =============
