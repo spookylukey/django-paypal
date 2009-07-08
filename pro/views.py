@@ -187,7 +187,7 @@ class PayPalPro(object):
         pp_data = dict(token=self.request.POST['token'], payerid=self.request.POST['PayerID'])
         self.item.update(pp_data)
         
-        if self.is_recurring:
+        if self.is_recurring():
             success = wpp.createRecurringPaymentsProfile(self.item)
         else:
             success = wpp.doExpressCheckoutPayment(self.item)
