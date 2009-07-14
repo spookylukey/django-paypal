@@ -15,8 +15,7 @@ def ipn(request, item_check_callable=None):
     
     PayPal IPN Simulator:
     https://developer.paypal.com/cgi-bin/devscr?cmd=_ipn-link-session
-    
-    """    
+    """
     flag = None
     ipn_obj = None
     form = PayPalIPNForm(request.POST)
@@ -33,7 +32,7 @@ def ipn(request, item_check_callable=None):
 
     ipn_obj.initialize(request)
 
-    if flag:
+    if flag is not None:
         ipn_obj.set_flag(flag)
     else:
         # Secrets should only be used over SSL.
@@ -42,6 +41,5 @@ def ipn(request, item_check_callable=None):
         else:
             ipn_obj.verify(item_check_callable)
 
-    
     ipn_obj.save()
     return HttpResponse("OKAY")
