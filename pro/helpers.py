@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib, urllib2, time, datetime, pprint
+import datetime
+import pprint
+import time
+import urllib
+import urllib2
 
 from django.conf import settings
 from django.forms.models import fields_for_model
 from django.utils.datastructures import MergeDict
+from django.utils.http import urlencode
 
 from paypal.pro.models import PayPalNVP, L
 
@@ -31,7 +36,7 @@ def paypaltime2datetime(s):
     return datetime.datetime(*(time.strptime(s, PayPalNVP.TIMESTAMP_FORMAT)[:6]))
 
 
-class PayPalError(Exception):
+class PayPalError(TypeError):
     """Error thrown when something be wrong."""
     
 
@@ -53,7 +58,7 @@ class PayPalWPP(object):
         else:
             self.endpoint = ENDPOINT
         self.signature_values = params
-        self.signature = urllib.urlencode(self.signature_values) + "&"
+        self.signature = urlencode(self.signature_values) + "&"
 
     def doDirectPayment(self, params):
         """Call PayPal DoDirectPayment method."""
@@ -160,14 +165,15 @@ class PayPalWPP(object):
         """Make the NVP request and store the response."""
         defaults.update(params)
         pp_params = self._check_and_update_params(required, defaults)        
-        pp_string = self.signature + urllib.urlencode(pp_params)
+        pp_string = self.signature + urlencode(pp_params)
         response = self._request(pp_string)
         response_params = self._parse_response(response)
         
-        print 'PayPal Request:'
-        pprint.pprint(defaults)
-        print '\nPayPal Response:'
-        pprint.pprint(response_params)
+        if settings.DEBUG:
+            print 'PayPal Request:'
+            pprint.pprint(defaults)
+            print '\nPayPal Response:'
+            pprint.pprint(response_params)
 
         # Gather all NVP parameters to pass to a new instance.
         nvp_params = {}

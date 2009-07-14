@@ -1,15 +1,18 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from django.conf import settings
+from django.core.handlers.wsgi import WSGIRequest
+from django.forms import ValidationError
+from django.http import QueryDict
 from django.test import TestCase
 from django.test.client import Client
-from django.core.handlers.wsgi import WSGIRequest
-from django.http import QueryDict
-from django.forms import ValidationError
 
 from paypal.pro.fields import CreditCardField
-from paypal.pro.helpers import PayPalWPP
+from paypal.pro.helpers import PayPalWPP, PayPalError
 
 
 class RequestFactory(Client):
-    # This generates fake requests to pass to WPP.
+    # Used to generate request objects.
     def request(self, **request):
         environ = {
             'HTTP_COOKIE': self.cookies,
@@ -25,18 +28,20 @@ class RequestFactory(Client):
         environ.update(request)
         return WSGIRequest(environ)
 
+RF = RequestFactory()
+REQUEST = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
 
-# class DummyPayPalWPP(PayPalWPP):
-#     """
-#     Dummy class for testing PayPalWPP.
-#     
-#     """
-#     def _fetch(self, data):
-#         params = QueryDict(data)
-#         return DummyResponses[params["METHOD"]]
-        # Fake PayPal responses
-#         self.responses = {
-#             "DoDirectPayment": "Dodirect pay!!!",}
+
+class DummyPayPalWPP(PayPalWPP):
+    pass
+#     """Dummy class for testing PayPalWPP."""
+#     responses = {
+#         # @@@ Need some reals data here.
+#         "DoDirectPayment": """ack=Success&timestamp=2009-03-12T23%3A52%3A33Z&l_severitycode0=Error&l_shortmessage0=Security+error&l_longmessage0=Security+header+is+not+valid&version=54.0&build=854529&l_errorcode0=&correlationid=""",
+#     }
+# 
+#     def _request(self, data):
+#         return self.responses["DoDirectPayment"]
 
 
 class CreditCardFieldTest(TestCase):
@@ -47,30 +52,35 @@ class CreditCardFieldTest(TestCase):
         self.assertRaises(ValidationError, CreditCardField().clean, '1234567890123455')
 
         
-class PayPalWPPTestCase(TestCase):
+class PayPalWPPTest(TestCase):
     def setUp(self):
-        self.rf = RequestFactory()
-        self.request = self.rf.get("/pay/", REMOTE_ADDR="10.0.1.199")
+    
+        # Avoding blasting real requests at PayPal.
+        self.old_debug = settings.DEBUG
+        settings.DEBUG = True
+            
         self.item = {
             'amt': '9.95',
             'inv': 'inv',
             'custom': 'custom',
             'next': 'http://www.example.com/next/',
-            'returnurl': 'http://www.example.com/pay/',}                    
-        self.wpp = DummyPayPalWPP(self.request)
+            'returnurl': 'http://www.example.com/pay/'
+        }                    
+        self.wpp = DummyPayPalWPP(REQUEST)
+        
+    def tearDown(self):
+        settings.DEBUG = self.old_debug
 
-    def testDoDirectPayment(self):
-        ""
-        # Partial data should throw exception.
-        partial_data = {'firstname': 'Chewbacca'}
-        self.assertRaises(self.wpp.doDirectPayment(partial_data))
+    def test_doDirectPayment_missing_params(self):
+        data = {'firstname': 'Chewbacca'}
+        self.assertRaises(PayPalError, self.wpp.doDirectPayment, data)
 
-        # Full data should return True!
-        full_data = {
+    def test_doDirectPayment_valid(self):
+        data = {
             'firstname': 'Brave',
             'lastname': 'Star',
             'street': '1 Main St',
-            'city': 'San Jose',
+            'city': u'San Jos\xe9',
             'state': 'CA',
             'countrycode': 'US',
             'zip': '95131',
@@ -79,11 +89,11 @@ class PayPalWPPTestCase(TestCase):
             'acct': '4797503429879309',
             'creditcardtype': 'visa',
             'ipaddress': '10.0.1.199',}
-        full_data.update(self.item)        
-        self.assertTrue(self.wpp.doDirectPayment(full_data))
-
-        # Failure data should return False!
-        fail_data = {
+        data.update(self.item)
+        self.assertTrue(self.wpp.doDirectPayment(data))
+        
+    def test_doDirectPayment_invalid(self):
+        data = {
             'firstname': 'Epic',
             'lastname': 'Fail',
             'street': '100 Georgia St',
@@ -96,8 +106,8 @@ class PayPalWPPTestCase(TestCase):
             'acct': '1234567890',
             'creditcardtype': 'visa',
             'ipaddress': '10.0.1.199',}
-        fail_data.update(self.item)
-        self.assertFalse(self.wpp.doDirectPayment(fail_data))
+        data.update(self.item)
+        self.assertFalse(self.wpp.doDirectPayment(data))
 
     def testSetExpressCheckout(self):
         ""
@@ -153,3 +163,77 @@ class PayPalWPPTestCase(TestCase):
 #  'transactionid': '3TG42202A7335864V',
 #  'transactiontype': 'expresscheckout',
 #  'version': '54.0'}
+
+"""
+PayPal Request:
+{'acct': '1234567890',
+ 'amt': '9.95',
+ 'city': 'Vancouver',
+ 'countrycode': 'CA',
+ 'creditcardtype': 'visa',
+ 'custom': 'custom',
+ 'cvv2': '999',
+ 'expdate': '012019',
+ 'firstname': 'Epic',
+ 'inv': 'inv',
+ 'ipaddress': '10.0.1.199',
+ 'lastname': 'Fail',
+ 'method': 'DoDirectPayment',
+ 'next': 'http://www.example.com/next/',
+ 'paymentaction': 'Sale',
+ 'returnurl': 'http://www.example.com/pay/',
+ 'state': 'BC',
+ 'street': '100 Georgia St',
+ 'zip': 'V6V 1V1'}
+ 
+
+
+PayPal Response:
+{'ack': 'Failure',
+ 'amt': '9.95',
+ 'build': '962735',
+ 'correlationid': '6c7470a26f50',
+ 'currencycode': 'USD',
+ 'l_errorcode0': '10527',
+ 'l_longmessage0': 'This transaction cannot be processed. Please enter a valid credit card number and type.',
+ 'l_severitycode0': 'Error',
+ 'l_shortmessage0': 'Invalid Data',
+ 'timestamp': '2009-07-14T16:25:14Z',
+ 'version': '54.0'}
+
+
+
+PayPal Request:
+{'acct': '4797503429879309',
+ 'amt': '9.95',
+ 'city': u'San Jos\xe9',
+ 'countrycode': 'US',
+ 'creditcardtype': 'visa',
+ 'custom': 'custom',
+ 'cvv2': '037',
+ 'expdate': '012019',
+ 'firstname': 'Brave',
+ 'inv': 'inv',
+ 'ipaddress': '10.0.1.199',
+ 'lastname': 'Star',
+ 'method': 'DoDirectPayment',
+ 'next': 'http://www.example.com/next/',
+ 'paymentaction': 'Sale',
+ 'returnurl': 'http://www.example.com/pay/',
+ 'state': 'CA',
+ 'street': '1 Main St',
+ 'zip': '95131'}
+
+PayPal Response:
+{'ack': 'Success',
+ 'amt': '9.95',
+ 'avscode': 'X',
+ 'build': '962735',
+ 'correlationid': '36c8179352160',
+ 'currencycode': 'USD',
+ 'cvv2match': 'M',
+ 'timestamp': '2009-07-14T16:25:22Z',
+ 'transactionid': '4NC00018J73871820',
+ 'version': '54.0'}
+
+"""
