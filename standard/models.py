@@ -167,9 +167,9 @@ class PayPalStandardBase(models.Model):
 
     def __unicode__(self):
         if self.is_transaction():
-            return self.FORMAT % ("Transaction", self.txn_id)
+            return self.format % ("Transaction", self.txn_id)
         else:
-            return self.FORMAT % ("Recurring", self.recurring_payment_id)
+            return self.format % ("Recurring", self.recurring_payment_id)
         
     def is_transaction(self):
         return len(self.txn_id) > 0
