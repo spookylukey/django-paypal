@@ -2,8 +2,11 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.test import TestCase
 from django.test.client import Client
+
 from paypal.standard.ipn.models import PayPalIPN
-from paypal.standard.ipn.signals import payment_was_flagged
+from paypal.standard.ipn.signals import (payment_was_successful, 
+    payment_was_flagged)
+
 
 IPN_POST_PARAMS = {
     "protection_eligibility": "Ineligible",
@@ -41,81 +44,71 @@ IPN_POST_PARAMS = {
 }
 
 
-class DummyPayPalIPN(PayPalIPN):    
-    def __init__(self, st='VERIFIED'):
-        self.st = st
-            
-    def _postback(self, test=True):
-        """Perform a Fake PayPal IPN Postback request."""
-        return HttpResponse(self.st)
-
-
-# @@@ Currently the flag_info doesn't seem to be set correctly.
 class IPNTest(TestCase):    
     urls = 'paypal.standard.ipn.tests.test_urls'
 
-    def test_correct_ipn(self):
-        # @@@ Correct IPN doesn't work anymore!   
-        self.assertEqual(len(PayPalIPN.objects.all()), 0)
+    def setUp(self):
+        self.old_debug = settings.DEBUG
+        settings.DEBUG = True
+
+        # Monkey patch over PayPalIPN to make it get a VERFIED response.
+        self.old_postback = PayPalIPN._postback
+        PayPalIPN._postback = lambda self: "VERIFIED"
+        
+    def tearDown(self):
+        settings.DEBUG = self.old_debug
+        PayPalIPN._postback = self.old_postback
+
+    def assertGotSignal(self, signal, flagged):
+        # Check the signal was sent. These get lost if they don't reference self.
+        self.got_signal = False
+        self.signal_obj = None
+        
+        def handle_signal(sender, **kwargs):
+            self.got_signal = True
+            self.signal_obj = sender
+        signal.connect(handle_signal)
+        
         response = self.client.post("/ipn/", IPN_POST_PARAMS)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(PayPalIPN.objects.all()), 1)        
-        ipn_obj = PayPalIPN.objects.all()[0]        
-        self.assertEqual(ipn_obj.flag, False)
-  
-    def test_incorrect_receiver_email(self):       
-        self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = IPN_POST_PARAMS.copy()
-        post_params.update({"receiver_email":"incorrect_email@someotherbusiness.com"})
-        response = self.client.post("/ipn/", post_params)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(PayPalIPN.objects.all()), 1)
-        ipn_obj = PayPalIPN.objects.all()[0]
-        self.assertEqual(ipn_obj.flag, True)
-        # self.assertEqual(ipn_obj.flag_info, "Invalid receiver_email.")
+        ipns = PayPalIPN.objects.all()
+        self.assertEqual(len(ipns), 1)        
+        ipn_obj = ipns[0]        
+        self.assertEqual(ipn_obj.flag, flagged)
         
-    def test_invalid_payment_status(self):       
-        self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = IPN_POST_PARAMS.copy()
-        post_params.update({"payment_status":"Failed",})            
-        response = self.client.post("/ipn/", post_params)
+        self.assertTrue(self.got_signal)
+        self.assertEqual(self.signal_obj, ipn_obj)
+        
+    def test_correct_ipn(self):
+        self.assertGotSignal(payment_was_successful, False)
+
+    def test_failed_ipn(self):
+        PayPalIPN._postback = lambda self: "INVALID"
+        self.assertGotSignal(payment_was_flagged, True)
+
+    def assertFlagged(self, updates, flag_info):
+        params = IPN_POST_PARAMS.copy()
+        params.update(updates)
+        response = self.client.post("/ipn/", params)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(PayPalIPN.objects.all()), 1)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, True)
-        # self.assertEqual(ipn_obj.flag_info, "Invalid payment_status.")
+        self.assertEqual(ipn_obj.flag_info, flag_info)
+
+    def test_incorrect_receiver_email(self):
+        update = {"receiver_email": "incorrect_email@someotherbusiness.com"}
+        flag_info = "Invalid receiver_email. (incorrect_email@someotherbusiness.com)"
+        self.assertFlagged(update, flag_info)
+
+    def test_invalid_payment_status(self):
+        update = {"payment_status": "Failed"}
+        flag_info = "Invalid payment_status. (Failed)"
+        self.assertFlagged(update, flag_info)
 
     def test_duplicate_txn_id(self):       
-        self.assertEqual(len(PayPalIPN.objects.all()), 0)
-        post_params = IPN_POST_PARAMS.copy()
-        response = self.client.post("/ipn/", post_params)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(PayPalIPN.objects.all()), 1)
-        ipn_obj = PayPalIPN.objects.all()[0]
-        self.assertEqual(ipn_obj.flag, False)
-        post_params = IPN_POST_PARAMS  
-        response = self.client.post("/ipn/", post_params)
-        self.assertEqual(response.status_code, 200)
+        self.client.post("/ipn/", IPN_POST_PARAMS)
+        self.client.post("/ipn/", IPN_POST_PARAMS)
         self.assertEqual(len(PayPalIPN.objects.all()), 2)
-        ipn_obj = PayPalIPN.objects.all().order_by('-created_at')[0]
+        ipn_obj = PayPalIPN.objects.order_by('-created_at')[1]
         self.assertEqual(ipn_obj.flag, True)
-        # self.assertEqual(ipn_obj.flag_info, "Duplicate transaction ID.")
-        
-    def test_failed_ipn(self):
-    
-        # We'll also test if the signal is correctly sent.
-        def handle_payment_was_flagged(sender, **kwargs):
-            self.assertEqual(PayPalIPN.objects.all()[0], sender)
-        payment_was_flagged.connect(handle_payment_was_flagged)
-
-        self.dppipn = DummyPayPalIPN(st='INVALID')
-        PayPalIPN._postback = self.dppipn._postback
-        post_params = IPN_POST_PARAMS.copy()
-        response = self.client.post("/ipn/", post_params)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(PayPalIPN.objects.all()), 1)
-        ipn_obj = PayPalIPN.objects.all()[0]
-        self.assertEqual(ipn_obj.flag, True)
-        
-
-
+        self.assertEqual(ipn_obj.flag_info, "Duplicate txn_id. (51403485VH153354B)")
