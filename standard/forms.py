@@ -74,7 +74,7 @@ class PayPalPaymentsForm(forms.Form):
     def __init__(self, button_type="buy", *args, **kwargs):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
-    
+
     def render(self):
         return mark_safe(u"""<form action="%s" method="post">
     %s
@@ -113,7 +113,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
     def _encrypt(self):
         """Use your key thing to encrypt things."""
         from M2Crypto import BIO, SMIME, X509
-        # ### ToDo: Could we move this to conf.py?
+        # @@@ Could we move this to conf.py?
         CERT = settings.PAYPAL_PRIVATE_CERT
         PUB_CERT = settings.PAYPAL_PUBLIC_CERT
         PAYPAL_CERT = settings.PAYPAL_CERT
@@ -128,7 +128,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
             elif field.initial is not None:
                 value = field.initial
             if value is not None:
-                # ### Todo - make this less hackish and put it in the widget.
+                # @@@ Make this less hackish and put it in the widget.
                 if name == "return_url":
                     name = "return"
                 plaintext += u'%s=%s\n' % (name, value)
@@ -169,7 +169,7 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
         "Make the secret from the form initial data and slip it into the form."
         from paypal.standard.helpers import make_secret
         super(PayPalSharedSecretEncryptedPaymentsForm, self).__init__(self, *args, **kwargs)
-        # ### ToDo: attach the secret parameter in a way that is safe for other query params.
+        # @@@ Attach the secret parameter in a way that is safe for other query params.
         secret_param = "?secret=%s" % make_secret(self)
         # Initial data used in form construction overrides defaults
         if 'notify_url' in self.initial:

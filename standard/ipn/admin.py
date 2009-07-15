@@ -4,13 +4,8 @@ from string import split as L
 from django.contrib import admin
 from paypal.standard.ipn.models import PayPalIPN
 
-# ### ToDo: These fields groupings are just a best guess. Need to be rearranged
-# ### by somone with after using the system for some time.
 
-# ### ToDo: Maybe move these `fields` into the model as BUYER_FIELDS = "..."
-# ### so they can be accessed by forms etc.
-
-
+# @@@ These fields groupings are just a best guess.
 class PayPalIPNAdmin(admin.ModelAdmin):
     date_hierarchy = 'payment_date'
     fieldsets = (

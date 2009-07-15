@@ -8,6 +8,7 @@ from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POST
 
 class PayPalStandardBase(models.Model):
     """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
+    # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
@@ -135,7 +136,7 @@ class PayPalStandardBase(models.Model):
     handling_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     transaction_subject = models.CharField(max_length=255, blank=True)
 
-    # Mass Pay Variables (Not Implemented, needs a separate model, for each transaction x)
+    # @@@ Mass Pay Variables (Not Implemented, needs a separate model, for each transaction x)
     # fraud_managment_pending_filters_x = models.CharField(max_length=255, blank=True) 
     # option_selection1_x = models.CharField(max_length=200, blank=True) 
     # option_selection2_x = models.CharField(max_length=200, blank=True) 
@@ -221,7 +222,7 @@ class PayPalStandardBase(models.Model):
                     if flag:
                         self.set_flag(reason)
             else:
-                # ### To-Do: Need to run a different series of checks on recurring payments.
+                # @@@ Run a different series of checks on recurring payments.
                 pass
         
         self.save()
