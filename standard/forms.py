@@ -5,7 +5,8 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from paypal.standard.conf import *
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
-from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT, RECEIVER_EMAIL
+from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT, 
+    RECEIVER_EMAIL)
 
 
 # 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
@@ -30,11 +31,21 @@ class PayPalPaymentsForm(forms.Form):
     u'<form action="https://www.paypal.com/cgi-bin/webscr" method="post"> ...'
     
     """    
-    CMD_CHOICES = (("_xclick", "Buy now or Donations"), ("_cart", "Shopping cart"), ("_xclick-subscriptions", "Subscribe"))
+    CMD_CHOICES = (
+        ("_xclick", "Buy now or Donations"), 
+        ("_cart", "Shopping cart"), 
+        ("_xclick-subscriptions", "Subscribe")
+    )
     SHIPPING_CHOICES = ((1, "No shipping"), (0, "Shipping"))
     NO_NOTE_CHOICES = ((1, "No Note"), (0, "Include Note"))
-    RECURRING_PAYMENT_CHOICES = ((1, "Subscription Payments Recur"), (0, "Subscription payments do not recur"))
-    REATTEMPT_ON_FAIL_CHOICES = ((1, "reattempt billing on Failure"), (0, "Do Not reattempt on failure"))
+    RECURRING_PAYMENT_CHOICES = (
+        (1, "Subscription Payments Recur"), 
+        (0, "Subscription payments do not recur")
+    )
+    REATTEMPT_ON_FAIL_CHOICES = (
+        (1, "reattempt billing on Failure"), 
+        (0, "Do Not reattempt on failure")
+    )
         
     # Where the money goes.
     business = forms.CharField(widget=ValueHiddenInput(), initial=RECEIVER_EMAIL)
@@ -46,14 +57,21 @@ class PayPalPaymentsForm(forms.Form):
     quantity = forms.CharField(widget=ValueHiddenInput())
     
     # Subscription Related.
+    a1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 Price
+    p1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 Duration
+    t1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 unit of Duration, default to Month
+    a2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Price
+    p2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Duration
+    t2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 unit of Duration, default to Month    
     a3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Price
     p3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Duration
     t3 = forms.CharField(widget=ValueHiddenInput())  # Subscription unit of Duration, default to Month
     src = forms.CharField(widget=ValueHiddenInput()) # Is billing recurring? default to yes
     sra = forms.CharField(widget=ValueHiddenInput()) # Reattempt billing on failed cc transaction
-    no_note = forms.CharField(widget=ValueHiddenInput())
-    modify = forms.IntegerField(widget=ValueHiddenInput()) # Are we modifying an existing subscription?
+    no_note = forms.CharField(widget=ValueHiddenInput())    
     # Can be either 1 or 2. 1 = modify or allow new subscription creation, 2 = modify only
+    modify = forms.IntegerField(widget=ValueHiddenInput()) # Are we modifying an existing subscription?
+    
     
     # Localization / PayPal Setup
     lc = forms.CharField(widget=ValueHiddenInput())
