@@ -49,7 +49,7 @@ class PayPalPaymentsForm(forms.Form):
         
     # Where the money goes.
     business = forms.CharField(widget=ValueHiddenInput(), initial=RECEIVER_EMAIL)
-
+    
     # Item information.
     amount = forms.IntegerField(widget=ValueHiddenInput())
     item_name = forms.CharField(widget=ValueHiddenInput())
@@ -72,12 +72,11 @@ class PayPalPaymentsForm(forms.Form):
     # Can be either 1 or 2. 1 = modify or allow new subscription creation, 2 = modify only
     modify = forms.IntegerField(widget=ValueHiddenInput()) # Are we modifying an existing subscription?
     
-    
     # Localization / PayPal Setup
     lc = forms.CharField(widget=ValueHiddenInput())
     page_style = forms.CharField(widget=ValueHiddenInput())
     cbt = forms.CharField(widget=ValueHiddenInput())
-
+    
     # IPN control.
     notify_url = forms.CharField(widget=ValueHiddenInput())
     cancel_return = forms.CharField(widget=ValueHiddenInput())
@@ -89,7 +88,8 @@ class PayPalPaymentsForm(forms.Form):
     cmd = forms.ChoiceField(widget=forms.HiddenInput(), initial=CMD_CHOICES[0][0])
     charset = forms.CharField(widget=forms.HiddenInput(), initial="utf-8")
     currency_code = forms.CharField(widget=forms.HiddenInput(), initial="USD")
-    no_shipping = forms.ChoiceField(widget=forms.HiddenInput(), choices=SHIPPING_CHOICES, initial=SHIPPING_CHOICES[0][0])
+    no_shipping = forms.ChoiceField(widget=forms.HiddenInput(), choices=SHIPPING_CHOICES, 
+        initial=SHIPPING_CHOICES[0][0])
 
     def __init__(self, button_type="buy", *args, **kwargs):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
@@ -109,10 +109,12 @@ class PayPalPaymentsForm(forms.Form):
 </form>""" % (SANDBOX_POSTBACK_ENDPOINT, self.as_p(), self.get_image()))
         
     def get_image(self):
-        return {(True, True): SUBSCRIPTION_SANDBOX_IMAGE,
-                (True, False): SANDBOX_IMAGE,
-                (False, True): SUBSCRIPTION_IMAGE,
-                (False, False): IMAGE}[TEST, self.is_subscription()]
+        return {
+            (True, True): SUBSCRIPTION_SANDBOX_IMAGE,
+            (True, False): SANDBOX_IMAGE,
+            (False, True): SUBSCRIPTION_IMAGE,
+            (False, False): IMAGE
+        }[TEST, self.is_subscription()]
 
     def is_transaction(self):
         return self.button_type == "buy"

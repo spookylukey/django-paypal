@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Adapted from:
+    - http://www.djangosnippets.org/snippets/764/
+    - http://www.satchmoproject.com/trac/browser/satchmo/trunk/satchmo/apps/satchmo_utils/views.py
+    - http://tinyurl.com/shoppify-credit-cards
+"""
 import re
-from string import digits, split as L
 
-# Adapted from:
-# http://www.djangosnippets.org/snippets/764/
-# http://www.satchmoproject.com/trac/browser/satchmo/trunk/satchmo/apps/satchmo_utils/views.py
-# http://tinyurl.com/shoppify-credit-cards
 
 # Well known card regular expressions.
 CARDS = {
@@ -18,9 +19,11 @@ CARDS = {
 }
 
 # Well known test numbers
-TEST_NUMBERS = L("378282246310005 371449635398431 378734493671000 30569309025904"
-                 "38520000023237 6011111111111117 6011000990139424 555555555554444"
-                 "5105105105105100 4111111111111111 4012888888881881 4222222222222")
+TEST_NUMBERS = [
+    "378282246310005", "371449635398431", "378734493671000", "30569309025904",
+    "38520000023237", "6011111111111117", "6011000990139424", "555555555554444",
+    "5105105105105100", "4111111111111111", "4012888888881881", "4222222222222"
+]
 
 def verify_credit_card(number):
     """Returns the card type for given card number or None if invalid."""
@@ -31,8 +34,8 @@ class CreditCard(object):
         self.number = number
 	
     def is_number(self):
-        """Returns True if there is at least one digit in number."""
-        self.number = "".join([c for c in self.number if c in digits])
+        """True if there is at least one digit in number."""
+        self.number = re.sub(r'[^\d]', '', self.number)
         return self.number.isdigit()
 
     def is_mod10(self):

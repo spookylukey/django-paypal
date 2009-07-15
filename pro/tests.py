@@ -64,7 +64,8 @@ class PayPalWPPTest(TestCase):
             'inv': 'inv',
             'custom': 'custom',
             'next': 'http://www.example.com/next/',
-            'returnurl': 'http://www.example.com/pay/'
+            'returnurl': 'http://www.example.com/pay/',
+            'cancelurl': 'http://www.example.com/cancel/'
         }                    
         self.wpp = DummyPayPalWPP(REQUEST)
         
@@ -109,28 +110,12 @@ class PayPalWPPTest(TestCase):
         data.update(self.item)
         self.assertFalse(self.wpp.doDirectPayment(data))
 
-    def testSetExpressCheckout(self):
-        ""
-        pass
+    def test_setExpressCheckout(self):
+        # We'll have to stub out tests for doExpressCheckoutPayment and friends
+        # because they're behind paypal's doors.
+        nvp_obj = self.wpp.setExpressCheckout(self.item)
+        self.assertTrue(nvp_obj.ack == "Success")
 
-### SetExpressCheckout
-# PayPal Request:
-# {'amt': '10.00',
-#  'cancelurl': 'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
-#  'custom': u'website_id=480&cname=1',
-#  'inv': u'website-480-cname',
-#  'method': 'SetExpressCheckout',
-#  'next': 'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
-#  'noshipping': 1,
-#  'returnurl': 'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname'}
-# 
-# PayPal Response:
-# {'ack': 'Success',
-#  'build': '848077',
-#  'correlationid': '44977a68d0bea',
-#  'timestamp': '2009-03-04T20:55:07Z',
-#  'token': 'EC-6HW17184NE0084127',
-#  'version': '54.0'}
 
 ### DoExpressCheckoutPayment
 # PayPal Request:
@@ -163,77 +148,3 @@ class PayPalWPPTest(TestCase):
 #  'transactionid': '3TG42202A7335864V',
 #  'transactiontype': 'expresscheckout',
 #  'version': '54.0'}
-
-"""
-PayPal Request:
-{'acct': '1234567890',
- 'amt': '9.95',
- 'city': 'Vancouver',
- 'countrycode': 'CA',
- 'creditcardtype': 'visa',
- 'custom': 'custom',
- 'cvv2': '999',
- 'expdate': '012019',
- 'firstname': 'Epic',
- 'inv': 'inv',
- 'ipaddress': '10.0.1.199',
- 'lastname': 'Fail',
- 'method': 'DoDirectPayment',
- 'next': 'http://www.example.com/next/',
- 'paymentaction': 'Sale',
- 'returnurl': 'http://www.example.com/pay/',
- 'state': 'BC',
- 'street': '100 Georgia St',
- 'zip': 'V6V 1V1'}
- 
-
-
-PayPal Response:
-{'ack': 'Failure',
- 'amt': '9.95',
- 'build': '962735',
- 'correlationid': '6c7470a26f50',
- 'currencycode': 'USD',
- 'l_errorcode0': '10527',
- 'l_longmessage0': 'This transaction cannot be processed. Please enter a valid credit card number and type.',
- 'l_severitycode0': 'Error',
- 'l_shortmessage0': 'Invalid Data',
- 'timestamp': '2009-07-14T16:25:14Z',
- 'version': '54.0'}
-
-
-
-PayPal Request:
-{'acct': '4797503429879309',
- 'amt': '9.95',
- 'city': u'San Jos\xe9',
- 'countrycode': 'US',
- 'creditcardtype': 'visa',
- 'custom': 'custom',
- 'cvv2': '037',
- 'expdate': '012019',
- 'firstname': 'Brave',
- 'inv': 'inv',
- 'ipaddress': '10.0.1.199',
- 'lastname': 'Star',
- 'method': 'DoDirectPayment',
- 'next': 'http://www.example.com/next/',
- 'paymentaction': 'Sale',
- 'returnurl': 'http://www.example.com/pay/',
- 'state': 'CA',
- 'street': '1 Main St',
- 'zip': '95131'}
-
-PayPal Response:
-{'ack': 'Success',
- 'amt': '9.95',
- 'avscode': 'X',
- 'build': '962735',
- 'correlationid': '36c8179352160',
- 'currencycode': 'USD',
- 'cvv2match': 'M',
- 'timestamp': '2009-07-14T16:25:22Z',
- 'transactionid': '4NC00018J73871820',
- 'version': '54.0'}
-
-"""

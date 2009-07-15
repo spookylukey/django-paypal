@@ -202,9 +202,9 @@ class PayPalStandardBase(models.Model):
         Checks for obvious signs of weirdness in the payment and flags appropriately.
         
         Provide a callable that takes an instance of this class as a parameter and returns
-        a tuple (True, None) if the item is valid. Should return (False, "reason") if the
-        item isn't valid. This function should check that `mc_gross`, `mc_currency`
-        `item_name` and `item_number` are all correct.
+        a tuple (False, None) if the item is valid. Should return (True, "reason") if the
+        item isn't valid. Strange but backward compatible :) This function should check 
+        that `mc_gross`, `mc_currency` `item_name` and `item_number` are all correct.
 
         """
         self.response = self._postback()

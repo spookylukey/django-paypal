@@ -320,17 +320,6 @@ apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommun
 1. Profit.
 
 
-ToDo:
-=====
-
-* A a shared conf file for all settings.
-
-* Shared Secrets: The implementation is untested.
-
-* Query Fields: Lots of fields store QueryDict dumps b/c we're not sure exactly what we're getting - would be cool to be able to access those fields like they were a dict (JSONField)
-
-* Feeds: Would also be awesome to have a feed of successful payments so you keep up to date with how rich you're getting.
-
 Links:
 ------
 
