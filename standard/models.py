@@ -22,6 +22,7 @@ ST_PP_UNCLEARED = 'Uncleared'
 
 class PayPalStandardBase(models.Model):
     """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
+    # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
     PAYMENT_STATUS_CHOICES = (ST_PP_ACTIVE, ST_PP_CANCELLED, ST_PP_CLEARED, ST_PP_COMPLETED, ST_PP_DENIED, ST_PP_PAID, ST_PP_PENDING, ST_PP_PROCESSED, ST_PP_REFUSED, ST_PP_REVERSED, ST_PP_REWARDED, ST_PP_UNCLAIMED, ST_PP_UNCLEARED)
@@ -150,7 +151,7 @@ class PayPalStandardBase(models.Model):
     handling_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     transaction_subject = models.CharField(max_length=255, blank=True)
 
-    # Mass Pay Variables (Not Implemented, needs a separate model, for each transaction x)
+    # @@@ Mass Pay Variables (Not Implemented, needs a separate model, for each transaction x)
     # fraud_managment_pending_filters_x = models.CharField(max_length=255, blank=True) 
     # option_selection1_x = models.CharField(max_length=200, blank=True) 
     # option_selection2_x = models.CharField(max_length=200, blank=True) 
@@ -184,9 +185,9 @@ class PayPalStandardBase(models.Model):
 
     def __unicode__(self):
         if self.is_transaction():
-            return self.FORMAT % ("Transaction", self.txn_id)
+            return self.format % ("Transaction", self.txn_id)
         else:
-            return self.FORMAT % ("Recurring", self.recurring_payment_id)
+            return self.format % ("Recurring", self.recurring_payment_id)
         
     def is_transaction(self):
         return len(self.txn_id) > 0
@@ -219,9 +220,9 @@ class PayPalStandardBase(models.Model):
         Checks for obvious signs of weirdness in the payment and flags appropriately.
         
         Provide a callable that takes an instance of this class as a parameter and returns
-        a tuple (True, None) if the item is valid. Should return (False, "reason") if the
-        item isn't valid. This function should check that `mc_gross`, `mc_currency`
-        `item_name` and `item_number` are all correct.
+        a tuple (False, None) if the item is valid. Should return (True, "reason") if the
+        item isn't valid. Strange but backward compatible :) This function should check 
+        that `mc_gross`, `mc_currency` `item_name` and `item_number` are all correct.
 
         """
         self.response = self._postback()
@@ -229,17 +230,17 @@ class PayPalStandardBase(models.Model):
         if not self.flag:
             if self.is_transaction():
                 if self.payment_status not in self.PAYMENT_STATUS_CHOICES:
-                    self.set_flag("Invalid payment_status (%s)." % self.payment_status)
+                    self.set_flag("Invalid payment_status. (%s)" % self.payment_status)
                 if duplicate_txn_id(self, self.from_view):
-                    self.set_flag("Duplicate transaction ID (%s)." % self.txn_id)
+                    self.set_flag("Duplicate txn_id. (%s)" % self.txn_id)
                 if self.receiver_email != RECEIVER_EMAIL:
-                    self.set_flag("Invalid receiver_email (%s)." % self.receiver_email)
+                    self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)
                 if callable(item_check_callable):
                     flag, reason = item_check_callable(self)
                     if flag:
                         self.set_flag(reason)
             else:
-                # ### To-Do: Need to run a different series of checks on recurring payments.
+                # @@@ Run a different series of checks on recurring payments.
                 pass
         
         self.save()

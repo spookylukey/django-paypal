@@ -7,7 +7,7 @@ from paypal.standard.ipn.signals import *
 
 class PayPalIPN(PayPalStandardBase):
     """Logs PayPal IPN interactions."""
-    FORMAT = u"<IPN: %s %s>"
+    format = u"<IPN: %s %s>"
 
     class Meta:
         db_table = "paypal_ipn"

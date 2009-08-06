@@ -15,9 +15,9 @@ def make_secret(form_instance, secret_fields=None):
     """
     # @@@ Moved here as temporary fix to avoid dependancy on auth.models.
     from django.contrib.auth.models import get_hexdigest
-    # ### ToDo: amount is mc_gross on the IPN - where should mapping logic go?
-    # ### ToDo: amount / mc_gross is not nessecarily returned as it was sent - how to use it? 10.00 vs. 10.0
-    # ### ToDo: the secret should be based on the invoice or custom fields as well - otherwise its always the same.
+    # @@@ amount is mc_gross on the IPN - where should mapping logic go?
+    # @@@ amount / mc_gross is not nessecarily returned as it was sent - how to use it? 10.00 vs. 10.0
+    # @@@ the secret should be based on the invoice or custom fields as well - otherwise its always the same.
     
     # Build the secret with fields availible in both PaymentForm and the IPN. Order matters.
     if secret_fields is None:
@@ -44,6 +44,6 @@ def check_secret(form_instance, secret):
     Used to verify IPN.
     
     """
-    # ### ToDo: add invoice & custom
+    # @@@ add invoice & custom
     # secret_fields = ['business', 'item_name']
     return make_secret(form_instance) == secret

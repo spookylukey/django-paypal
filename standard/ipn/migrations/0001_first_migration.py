@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from south.db import db
 from django.db import models
+from south.db import db
 from paypal.standard.ipn.models import *
 
-class Migration:
-    
+class Migration:    
     def forwards(self, orm):
-        
         # Adding model 'PayPalIPN'
         db.create_table('paypal_ipn', (
             ('id', models.AutoField(primary_key=True)),
@@ -123,16 +120,11 @@ class Migration:
             ('from_view', models.CharField(max_length=6, null=True, blank=True)),
         ))
         db.send_create_signal('ipn', ['PayPalIPN'])
-        
-    
-    
-    def backwards(self, orm):
-        
+
+    def backwards(self, orm):        
         # Deleting model 'PayPalIPN'
         db.delete_table('paypal_ipn')
-        
-    
-    
+
     models = {
         'ipn.paypalipn': {
             'Meta': {'db_table': '"paypal_ipn"'},
@@ -249,5 +241,4 @@ class Migration:
             'verify_sign': ('models.CharField', [], {'max_length': '255', 'blank': 'True'})
         }
     }
-    
     complete_apps = ['ipn']

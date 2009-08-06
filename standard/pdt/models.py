@@ -23,14 +23,14 @@ except:
 
 
 class PayPalPDT(PayPalStandardBase):
+    format = u"<PDT: %s %s>"
+
     amt = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     cm = models.CharField(max_length=255, blank=True)
     sig = models.CharField(max_length=255, blank=True)
     tx = models.CharField(max_length=255, blank=True)
     st = models.CharField(max_length=32, blank=True)
-    
-    FORMAT = u"<PDT: %s %s>"
-    
+
     class Meta:
         db_table = "paypal_pdt"
         verbose_name = "PayPal PDT"

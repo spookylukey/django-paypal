@@ -10,7 +10,6 @@ class ValueHiddenInput(forms.HiddenInput):
     """
     Widget that renders only if it has a value.
     Used to remove unused fields from PayPal buttons.
-    
     """
     def render(self, name, value, attrs=None):
         if value is None:
@@ -22,10 +21,10 @@ class ReservedValueHiddenInput(ValueHiddenInput):
     """
     Overrides the default name attribute of the form.
     Used for the PayPal `return` field.
-
     """
     def render(self, name, value, attrs=None):
-        if value is None: value = ''
+        if value is None:
+            value = ''
         final_attrs = self.build_attrs(attrs, type=self.input_type)
         if value != '':
             final_attrs['value'] = force_unicode(value)
