@@ -188,6 +188,12 @@ class PayPalStandardBase(models.Model):
     
     def is_subscription_signup(self):
         return self.txn_type == "subscr_signup"
+
+    def is_recurring_create(self):
+        return self.txn_type == "recurring_payment_profile_created"
+
+    def is_recurring_payment(self):
+        return self.txn_type == "recurring_payment"
     
     def set_flag(self, info, code=None):
         """Sets a flag on the transaction and also sets a reason."""

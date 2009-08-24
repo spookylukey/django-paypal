@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# XXX: should these methods handle signals, rather than views?
+
 import datetime
 import pprint
 import time
@@ -145,6 +147,8 @@ class PayPalWPP(object):
         required = L("profileid action")
 
         nvp_obj = self._fetch(params, required, defaults)
+
+        # XXX: should we create signals for this since it doesn't happen via IPN?
 
         return nvp_obj
         
