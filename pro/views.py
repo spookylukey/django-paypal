@@ -191,11 +191,11 @@ class PayPalPro(object):
         
         # @@@ This check and call could be moved into PayPalWPP.
         if self.is_recurring():
-            success = wpp.createRecurringPaymentsProfile(self.item)
+            nvp_obj = wpp.createRecurringPaymentsProfile(self.item)
         else:
-            success = wpp.doExpressCheckoutPayment(self.item)
+            nvp_obj = wpp.doExpressCheckoutPayment(self.item)
 
-        if success:
+        if not nvp_obj.flag:
             payment_was_successful.send(sender=self.item)
             return HttpResponseRedirect(self.success_url)
         else:

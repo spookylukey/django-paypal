@@ -30,13 +30,12 @@ class PaymentForm(forms.Form):
  
         # Create single payment:
         if 'billingperiod' not in params:
-            response = wpp.doDirectPayment(params)
-
+            nvp_obj = wpp.doDirectPayment(params)
         # Create recurring payment:
         else:
-            response = wpp.createRecurringPaymentsProfile(params, direct=True)
+            nvp_obj = wpp.createRecurringPaymentsProfile(params, direct=True)
  
-        return response
+        return not nvp_obj.flag
 
 
 class ConfirmForm(forms.Form):

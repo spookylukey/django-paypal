@@ -71,7 +71,7 @@ class PayPalWPP(object):
         #   nvp_obj.set_flag("Invalid cvv2match: %s" % qd.get('cvv2match')
         # if qd.get('avscode') not in ['X', '0']:
         #   nvp_obj.set_flag("Invalid avscode: %s" % qd.get('avscode')
-        return not nvp_obj.flag
+        return nvp_obj
 
     def setExpressCheckout(self, params):
         """
@@ -113,7 +113,7 @@ class PayPalWPP(object):
         nvp_obj = self._fetch(params, required, defaults)
         
         # Flag if profile_type != ActiveProfile
-        return not nvp_obj.flag
+        return nvp_obj
 
     def getExpressCheckoutDetails(self, params):
         raise NotImplementedError
@@ -137,7 +137,16 @@ class PayPalWPP(object):
         raise NotImplementedError
         
     def manangeRecurringPaymentsProfileStatus(self, params):
-        raise NotImplementedError
+        """
+        Requires `profileid` and `action` params.
+        Action must be either "Cancel", "Suspend", or "Reactivate".
+        """
+        defaults = {"method": "ManageRecurringPaymentsProfileStatus"}
+        required = L("profileid action")
+
+        nvp_obj = self._fetch(params, required, defaults)
+
+        return nvp_obj
         
     def refundTransaction(self, params):
         raise NotImplementedError
