@@ -198,7 +198,7 @@ class PayPalWPP(object):
     def _fetch(self, params, required, defaults):
         """Make the NVP request and store the response."""
         defaults.update(params)
-        pp_params = self._check_and_update_params(required, defaults)        
+        pp_params = self._check_and_update_params(required, defaults)
         pp_string = self.signature + urlencode(pp_params)
         response = self._request(pp_string)
         response_params = self._parse_response(response)
@@ -213,7 +213,7 @@ class PayPalWPP(object):
         nvp_params = {}
         for k, v in MergeDict(defaults, response_params).items():
             if k in NVP_FIELDS:
-                nvp_params[k] = v    
+                nvp_params[str(k)] = v
 
         # PayPal timestamp has to be formatted.
         if 'timestamp' in nvp_params:
