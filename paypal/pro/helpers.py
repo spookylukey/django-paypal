@@ -140,7 +140,15 @@ class PayPalWPP(object):
         raise NotImplementedError
 
     def updateRecurringPaymentsProfile(self, params):
-        raise NotImplementedError
+        """
+        Requires `profileid` and `action` params.
+        Action must be either "Cancel", "Suspend", or "Reactivate".
+        """
+        defaults = {"method": "UpdateRecurringPaymentsProfile"}
+        required = L("profileid action")
+
+        nvp_obj = self._fetch(params, required, defaults)
+        return nvp_obj
     
     def billOutstandingAmount(self, params):
         raise NotImplementedError
