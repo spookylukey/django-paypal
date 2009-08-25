@@ -9,7 +9,7 @@ from paypal.pro.forms import PaymentForm, ConfirmForm
 from paypal.pro.models import PayPalNVP
 from paypal.pro.helpers import PayPalWPP, TEST
 from paypal.pro.signals import payment_was_successful, payment_was_flagged
-
+from paypal.pro.exceptions import PayPalFailure
 
 # PayPal Edit IPN URL:
 # https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify
@@ -160,16 +160,17 @@ class PayPalPro(object):
         data returned from setExpressCheckout.
         """
         wpp = PayPalWPP(self.request)
-        nvp_obj = wpp.setExpressCheckout(self.item)
-        if not nvp_obj.flag:
+        try:
+            nvp_obj = wpp.setExpressCheckout(self.item)
+        except PayPalFailure:
+            self.context['errors'] = self.errors['paypal']
+            return self.render_payment_form()
+        else:
             pp_params = dict(token=nvp_obj.token, AMT=self.item['amt'], 
                              RETURNURL=self.item['returnurl'], 
                              CANCELURL=self.item['cancelurl'])
             pp_url = self.get_endpoint() % urlencode(pp_params)
             return HttpResponseRedirect(pp_url)
-        else:
-            self.context['errors'] = self.errors['paypal']
-            return self.render_payment_form()
 
     def render_confirm_form(self):
         """
@@ -190,13 +191,13 @@ class PayPalPro(object):
         self.item.update(pp_data)
         
         # @@@ This check and call could be moved into PayPalWPP.
-        if self.is_recurring():
-            nvp_obj = wpp.createRecurringPaymentsProfile(self.item)
-        else:
-            nvp_obj = wpp.doExpressCheckoutPayment(self.item)
-
-        if not nvp_obj.flag:
-            return HttpResponseRedirect(self.success_url)
-        else:
+        try:
+            if self.is_recurring():
+                nvp_obj = wpp.createRecurringPaymentsProfile(self.item)
+            else:
+                nvp_obj = wpp.doExpressCheckoutPayment(self.item)
+        except PayPalFailure:
             self.context['errors'] = self.errors['processing']
             return self.render_payment_form()
+        else:
+            return HttpResponseRedirect(self.success_url)

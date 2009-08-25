@@ -39,7 +39,6 @@ def ipn(request, item_check_callable=None):
         ipn_obj = PayPalIPN()
 
     ipn_obj.initialize(request)
-
     if flag is not None:
         ipn_obj.set_flag(flag)
     else:
@@ -48,6 +47,5 @@ def ipn(request, item_check_callable=None):
             ipn_obj.verify_secret(form, request.GET['secret'])
         else:
             ipn_obj.verify(item_check_callable)
-
     ipn_obj.save()
     return HttpResponse("OKAY")
