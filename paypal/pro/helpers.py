@@ -131,7 +131,11 @@ class PayPalWPP(object):
         raise DeprecationWarning
 
     def getTransactionDetails(self, params):
-        raise NotImplementedError
+        defaults = {"method": "GetTransactionDetails"}
+        required = L("transactionid")
+
+        nvp_obj = self._fetch(params, required, defaults)
+        return nvp_obj
 
     def massPay(self, params):
         raise NotImplementedError
@@ -140,12 +144,8 @@ class PayPalWPP(object):
         raise NotImplementedError
 
     def updateRecurringPaymentsProfile(self, params):
-        """
-        Requires `profileid` and `action` params.
-        Action must be either "Cancel", "Suspend", or "Reactivate".
-        """
         defaults = {"method": "UpdateRecurringPaymentsProfile"}
-        required = L("profileid action")
+        required = L("profileid")
 
         nvp_obj = self._fetch(params, required, defaults)
         return nvp_obj
