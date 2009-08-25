@@ -18,9 +18,10 @@ class CreditCardField(forms.CharField):
         
     def clean(self, value):
         """Raises a ValidationError if the card is not valid and stashes card type."""
-        self.card_type = verify_credit_card(value)
-        if self.card_type is None:
-            raise forms.ValidationError("Invalid credit card number.")
+        if value:
+            self.card_type = verify_credit_card(value)
+            if self.card_type is None:
+                raise forms.ValidationError("Invalid credit card number.")
         return value
 
 
