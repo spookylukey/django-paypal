@@ -1,0 +1,2 @@
+include setup.py README.md CONTRIBUTORS MANIFEST.in
+global-exclude *~

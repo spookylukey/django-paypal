@@ -28,7 +28,7 @@ def ipn(request, item_check_callable=None):
         flag = "Invalid form. (%s)" % form.errors
 
     if ipn_obj is None:
-        ipn_obj = PayPalIPN()    
+        ipn_obj = PayPalIPN()
 
     ipn_obj.initialize(request)
 
