@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# XXX: should these methods handle signals, rather than views?
 
 import datetime
 import pprint
@@ -13,6 +12,7 @@ from django.forms.models import fields_for_model
 from django.utils.datastructures import MergeDict
 from django.utils.http import urlencode
 
+from paypal.pro.signals import *
 from paypal.pro.models import PayPalNVP, L
 
 
@@ -148,8 +148,14 @@ class PayPalWPP(object):
 
         nvp_obj = self._fetch(params, required, defaults)
 
-        # XXX: should we create signals for this since it doesn't happen via IPN?
-
+        if not nvp_obj.flag:
+            if params['action'] == 'Cancel':
+                recurring_cancel.send(sender=nvp_obj)
+            elif params['action'] == 'Suspend':
+                recurring_suspend.send(sender=nvp_obj)
+            elif params['action'] == 'Reactivate':
+                recurring_reactivate.send(sender=nvp_obj)
+        
         return nvp_obj
         
     def refundTransaction(self, params):

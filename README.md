@@ -91,9 +91,12 @@ Using PayPal Payments Standard IPN:
     - `subscription_modify` - Sent when a subscription is modified.
     - `subscription_signup` - Sent when a subscription is created.
 
-    Two more for recurring payments:
+    Several more exist for recurring payments:
     - `recurring_create` - Sent when a recurring payment is created.
     - `recurring_payment` - Sent when a payment is received from a recurring payment.
+    - `recurring_cancel` - Sent when a recurring payment is cancelled.
+    - `recurring_suspend` - Sent when a recurring payment is suspended.
+    - `recurring_reactivate` - Sent when a recurring payment is reactivated.
 
     Connect to these signals and update your data accordingly. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
 

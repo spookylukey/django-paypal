@@ -29,3 +29,9 @@ recurring_create = Signal()
 
 # recurring_payment
 recurring_payment = Signal()
+
+recurring_cancel = Signal()
+
+recurring_suspend = Signal()
+
+recurring_reactivate = Signal()
