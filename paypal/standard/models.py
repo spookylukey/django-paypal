@@ -195,6 +195,9 @@ class PayPalStandardBase(models.Model):
     def is_recurring_payment(self):
         return self.txn_type == "recurring_payment"
     
+    def is_recurring_cancel(self):
+        return self.txn_type == "recurring_payment_profile_cancel"
+    
     def set_flag(self, info, code=None):
         """Sets a flag on the transaction and also sets a reason."""
         self.flag = True
