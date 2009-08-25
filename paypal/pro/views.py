@@ -196,7 +196,6 @@ class PayPalPro(object):
             nvp_obj = wpp.doExpressCheckoutPayment(self.item)
 
         if not nvp_obj.flag:
-            payment_was_successful.send(sender=self.item)
             return HttpResponseRedirect(self.success_url)
         else:
             self.context['errors'] = self.errors['processing']

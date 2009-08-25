@@ -67,6 +67,8 @@ class PayPalWPP(object):
         defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
         required = L("creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
         nvp_obj = self._fetch(params, required, defaults)
+        if not nvp_obj.flag:
+            payment_was_successful.send(params)
         # @@@ Could check cvv2match / avscode are both 'X' or '0'
         # qd = django.http.QueryDict(nvp_obj.response)
         # if qd.get('cvv2match') not in ['X', '0']:
@@ -94,9 +96,11 @@ class PayPalWPP(object):
         Check the dude out:
         """
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
-        required =L("returnurl cancelurl amt token payerid")
+        required = L("returnurl cancelurl amt token payerid")
         nvp_obj = self._fetch(params, required, defaults)
-        return not nvp_obj.flag
+        if not nvp_obj.flag:
+            payment_was_successful.send(params)
+        return nvp_obj
         
     def createRecurringPaymentsProfile(self, params, direct=False):
         """
@@ -118,7 +122,10 @@ class PayPalWPP(object):
         return nvp_obj
 
     def getExpressCheckoutDetails(self, params):
-        raise NotImplementedError
+        defaults = {"method": "GetExpressCheckoutDetails"}
+        required = L("token")
+        nvp_obj = self._fetch(params, required, defaults)
+        return nvp_obj
 
     def setCustomerBillingAgreement(self, params):
         raise DeprecationWarning
