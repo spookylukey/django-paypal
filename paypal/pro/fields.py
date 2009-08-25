@@ -30,8 +30,10 @@ class CreditCardField(forms.CharField):
 class CreditCardExpiryWidget(forms.MultiWidget):
     """MultiWidget for representing credit card expiry date."""
     def decompress(self, value):
-        if value:
+        if isinstance(value, date):
             return [value.month, value.year]
+        elif isinstance(value, basestring):
+            return [value[0:2], value[2:]]
         else:
             return [None, None]
 
