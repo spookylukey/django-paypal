@@ -334,6 +334,8 @@ Links:
 
 2. [Django PayPal on Google Groups](http://groups.google.com/group/django-paypal)
 
+3. [PayPal API Reference](https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_api_reference)
+
 License (MIT)
 =============
 
