@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-paypal',
-    version='TODO',
+    version=".".join(map(str, paypal.__version__)),
     author='John Boxall',
     author_email='john@handimobility.ca',
     url='http://github.com/johnboxall/django-paypal',
