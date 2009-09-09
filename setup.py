@@ -2,6 +2,8 @@
 
 from setuptools import setup, find_packages
 
+import paypal
+
 setup(
     name='django-paypal',
     version=".".join(map(str, paypal.__version__)),
