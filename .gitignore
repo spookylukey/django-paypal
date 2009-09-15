@@ -2,3 +2,6 @@
 .svn
 .project
 .pydevproject
+/dist
+/build
+/django_paypal.egg-info
