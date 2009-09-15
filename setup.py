@@ -18,4 +18,11 @@ setup(
     description = 'A pluggable Django application for integrating PayPal Payments Standard or Payments Pro',
     packages=find_packages(),
     include_package_data=True,
+    classifiers=[
+        "Framework :: Django",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+        "Operating System :: OS Independent",
+        "Topic :: Software Development"
+    ],
 )
