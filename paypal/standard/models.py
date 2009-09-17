@@ -5,8 +5,12 @@ from django.conf import settings
 from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
+try:
+    from idmapper.models import SharedMemoryModel as Model
+except ImportError:
+    Model = models.Model
 
-class PayPalStandardBase(models.Model):
+class PayPalStandardBase(Model):
     """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
     # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
