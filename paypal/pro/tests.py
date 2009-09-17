@@ -9,7 +9,7 @@ from django.test.client import Client
 
 from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import PayPalWPP, PayPalError
-
+from paypal.pro.exceptions import PayPalFailure
 
 class RequestFactory(Client):
     # Used to generate request objects.
@@ -108,7 +108,7 @@ class PayPalWPPTest(TestCase):
             'creditcardtype': 'visa',
             'ipaddress': '10.0.1.199',}
         data.update(self.item)
-        self.assertFalse(self.wpp.doDirectPayment(data))
+        self.assertRaises(PayPalFailure, self.wpp.doDirectPayment(data))
 
     def test_setExpressCheckout(self):
         # We'll have to stub out tests for doExpressCheckoutPayment and friends
