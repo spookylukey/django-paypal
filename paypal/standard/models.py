@@ -19,8 +19,12 @@ ST_PP_REWARDED = 'Rewarded'
 ST_PP_UNCLAIMED = 'Unclaimed'
 ST_PP_UNCLEARED = 'Uncleared'
 
+try:
+    from idmapper.models import SharedMemoryModel as Model
+except ImportError:
+    Model = models.Model
 
-class PayPalStandardBase(models.Model):
+class PayPalStandardBase(Model):
     """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
     # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
@@ -206,6 +210,15 @@ class PayPalStandardBase(models.Model):
     
     def is_subscription_signup(self):
         return self.txn_type == "subscr_signup"
+
+    def is_recurring_create(self):
+        return self.txn_type == "recurring_payment_profile_created"
+
+    def is_recurring_payment(self):
+        return self.txn_type == "recurring_payment"
+    
+    def is_recurring_cancel(self):
+        return self.txn_type == "recurring_payment_profile_cancel"
     
     def set_flag(self, info, code=None):
         """Sets a flag on the transaction and also sets a reason."""

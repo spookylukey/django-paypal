@@ -2,10 +2,20 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 
-
-def duplicate_txn_id(ipn_obj, from_view='notify'):
-    "Returns True if a record with this transaction id exists."
-    return ipn_obj._default_manager.filter(txn_id=ipn_obj.txn_id, from_view=from_view, payment_status=ipn_obj.payment_status).count()
+def duplicate_txn_id(ipn_obj):
+    """Returns True if a record with this transaction id exists and it is not
+    a payment which has gone from pending to completed.
+    
+    """
+    query = ipn_obj._default_manager.filter(txn_id = ipn_obj.txn_id)
+    
+    if ipn_obj.payment_status == "Completed":
+        # A payment that was pending and is now completed will have the same
+        # IPN transaction id, so don't flag them as duplicates because it
+        # means that the payment was finally successful!
+        query = query.exclude(payment_status = "Pending")
+    
+    return query.count() > 0
     
 def make_secret(form_instance, secret_fields=None):
     """

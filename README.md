@@ -91,7 +91,14 @@ Using PayPal Payments Standard IPN:
     - `subscription_modify` - Sent when a subscription is modified.
     - `subscription_signup` - Sent when a subscription is created.
 
-	Connect to these signals and update your data accordingly. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
+    Several more exist for recurring payments:
+    - `recurring_create` - Sent when a recurring payment is created.
+    - `recurring_payment` - Sent when a payment is received from a recurring payment.
+    - `recurring_cancel` - Sent when a recurring payment is cancelled.
+    - `recurring_suspend` - Sent when a recurring payment is suspended.
+    - `recurring_reactivate` - Sent when a recurring payment is reactivated.
+
+    Connect to these signals and update your data accordingly. [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
 
         # models.py
         ...
@@ -326,6 +333,8 @@ Links:
 1. [Set your IPN Endpoint on the PayPal Sandbox](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify)
 
 2. [Django PayPal on Google Groups](http://groups.google.com/group/django-paypal)
+
+3. [PayPal API Reference](https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_api_reference)
 
 License (MIT)
 =============

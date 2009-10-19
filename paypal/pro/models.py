@@ -5,9 +5,12 @@ from django.db import models
 from django.utils.http import urlencode
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
+try:
+    from idmapper.models import SharedMemoryModel as Model
+except ImportError:
+    Model = models.Model
 
-
-class PayPalNVP(models.Model):
+class PayPalNVP(Model):
     """Record of a NVP interaction with PayPal."""
     TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"  # 2009-02-03T17:47:41Z
     RESTRICTED_FIELDS = L("expdate cvv2 acct")

@@ -3,7 +3,7 @@
 from django import forms
 
 from paypal.pro.fields import CreditCardField, CreditCardExpiryField, CreditCardCVV2Field, CountryField
-
+from paypal.pro.exceptions import PayPalFailure
 
 class PaymentForm(forms.Form):
     """Form used to process direct payments."""
@@ -27,17 +27,17 @@ class PaymentForm(forms.Form):
         params['expdate'] = self.cleaned_data['expdate'].strftime("%m%Y")
         params['ipaddress'] = request.META.get("REMOTE_ADDR", "")
         params.update(item)
- 
-        # Create single payment:
-        if 'billingperiod' not in params:
-            response = wpp.doDirectPayment(params)
 
-        # Create recurring payment:
-        else:
-            response = wpp.createRecurringPaymentsProfile(params, direct=True)
- 
-        return response
-
+        try:
+            # Create single payment:
+            if 'billingperiod' not in params:
+                nvp_obj = wpp.doDirectPayment(params)
+            # Create recurring payment:
+            else:
+                nvp_obj = wpp.createRecurringPaymentsProfile(params, direct=True)
+        except PayPalFailure:
+            return False
+        return True
 
 class ConfirmForm(forms.Form):
     """Hidden form used by ExpressPay flow to keep track of payer information."""

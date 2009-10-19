@@ -18,7 +18,15 @@ def ipn(request, item_check_callable=None):
     """
     flag = None
     ipn_obj = None
-    form = PayPalIPNForm(request.POST)
+    
+    # Clean up the data as PayPal sends some weird values such as "N/A"
+    data = request.POST.copy()
+    date_fields = ('time_created', 'payment_date', 'next_payment_date', 'subscr_date', 'subscr_effective')
+    for date_field in date_fields:
+        if data.get(date_field) == 'N/A':
+            del data[date_field]
+
+    form = PayPalIPNForm(data)
     if form.is_valid():
         try:
             ipn_obj = form.save(commit=False)
@@ -29,7 +37,7 @@ def ipn(request, item_check_callable=None):
  
     if ipn_obj is None:
         ipn_obj = PayPalIPN()
- 
+
     ipn_obj.initialize(request)
     if flag is not None:
         ipn_obj.set_flag(flag)
@@ -39,6 +47,6 @@ def ipn(request, item_check_callable=None):
             ipn_obj.verify_secret(form, request.GET['secret'])
         else:
             ipn_obj.verify(item_check_callable)
-            
+
     ipn_obj.save()
     return HttpResponse("OKAY")

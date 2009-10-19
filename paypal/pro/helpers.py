@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import datetime
 import pprint
 import time
@@ -11,8 +12,9 @@ from django.forms.models import fields_for_model
 from django.utils.datastructures import MergeDict
 from django.utils.http import urlencode
 
+from paypal.pro.signals import *
 from paypal.pro.models import PayPalNVP, L
-
+from paypal.pro.exceptions import PayPalFailure
 
 TEST = settings.PAYPAL_TEST
 USER = settings.PAYPAL_WPP_USER 
@@ -65,13 +67,16 @@ class PayPalWPP(object):
         defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
         required = L("creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
         nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        payment_was_successful.send(params)
         # @@@ Could check cvv2match / avscode are both 'X' or '0'
         # qd = django.http.QueryDict(nvp_obj.response)
         # if qd.get('cvv2match') not in ['X', '0']:
         #   nvp_obj.set_flag("Invalid cvv2match: %s" % qd.get('cvv2match')
         # if qd.get('avscode') not in ['X', '0']:
         #   nvp_obj.set_flag("Invalid avscode: %s" % qd.get('avscode')
-        return not nvp_obj.flag
+        return nvp_obj
 
     def setExpressCheckout(self, params):
         """
@@ -85,16 +90,22 @@ class PayPalWPP(object):
 
         defaults = {"method": "SetExpressCheckout", "noshipping": 1}
         required = L("returnurl cancelurl amt")
-        return self._fetch(params, required, defaults)
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
 
     def doExpressCheckoutPayment(self, params):
         """
         Check the dude out:
         """
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
-        required =L("returnurl cancelurl amt token payerid")
+        required = L("returnurl cancelurl amt token payerid")
         nvp_obj = self._fetch(params, required, defaults)
-        return not nvp_obj.flag
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        payment_was_successful.send(params)
+        return nvp_obj
         
     def createRecurringPaymentsProfile(self, params, direct=False):
         """
@@ -113,16 +124,29 @@ class PayPalWPP(object):
         nvp_obj = self._fetch(params, required, defaults)
         
         # Flag if profile_type != ActiveProfile
-        return not nvp_obj.flag
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
 
     def getExpressCheckoutDetails(self, params):
-        raise NotImplementedError
+        defaults = {"method": "GetExpressCheckoutDetails"}
+        required = L("token")
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
 
     def setCustomerBillingAgreement(self, params):
         raise DeprecationWarning
 
     def getTransactionDetails(self, params):
-        raise NotImplementedError
+        defaults = {"method": "GetTransactionDetails"}
+        required = L("transactionid")
+
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
 
     def massPay(self, params):
         raise NotImplementedError
@@ -131,13 +155,38 @@ class PayPalWPP(object):
         raise NotImplementedError
 
     def updateRecurringPaymentsProfile(self, params):
-        raise NotImplementedError
+        defaults = {"method": "UpdateRecurringPaymentsProfile"}
+        required = L("profileid")
+
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
     
     def billOutstandingAmount(self, params):
         raise NotImplementedError
         
-    def manangeRecurringPaymentsProfileStatus(self, params):
-        raise NotImplementedError
+    def manangeRecurringPaymentsProfileStatus(self, params, fail_silently=False):
+        """
+        Requires `profileid` and `action` params.
+        Action must be either "Cancel", "Suspend", or "Reactivate".
+        """
+        defaults = {"method": "ManageRecurringPaymentsProfileStatus"}
+        required = L("profileid action")
+
+        nvp_obj = self._fetch(params, required, defaults)
+
+        # TODO: This fail silently check should be using the error code, but its not easy to access
+        if not nvp_obj.flag or (fail_silently and nvp_obj.flag_info == 'Invalid profile status for cancel action; profile should be active or suspended'):
+            if params['action'] == 'Cancel':
+                recurring_cancel.send(sender=nvp_obj)
+            elif params['action'] == 'Suspend':
+                recurring_suspend.send(sender=nvp_obj)
+            elif params['action'] == 'Reactivate':
+                recurring_reactivate.send(sender=nvp_obj)
+        else:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
         
     def refundTransaction(self, params):
         raise NotImplementedError
@@ -164,7 +213,7 @@ class PayPalWPP(object):
     def _fetch(self, params, required, defaults):
         """Make the NVP request and store the response."""
         defaults.update(params)
-        pp_params = self._check_and_update_params(required, defaults)        
+        pp_params = self._check_and_update_params(required, defaults)
         pp_string = self.signature + urlencode(pp_params)
         response = self._request(pp_string)
         response_params = self._parse_response(response)
@@ -179,7 +228,7 @@ class PayPalWPP(object):
         nvp_params = {}
         for k, v in MergeDict(defaults, response_params).items():
             if k in NVP_FIELDS:
-                nvp_params[k] = v    
+                nvp_params[str(k)] = v
 
         # PayPal timestamp has to be formatted.
         if 'timestamp' in nvp_params:
