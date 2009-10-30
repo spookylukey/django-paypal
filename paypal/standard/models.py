@@ -48,7 +48,7 @@ class PayPalStandardBase(Model):
     receiver_id = models.CharField(max_length=127, blank=True)  # 258DLEHY2BDK6
     residence_country = models.CharField(max_length=2, blank=True)
     test_ipn = models.BooleanField(default=False, blank=True)
-    txn_id = models.CharField("Transaction ID", max_length=19, blank=True, help_text="PayPal transaction ID.")
+    txn_id = models.CharField("Transaction ID", max_length=19, blank=True, help_text="PayPal transaction ID.", db_index=True)
     txn_type = models.CharField("Transaction Type", max_length=128, blank=True, help_text="PayPal transaction type.")
     verify_sign = models.CharField(max_length=255, blank=True)    
     
