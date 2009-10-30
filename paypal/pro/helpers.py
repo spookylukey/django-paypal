@@ -218,7 +218,7 @@ class PayPalWPP(object):
         response = self._request(pp_string)
         response_params = self._parse_response(response)
         
-        if settings.DEBUG:
+        if getattr(settings, 'PAYPAL_DEBUG', settings.DEBUG):
             print 'PayPal Request:'
             pprint.pprint(defaults)
             print '\nPayPal Response:'
