@@ -82,7 +82,7 @@ Using PayPal Payments Standard IPN:
     when a successful payment is recieved.
     
     There are two signals for basic transactions:
-    - `payment_was_succesful` 
+    - `payment_was_successful` 
     - `payment_was_flagged`
     
     And four signals for subscriptions:
