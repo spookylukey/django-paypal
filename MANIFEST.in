@@ -1,2 +1,3 @@
-include setup.py README.md CONTRIBUTORS MANIFEST.in
+include setup.py README.md CONTRIBUTORS MANIFEST.in 
+recursive-include paypal *.html
 global-exclude *~
