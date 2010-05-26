@@ -5,3 +5,4 @@
 /dist
 /build
 /django_paypal.egg-info
+*.swp
