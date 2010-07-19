@@ -8,8 +8,9 @@ from django.conf import settings
 
 if not settings.configured:
     settings.configure(
+        ROOT_URLCONF='',
         DATABASE_ENGINE='sqlite3',
-        PAYPAL_RECEIVER_EMAIL='%s@localhost' % (getpass.getuser(),),
+        PAYPAL_RECEIVER_EMAIL='test@example.com',
         PAYPAL_TEST=True,
         # Please dont make me create another test account and remove this from here :)
         PAYPAL_WPP_USER='dcrame_1278645792_biz_api1.gmail.com',
@@ -18,6 +19,8 @@ if not settings.configured:
         INSTALLED_APPS=[
             'paypal.pro',
             'paypal.standard',
+            'paypal.standard.ipn',
+            # 'paypal.standard.pdt', # we need the PDT token
         ]
     )
 
@@ -26,7 +29,7 @@ from django.test.simple import run_tests
 
 def runtests(*test_args):
     if not test_args:
-        test_args = ['pro', 'standard']
+        test_args = ['pro', 'standard', 'ipn']
     parent = dirname(abspath(__file__))
     sys.path.insert(0, parent)
     failures = run_tests(test_args, verbosity=1, interactive=True)
