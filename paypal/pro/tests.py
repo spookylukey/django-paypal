@@ -108,7 +108,7 @@ class PayPalWPPTest(TestCase):
             'creditcardtype': 'visa',
             'ipaddress': '10.0.1.199',}
         data.update(self.item)
-        self.assertRaises(PayPalFailure, self.wpp.doDirectPayment(data))
+        self.assertRaises(PayPalFailure, self.wpp.doDirectPayment, data)
 
     def test_setExpressCheckout(self):
         # We'll have to stub out tests for doExpressCheckoutPayment and friends
