@@ -45,12 +45,14 @@ class DummyPayPalWPP(PayPalWPP):
 
 
 class CreditCardFieldTest(TestCase):
-    def testCreditCardField(self):
+    def test_CreditCardField(self):
         field = CreditCardField()
         field.clean('4797503429879309')
         self.assertEquals(field.card_type, "Visa")
         self.assertRaises(ValidationError, CreditCardField().clean, '1234567890123455')
 
+    def test_invalidCreditCards(self):
+        self.assertEquals(CreditCardField().clean('4797-5034-2987-9309'), '4797503429879309')
         
 class PayPalWPPTest(TestCase):
     def setUp(self):
@@ -92,7 +94,7 @@ class PayPalWPPTest(TestCase):
             'ipaddress': '10.0.1.199',}
         data.update(self.item)
         self.assertTrue(self.wpp.doDirectPayment(data))
-        
+    
     def test_doDirectPayment_invalid(self):
         data = {
             'firstname': 'Epic',
