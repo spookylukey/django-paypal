@@ -260,15 +260,18 @@ WPP is the more awesome version of PayPal that lets you accept payments on your
 site. WPP reuses code from `paypal.standard` so you'll need to include both 
 apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommunity.com/pdn/board/message?board.id=wppro&thread.id=192).
 
+1. Obtain PayPal Pro API credentials: login to PayPal, click *My Account*,
+  *Profile*, *Request API credentials*, *Set up PayPal API credentials and
+  permissions*, *View API Signature*.
 
 1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your 
-   `INSTALLED_APPS`, also set your PayPal settings:
+   `INSTALLED_APPS` and put in your PayPal Pro API credentials.
 
         # settings.py
         ...
         INSTALLED_APPS = (... 'paypal.standard', 'paypal.pro', ...)
-        PAYPAL_TEST = True           # Testing mode on
-        PAYPAL_WPP_USER = "???"      # Get from PayPal
+        PAYPAL_TEST = True
+        PAYPAL_WPP_USER = "???"
         PAYPAL_WPP_PASSWORD = "???"
         PAYPAL_WPP_SIGNATURE = "???"
 
