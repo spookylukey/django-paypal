@@ -50,6 +50,9 @@ class CreditCard(object):
 
     def is_test(self):
         """Returns True if number is a test card number."""
+        # Note: test numbers cannot be used in the PP Pro sandbox.
+        # Instead, use the credit card number associated with a
+        # sandbox account (Test Accounts -> View Details).
         return self.number in TEST_NUMBERS
 
     def get_type(self):
