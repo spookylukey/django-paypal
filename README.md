@@ -113,7 +113,7 @@ Using PayPal Payments Standard IPN:
         
         
 Using PayPal Payments Standard PDT:
--------------------------------
+-----------------------------------
 
 Paypal Payment Data Transfer (PDT) allows you to display transaction details to a customer immediately on return to your site unlike PayPal IPN which may take some seconds. [You will need to enable PDT in your PayPal account to use it.your PayPal account to use it](https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_paymentdatatransfer).
 
@@ -144,7 +144,7 @@ Paypal Payment Data Transfer (PDT) allows you to display transaction details to 
         )
 
 Using PayPal Payments Standard with Subscriptions:
--------------------------------
+--------------------------------------------------
 
 1.  For subscription actions, you'll need to add a parameter to tell it to use the subscription buttons and the command, plus any 
     subscription-specific settings:
@@ -264,7 +264,7 @@ apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommun
   *Profile*, *Request API credentials*, *Set up PayPal API credentials and
   permissions*, *View API Signature*.
 
-1. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your 
+2. Edit `settings.py` and add  `paypal.standard` and `paypal.pro` to your 
    `INSTALLED_APPS` and put in your PayPal Pro API credentials.
 
         # settings.py
@@ -275,9 +275,9 @@ apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommun
         PAYPAL_WPP_PASSWORD = "???"
         PAYPAL_WPP_SIGNATURE = "???"
 
-1. Run `python manage.py syncdb` to add the required tables.
+3. Run `python manage.py syncdb` to add the required tables.
 
-1. Write a wrapper view for `paypal.pro.views.PayPalPro`:
+4. Write a wrapper view for `paypal.pro.views.PayPalPro`:
 
         # views.py
         from paypal.pro.views import PayPalPro
@@ -298,7 +298,7 @@ apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommun
           return ppp(request)
 
 
-1. Create templates for payment and confirmation. By default both templates are 
+5. Create templates for payment and confirmation. By default both templates are 
    populated with the context variable `form` which contains either a 
    `PaymentForm` or a `Confirmation` form.
 
@@ -316,7 +316,7 @@ apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommun
       <input type="submit" value="Yes I Yams">
     </form>
 
-1. Add your view to `urls.py`, and add the IPN endpoint to receive callbacks 
+5. Add your view to `urls.py`, and add the IPN endpoint to receive callbacks 
    from PayPal:
 
         # urls.py
