@@ -126,6 +126,7 @@ class PayPalWPP(object):
         # Flag if profile_type != ActiveProfile
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
+        payment_profile_created.send(params)
         return nvp_obj
 
     def getExpressCheckoutDetails(self, params):
