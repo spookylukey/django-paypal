@@ -302,19 +302,19 @@ apps.
    populated with the context variable `form` which contains either a 
    `PaymentForm` or a `Confirmation` form.
 
-    <!-- payment.html -->
-    <h1>Show me the money</h1>
-    <form method="post" action="">
-      {{ form }}
-      <input type="submit" value="Pay Up">
-    </form>
-    
-    <!-- confirmation.html -->
-    <h1>Are you sure you want to buy this thing?</h1>
-    <form method="post" action="">
-      {{ form }}
-      <input type="submit" value="Yes I Yams">
-    </form>
+        <!-- payment.html -->
+        <h1>Show me the money</h1>
+        <form method="post" action="">
+          {{ form }}
+          <input type="submit" value="Pay Up">
+        </form>
+        
+        <!-- confirmation.html -->
+        <h1>Are you sure you want to buy this thing?</h1>
+        <form method="post" action="">
+          {{ form }}
+          <input type="submit" value="Yes I Yams">
+        </form>
 
 6. Add your view to `urls.py`, and add the IPN endpoint to receive callbacks 
    from PayPal:
