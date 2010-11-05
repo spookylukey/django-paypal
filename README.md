@@ -258,7 +258,7 @@ Using PayPal Payments Pro (WPP)
 
 WPP is the more awesome version of PayPal that lets you accept payments on your 
 site. WPP reuses code from `paypal.standard` so you'll need to include both 
-apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommunity.com/pdn/board/message?board.id=wppro&thread.id=192).
+apps.
 
 1. Obtain PayPal Pro API credentials: login to PayPal, click *My Account*,
   *Profile*, *Request API credentials*, *Set up PayPal API credentials and
@@ -316,7 +316,7 @@ apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommun
       <input type="submit" value="Yes I Yams">
     </form>
 
-5. Add your view to `urls.py`, and add the IPN endpoint to receive callbacks 
+6. Add your view to `urls.py`, and add the IPN endpoint to receive callbacks 
    from PayPal:
 
         # urls.py
@@ -327,7 +327,12 @@ apps. [There is an explanation of WPP in the PayPal Forums](http://www.pdncommun
             (r'^some/obscure/name/', include('paypal.standard.ipn.urls')),
         )
 
-1. Profit.
+7. Connect to the provided signals and have them do something useful:
+    - `payment_was_successful` 
+    - `payment_was_flagged`
+
+
+8. Profit.
 
 
 Links:
