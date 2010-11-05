@@ -8,7 +8,6 @@ from django.utils.http import urlencode
 from paypal.pro.forms import PaymentForm, ConfirmForm
 from paypal.pro.models import PayPalNVP
 from paypal.pro.helpers import PayPalWPP, TEST
-from paypal.pro.signals import payment_was_successful, payment_was_flagged
 from paypal.pro.exceptions import PayPalFailure
 
 # PayPal Edit IPN URL:
@@ -139,7 +138,6 @@ class PayPalPro(object):
         if form.is_valid():
             success = form.process(self.request, self.item)
             if success:
-                payment_was_successful.send(sender=self.item)
                 return HttpResponseRedirect(self.success_url)
             else:
                 self.context['errors'] = self.errors['processing']
