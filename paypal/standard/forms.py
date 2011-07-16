@@ -199,7 +199,7 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
     def __init__(self, *args, **kwargs):
         "Make the secret from the form initial data and slip it into the form."
         from paypal.standard.helpers import make_secret
-        super(PayPalSharedSecretEncryptedPaymentsForm, self).__init__(self, *args, **kwargs)
+        super(PayPalSharedSecretEncryptedPaymentsForm, self).__init__(*args, **kwargs)
         # @@@ Attach the secret parameter in a way that is safe for other query params.
         secret_param = "?secret=%s" % make_secret(self)
         # Initial data used in form construction overrides defaults
