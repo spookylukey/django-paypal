@@ -31,3 +31,7 @@ recurring_create = Signal()
 recurring_payment = Signal()
 
 recurring_cancel = Signal()
+
+recurring_skipped = Signal()
+
+recurring_failed = Signal()

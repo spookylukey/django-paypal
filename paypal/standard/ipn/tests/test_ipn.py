@@ -6,7 +6,8 @@ from django.test.client import Client
 from paypal.standard.models import ST_PP_CANCELLED
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import (payment_was_successful, 
-    payment_was_flagged)
+    payment_was_flagged, recurring_skipped, recurring_failed,
+    recurring_create, recurring_payment, recurring_cancel)
 
 
 IPN_POST_PARAMS = {
@@ -60,7 +61,7 @@ class IPNTest(TestCase):
         settings.DEBUG = self.old_debug
         PayPalIPN._postback = self.old_postback
 
-    def assertGotSignal(self, signal, flagged):
+    def assertGotSignal(self, signal, flagged, params=IPN_POST_PARAMS):
         # Check the signal was sent. These get lost if they don't reference self.
         self.got_signal = False
         self.signal_obj = None
@@ -70,7 +71,7 @@ class IPNTest(TestCase):
             self.signal_obj = sender
         signal.connect(handle_signal)
         
-        response = self.client.post("/ipn/", IPN_POST_PARAMS)
+        response = self.client.post("/ipn/", params)
         self.assertEqual(response.status_code, 200)
         ipns = PayPalIPN.objects.all()
         self.assertEqual(len(ipns), 1)        
@@ -123,3 +124,58 @@ class IPNTest(TestCase):
         ipn_obj = PayPalIPN.objects.order_by('-created_at', '-pk')[0]
         self.assertEqual(ipn_obj.flag, True)
         self.assertEqual(ipn_obj.flag_info, "Duplicate txn_id. (51403485VH153354B)")
+
+    def test_recurring_payment_skipped_ipn(self):
+        update = {
+            "recurring_payment_id": "BN5JZ2V7MLEV4",
+            "txn_type": "recurring_payment_skipped",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+        
+        self.assertGotSignal(recurring_skipped, False, params)
+
+    def test_recurring_payment_failed_ipn(self):
+        update = {
+            "recurring_payment_id": "BN5JZ2V7MLEV4",
+            "txn_type": "recurring_payment_failed",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+        
+        self.assertGotSignal(recurring_failed, False, params)
+
+    def test_recurring_payment_create_ipn(self):
+        update = {
+            "recurring_payment_id": "BN5JZ2V7MLEV4",
+            "txn_type": "recurring_payment_profile_created",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+        
+        self.assertGotSignal(recurring_create, False, params)
+
+    def test_recurring_payment_cancel_ipn(self):
+        update = {
+            "recurring_payment_id": "BN5JZ2V7MLEV4",
+            "txn_type": "recurring_payment_profile_cancel",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+        
+        self.assertGotSignal(recurring_cancel, False, params)
+
+    def test_recurring_payment_ipn(self):
+        update = {
+            "recurring_payment_id": "BN5JZ2V7MLEV4",
+            "txn_type": "recurring_payment",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+        
+        self.assertGotSignal(recurring_payment, False, params)
