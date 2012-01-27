@@ -56,10 +56,39 @@ class IPNTest(TestCase):
         # Monkey patch over PayPalIPN to make it get a VERFIED response.
         self.old_postback = PayPalIPN._postback
         PayPalIPN._postback = lambda self: "VERIFIED"
+
+        self.payment_was_successful_receivers = payment_was_successful.receivers  
+        self.payment_was_flagged_receivers = payment_was_flagged.receivers  
+        self.recurring_skipped_receivers = recurring_skipped.receivers  
+        self.recurring_failed_receivers = recurring_failed.receivers  
+        self.recurring_create_receivers = recurring_create.receivers  
+        self.recurring_failed_receivers = recurring_failed.receivers  
+        self.recurring_payment_receivers = recurring_payment.receivers  
+        self.recurring_cancel_receivers = recurring_cancel.receivers  
+
+        payment_was_successful.receivers = []
+        payment_was_flagged.receivers = []
+        recurring_skipped.receivers = [] 
+        recurring_failed.receivers = []  
+        recurring_create.receivers = [] 
+        recurring_failed.receivers = []  
+        recurring_payment.receivers = []
+        recurring_cancel.receivers = []  
+        
         
     def tearDown(self):
         settings.DEBUG = self.old_debug
         PayPalIPN._postback = self.old_postback
+        
+        payment_was_successful.receivers =self.payment_was_successful_receivers
+        payment_was_flagged.receivers = self.payment_was_flagged_receivers
+        recurring_skipped.receivers = self.recurring_skipped_receivers
+        recurring_failed.receivers = self.recurring_failed_receivers
+        recurring_create.receivers = self.recurring_create_receivers
+        recurring_failed.receivers = self.recurring_failed_receivers
+        recurring_payment.receivers = self.recurring_payment_receivers
+        recurring_cancel.receivers = self.recurring_cancel_receivers  
+        
 
     def assertGotSignal(self, signal, flagged, params=IPN_POST_PARAMS):
         # Check the signal was sent. These get lost if they don't reference self.
