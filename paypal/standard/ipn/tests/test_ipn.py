@@ -170,12 +170,30 @@ class IPNTest(TestCase):
         self.assertGotSignal(recurring_cancel, False, params)
 
     def test_recurring_payment_ipn(self):
+        """
+        The wat the code is written in 
+        PayPalIPN.send_signals the recurring_payment 
+        will never be sent because the paypal ipn
+        contains a txn_id, if this test failes you
+        might break some compatibility
+        """
         update = {
             "recurring_payment_id": "BN5JZ2V7MLEV4",
             "txn_type": "recurring_payment",
-            "txn_id": ""
         }
         params = IPN_POST_PARAMS.copy()
         params.update(update)
         
-        self.assertGotSignal(recurring_payment, False, params)
+        self.got_signal = False
+        self.signal_obj = None
+        
+        def handle_signal(sender, **kwargs):
+            self.got_signal = True
+            self.signal_obj = sender
+        recurring_payment.connect(handle_signal)
+        
+        response = self.client.post("/ipn/", params)
+        self.assertEqual(response.status_code, 200)
+        ipns = PayPalIPN.objects.all()
+        self.assertEqual(len(ipns), 1)        
+        self.assertFalse(self.got_signal)
