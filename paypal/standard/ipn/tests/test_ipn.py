@@ -62,7 +62,6 @@ class IPNTest(TestCase):
         self.recurring_skipped_receivers = recurring_skipped.receivers  
         self.recurring_failed_receivers = recurring_failed.receivers  
         self.recurring_create_receivers = recurring_create.receivers  
-        self.recurring_failed_receivers = recurring_failed.receivers  
         self.recurring_payment_receivers = recurring_payment.receivers  
         self.recurring_cancel_receivers = recurring_cancel.receivers  
 
@@ -71,7 +70,6 @@ class IPNTest(TestCase):
         recurring_skipped.receivers = [] 
         recurring_failed.receivers = []  
         recurring_create.receivers = [] 
-        recurring_failed.receivers = []  
         recurring_payment.receivers = []
         recurring_cancel.receivers = []  
         
@@ -85,7 +83,6 @@ class IPNTest(TestCase):
         recurring_skipped.receivers = self.recurring_skipped_receivers
         recurring_failed.receivers = self.recurring_failed_receivers
         recurring_create.receivers = self.recurring_create_receivers
-        recurring_failed.receivers = self.recurring_failed_receivers
         recurring_payment.receivers = self.recurring_payment_receivers
         recurring_cancel.receivers = self.recurring_cancel_receivers  
         
