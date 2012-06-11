@@ -176,8 +176,8 @@ class PayPalStandardBase(Model):
     flag = models.BooleanField(default=False, blank=True)
     flag_code = models.CharField(max_length=16, blank=True)
     flag_info = models.TextField(blank=True)
-    query = models.TextField(blank=True)  # What we sent to PayPal.
-    response = models.TextField(blank=True)  # What we got back.
+    query = models.TextField(blank=True)  # What Paypal sent to us initially
+    response = models.TextField(blank=True)  # What we got back from our request
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
