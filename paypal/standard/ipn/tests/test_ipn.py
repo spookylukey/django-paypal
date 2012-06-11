@@ -29,7 +29,7 @@ IPN_POST_PARAMS = {
     "txn_type": "express_checkout",
     "handling_amount": "0.00",
     "payment_date": "23:04:06 Feb 02, 2009 PST",
-    "first_name": "Test",
+    "first_name": "J\xF6rg",
     "item_name": "",
     "charset": "windows-1252",
     "custom": "website_id=13&user_id=21",
@@ -119,9 +119,12 @@ class IPNTest(TestCase):
         
         self.assertTrue(self.got_signal)
         self.assertEqual(self.signal_obj, ipn_obj)
+        return ipn_obj
         
     def test_correct_ipn(self):
-        self.assertGotSignal(payment_was_successful, False)
+        ipn_obj = self.assertGotSignal(payment_was_successful, False)
+        # Check some encoding issues:
+        self.assertEqual(ipn_obj.first_name, u"J\u00f6rg")
 
     def test_failed_ipn(self):
         PayPalIPN._postback = lambda self: "INVALID"
