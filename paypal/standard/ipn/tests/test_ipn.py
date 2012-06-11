@@ -1,3 +1,5 @@
+import urllib
+
 from django.conf import settings
 from django.http import HttpResponse
 from django.test import TestCase
@@ -9,6 +11,9 @@ from paypal.standard.ipn.signals import (payment_was_successful,
     payment_was_flagged, recurring_skipped, recurring_failed,
     recurring_create, recurring_payment, recurring_cancel)
 
+
+# Parameters are all bytestrings, so we can construct a bytestring
+# request the same way that Paypal does.
 
 IPN_POST_PARAMS = {
     "protection_eligibility": "Ineligible",
@@ -85,7 +90,15 @@ class IPNTest(TestCase):
         recurring_create.receivers = self.recurring_create_receivers
         recurring_payment.receivers = self.recurring_payment_receivers
         recurring_cancel.receivers = self.recurring_cancel_receivers  
-        
+
+    def paypal_post(self, params):
+        """
+        Does an HTTP POST the way that PayPal does, using the params given.
+        """
+        # We build params into a bytestring ourselves, to avoid some encoding
+        # processing that is done by the test client.
+        post_data = urllib.urlencode(params)
+        return self.client.post("/ipn/", post_data, content_type='application/x-www-form-urlencoded')
 
     def assertGotSignal(self, signal, flagged, params=IPN_POST_PARAMS):
         # Check the signal was sent. These get lost if they don't reference self.
@@ -97,7 +110,7 @@ class IPNTest(TestCase):
             self.signal_obj = sender
         signal.connect(handle_signal)
         
-        response = self.client.post("/ipn/", params)
+        response = self.paypal_post(params)
         self.assertEqual(response.status_code, 200)
         ipns = PayPalIPN.objects.all()
         self.assertEqual(len(ipns), 1)        
@@ -117,7 +130,7 @@ class IPNTest(TestCase):
     def assertFlagged(self, updates, flag_info):
         params = IPN_POST_PARAMS.copy()
         params.update(updates)
-        response = self.client.post("/ipn/", params)
+        response = self.paypal_post(params)
         self.assertEqual(response.status_code, 200)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, True)
@@ -137,15 +150,15 @@ class IPNTest(TestCase):
         update = {"payment_status": ST_PP_CANCELLED}
         params = IPN_POST_PARAMS.copy()
         params.update(update)
-        response = self.client.post("/ipn/", params)
+        response = self.paypal_post(params)
         self.assertEqual(response.status_code, 200)
         ipn_obj = PayPalIPN.objects.all()[0]
         self.assertEqual(ipn_obj.flag, False)
         
 
     def test_duplicate_txn_id(self):       
-        self.client.post("/ipn/", IPN_POST_PARAMS)
-        self.client.post("/ipn/", IPN_POST_PARAMS)
+        self.paypal_post(IPN_POST_PARAMS)
+        self.paypal_post(IPN_POST_PARAMS)
         self.assertEqual(len(PayPalIPN.objects.all()), 2)        
         ipn_obj = PayPalIPN.objects.order_by('-created_at', '-pk')[0]
         self.assertEqual(ipn_obj.flag, True)
@@ -218,7 +231,7 @@ class IPNTest(TestCase):
             self.signal_obj = sender
         recurring_payment.connect(handle_signal)
         
-        response = self.client.post("/ipn/", params)
+        response = self.paypal_post(params)
         self.assertEqual(response.status_code, 200)
         ipns = PayPalIPN.objects.all()
         self.assertEqual(len(ipns), 1)        
