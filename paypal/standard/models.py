@@ -306,7 +306,12 @@ class PayPalStandardBase(Model):
 
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
-        self.query = getattr(request, request.method).urlencode()
+        if request.method == 'GET':
+            # PDT only - this data is currently unused
+            self.query = request.META.get('QUERY_STRING', '')
+        elif request.method == 'POST':
+            # The following works if paypal sends an ASCII bytestring, which it does.
+            self.query = request.raw_post_data
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):
