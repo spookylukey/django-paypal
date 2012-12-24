@@ -40,19 +40,19 @@ class PayPalPDT(PayPalStandardBase):
         Perform PayPal PDT Postback validation.
         Sends the transaction ID and business token to PayPal which responses with
         SUCCESS or FAILED.
-        
+
         """
         postback_dict = dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)
         postback_params = urlencode(postback_dict)
         return urllib2.urlopen(self.get_endpoint(), postback_params).read()
-    
+
     def get_endpoint(self):
         """Use the sandbox when in DEBUG mode as we don't have a test_ipn variable in pdt."""
         if getattr(settings, 'PAYPAL_DEBUG', settings.DEBUG):
             return SANDBOX_POSTBACK_ENDPOINT
         else:
             return POSTBACK_ENDPOINT
-    
+
     def _verify_postback(self):
         # ### Now we don't really care what result was, just whether a flag was set or not.
         from paypal.standard.pdt.forms import PayPalPDTForm
@@ -60,7 +60,7 @@ class PayPalPDT(PayPalStandardBase):
         response_list = self.response.split('\n')
         response_dict = {}
         for i, line in enumerate(response_list):
-            unquoted_line = unquote_plus(line).strip()        
+            unquoted_line = unquote_plus(line).strip()
             if i == 0:
                 self.st = unquoted_line
                 if self.st == "SUCCESS":
@@ -69,19 +69,19 @@ class PayPalPDT(PayPalStandardBase):
                 if self.st != "SUCCESS":
                     self.set_flag(line)
                     break
-                try:                        
+                try:
                     if not unquoted_line.startswith(' -'):
-                        k, v = unquoted_line.split('=')                        
+                        k, v = unquoted_line.split('=')
                         response_dict[k.strip()] = v.strip()
                 except ValueError, e:
                     pass
 
         qd = QueryDict('', mutable=True)
         qd.update(response_dict)
-        qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info))
+        qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info,flag=self.flag,flag_code=self.flag_code))
         pdt_form = PayPalPDTForm(qd, instance=self)
         pdt_form.save(commit=False)
-        
+
     def send_signals(self):
         # Send the PDT signals...
         if self.flag:
