@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import hashlib
+
 from django.conf import settings
+from django.utils.encoding import smart_str
+
+
+def get_sha1_hexdigest(salt, raw_password):
+    return hashlib.sha1(smart_str(salt) + smart_str(raw_password)).hexdigest()
 
 def duplicate_txn_id(ipn_obj):
     """Returns True if a record with this transaction id exists and it is not
@@ -24,7 +31,6 @@ def make_secret(form_instance, secret_fields=None):
     
     """
     # @@@ Moved here as temporary fix to avoid dependancy on auth.models.
-    from django.contrib.auth.models import get_hexdigest
     # @@@ amount is mc_gross on the IPN - where should mapping logic go?
     # @@@ amount / mc_gross is not nessecarily returned as it was sent - how to use it? 10.00 vs. 10.0
     # @@@ the secret should be based on the invoice or custom fields as well - otherwise its always the same.
@@ -45,7 +51,7 @@ def make_secret(form_instance, secret_fields=None):
             elif name in form_instance.fields and form_instance.fields[name].initial is not None:
                 data += unicode(form_instance.fields[name].initial)
 
-    secret = get_hexdigest('sha1', settings.SECRET_KEY, data)
+    secret = get_sha1_hexdigest(settings.SECRET_KEY, data)
     return secret
 
 def check_secret(form_instance, secret):
