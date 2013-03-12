@@ -81,9 +81,11 @@ Using PayPal Payments Standard IPN:
     transaction. Connect the signals to actions to perform the needed operations
     when a successful payment is recieved.
     
-    There are two signals for basic transactions:
+    There are four signals for basic transactions:
     - `payment_was_successful` 
     - `payment_was_flagged`
+    - `payment_was_refunded`
+    - `payment_was_reversed`
     
     And four signals for subscriptions:
     - `subscription_cancel` - Sent when a subscription is cancelled.
