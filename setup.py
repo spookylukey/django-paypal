@@ -13,7 +13,7 @@ setup(
     maintainer_email="dcramer@gmail.com",
     url='http://github.com/johnboxall/django-paypal',
     install_requires=[
-        'Django>=1.0'
+        'Django>=1.4'
     ],
     description = 'A pluggable Django application for integrating PayPal Payments Standard or Payments Pro',
     packages=find_packages(),

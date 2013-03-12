@@ -9,7 +9,7 @@ from django.conf import settings
 if not settings.configured:
     settings.configure(
         ROOT_URLCONF='',
-        DATABASE_ENGINE='sqlite3',
+        DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
         PAYPAL_RECEIVER_EMAIL='test@example.com',
         PAYPAL_TEST=True,
         # Please dont make me create another test account and remove this from here :)
@@ -17,6 +17,8 @@ if not settings.configured:
         PAYPAL_WPP_PASSWORD='1278645801',
         PAYPAL_WPP_SIGNATURE='A4k1.O6xTyld5TiKeVmCuOgqzLRuAKuTtSG.7BD3R9E8SBa-J0pbUeYp',
         INSTALLED_APPS=[
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
             'paypal.pro',
             'paypal.standard',
             'paypal.standard.ipn',
@@ -24,7 +26,7 @@ if not settings.configured:
         ]
     )
 
-from django.test.simple import run_tests
+from django.test.simple import DjangoTestSuiteRunner
 
 
 def runtests(*test_args):
@@ -32,8 +34,8 @@ def runtests(*test_args):
         test_args = ['pro', 'standard', 'ipn']
     parent = dirname(abspath(__file__))
     sys.path.insert(0, parent)
-    failures = run_tests(test_args, verbosity=1, interactive=True)
-    sys.exit(failures)
+    failures = DjangoTestSuiteRunner().run_tests(test_args, verbosity=1, interactive=True)
+    sys.exit(bool(failures))
 
 
 if __name__ == '__main__':

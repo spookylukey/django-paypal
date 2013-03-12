@@ -5,28 +5,12 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.forms import ValidationError
 from django.http import QueryDict
 from django.test import TestCase
-from django.test.client import Client
+from django.test.client import Client, RequestFactory
 
 from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import PayPalWPP, PayPalError
 from paypal.pro.exceptions import PayPalFailure
 
-class RequestFactory(Client):
-    # Used to generate request objects.
-    def request(self, **request):
-        environ = {
-            'HTTP_COOKIE': self.cookies,
-            'PATH_INFO': '/',
-            'QUERY_STRING': '',
-            'REQUEST_METHOD': 'GET',
-            'SCRIPT_NAME': '',
-            'SERVER_NAME': 'testserver',
-            'SERVER_PORT': 80,
-            'SERVER_PROTOCOL': 'HTTP/1.1',
-        }
-        environ.update(self.defaults)
-        environ.update(request)
-        return WSGIRequest(environ)
 
 RF = RequestFactory()
 REQUEST = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
