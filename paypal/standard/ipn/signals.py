@@ -1,5 +1,5 @@
 """
-Note that sometimes you will get duplicate signals emitted, depending on configuration of your systems. 
+Note that sometimes you will get duplicate signals emitted, depending on configuration of your systems.
 If you do encounter this, you will need to add the "dispatch_uid" to your connect handlers:
 http://code.djangoproject.com/wiki/Signals#Helppost_saveseemstobeemittedtwiceforeachsave
 
@@ -35,3 +35,5 @@ recurring_cancel = Signal()
 recurring_skipped = Signal()
 
 recurring_failed = Signal()
+
+recurring_suspended = Signal()
