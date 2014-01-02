@@ -321,7 +321,6 @@ class PayPalStandardBase(Model):
             elif self.is_subscription_modified():
                 subscription_modify.send(sender=self)
 
-
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
         if request.method == 'GET':
@@ -329,7 +328,7 @@ class PayPalStandardBase(Model):
             self.query = request.META.get('QUERY_STRING', '')
         elif request.method == 'POST':
             # The following works if paypal sends an ASCII bytestring, which it does.
-            self.query = request.raw_post_data
+            self.query = request.body
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):
