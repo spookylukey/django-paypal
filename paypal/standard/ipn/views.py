@@ -35,7 +35,7 @@ def ipn(request, item_check_callable=None):
         data = None
     else:
         try:
-            data = QueryDict(request.raw_post_data, encoding=encoding)
+            data = QueryDict(request.body, encoding=encoding)
         except LookupError:
             data = None
             flag = "Invalid form - invalid charset"
