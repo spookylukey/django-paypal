@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
+import os.path
 from setuptools import setup, find_packages
 
 import paypal
+
+def read(*rnames):
+    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+
+DESCRIPTION = 'A pluggable Django application for integrating PayPal Payments Standard or Payments Pro'
 
 setup(
     name='django-paypal',
@@ -15,7 +21,8 @@ setup(
     install_requires=[
         'Django>=1.4'
     ],
-    description = 'A pluggable Django application for integrating PayPal Payments Standard or Payments Pro',
+    description = DESCRIPTION,
+    long_description = DESCRIPTION + "\n\n" + read("CHANGES.rst"),
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
