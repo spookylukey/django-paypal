@@ -9,9 +9,9 @@ setup(
     version=".".join(map(str, paypal.__version__)),
     author='John Boxall',
     author_email='john@handimobility.ca',
-    maintainer="David Cramer",
-    maintainer_email="dcramer@gmail.com",
-    url='http://github.com/johnboxall/django-paypal',
+    maintainer="Luke Plant",
+    maintainer_email="L.Plant.98@cantab.net",
+    url='http://github.com/dcramer/django-paypal',
     install_requires=[
         'Django>=1.4'
     ],
