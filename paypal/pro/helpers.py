@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import logging
 import pprint
 import time
 import urllib
@@ -25,6 +26,9 @@ BASE_PARAMS = dict(USER=USER , PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSIO
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANDBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
 NVP_FIELDS = fields_for_model(PayPalNVP).keys()
+
+
+log = logging.getLogger(__file__)
 
 
 def paypal_time(time_obj=None):
@@ -220,10 +224,8 @@ class PayPalWPP(object):
         response_params = self._parse_response(response)
         
         if getattr(settings, 'PAYPAL_DEBUG', settings.DEBUG):
-            print 'PayPal Request:'
-            pprint.pprint(defaults)
-            print '\nPayPal Response:'
-            pprint.pprint(response_params)
+            log.debug('PayPal Request:\n%s\n', pprint.pformat(defaults))
+            log.debug('PayPal Response:\n%s\n', pprint.pformat(response_params))
 
         # Gather all NVP parameters to pass to a new instance.
         nvp_params = {}
