@@ -1,7 +1,7 @@
-import urllib
-
 from django.conf import settings
 from django.test import TestCase
+from six import b
+from six.moves.urllib.parse import urlencode
 
 from paypal.standard.models import ST_PP_CANCELLED
 from paypal.standard.ipn.models import PayPalIPN
@@ -15,38 +15,38 @@ from paypal.standard.ipn.signals import (payment_was_successful,
 # request the same way that Paypal does.
 
 IPN_POST_PARAMS = {
-    "protection_eligibility": "Ineligible",
-    "last_name": "User",
-    "txn_id": "51403485VH153354B",
-    "receiver_email": settings.PAYPAL_RECEIVER_EMAIL,
-    "payment_status": "Completed",
-    "payment_gross": "10.00",
-    "tax": "0.00",
-    "residence_country": "US",
-    "invoice": "0004",
-    "payer_status": "verified",
-    "txn_type": "express_checkout",
-    "handling_amount": "0.00",
-    "payment_date": "23:04:06 Feb 02, 2009 PST",
-    "first_name": "J\xF6rg",
-    "item_name": "",
-    "charset": "windows-1252",
-    "custom": "website_id=13&user_id=21",
-    "notify_version": "2.6",
-    "transaction_subject": "",
-    "test_ipn": "1",
-    "item_number": "",
-    "receiver_id": "258DLEHY2BDK6",
-    "payer_id": "BN5JZ2V7MLEV4",
-    "verify_sign": "An5ns1Kso7MWUdW4ErQKJJJ4qi4-AqdZy6dD.sGO3sDhTf1wAbuO2IZ7",
-    "payment_fee": "0.59",
-    "mc_fee": "0.59",
-    "mc_currency": "USD",
-    "shipping": "0.00",
-    "payer_email": "bishan_1233269544_per@gmail.com",
-    "payment_type": "instant",
-    "mc_gross": "10.00",
-    "quantity": "1",
+    "protection_eligibility": b("Ineligible"),
+    "last_name": b("User"),
+    "txn_id": b("51403485VH153354B"),
+    "receiver_email": b(settings.PAYPAL_RECEIVER_EMAIL),
+    "payment_status": b("Completed"),
+    "payment_gross": b("10.00"),
+    "tax": b("0.00"),
+    "residence_country": b("US"),
+    "invoice": b("0004"),
+    "payer_status": b("verified"),
+    "txn_type": b("express_checkout"),
+    "handling_amount": b("0.00"),
+    "payment_date": b("23:04:06 Feb 02, 2009 PST"),
+    "first_name": b("J\xF6rg"),
+    "item_name": b(""),
+    "charset": b("windows-1252"),
+    "custom": b("website_id=13&user_id=21"),
+    "notify_version": b("2.6"),
+    "transaction_subject": b(""),
+    "test_ipn": b("1"),
+    "item_number": b(""),
+    "receiver_id": b("258DLEHY2BDK6"),
+    "payer_id": b("BN5JZ2V7MLEV4"),
+    "verify_sign": b("An5ns1Kso7MWUdW4ErQKJJJ4qi4-AqdZy6dD.sGO3sDhTf1wAbuO2IZ7"),
+    "payment_fee": b("0.59"),
+    "mc_fee": b("0.59"),
+    "mc_currency": b("USD"),
+    "shipping": b("0.00"),
+    "payer_email": b("bishan_1233269544_per@gmail.com"),
+    "payment_type": b("instant"),
+    "mc_gross": b("10.00"),
+    "quantity": b("1"),
 }
 
 
@@ -102,7 +102,7 @@ class IPNTest(TestCase):
         """
         # We build params into a bytestring ourselves, to avoid some encoding
         # processing that is done by the test client.
-        post_data = urllib.urlencode(params)
+        post_data = urlencode(params)
         return self.client.post("/ipn/", post_data, content_type='application/x-www-form-urlencoded')
 
     def assertGotSignal(self, signal, flagged, params=IPN_POST_PARAMS):

@@ -43,7 +43,7 @@ def process_pdt(request, item_check_callable=None):
             if form.is_valid():
                 try:
                     pdt_obj = form.save(commit=False)
-                except Exception, e:
+                except Exception as e:
                     error = repr(e)
                     failed = True
             else:

@@ -99,7 +99,7 @@ class PayPalWPPTest(TestCase):
         # We'll have to stub out tests for doExpressCheckoutPayment and friends
         # because they're behind paypal's doors.
         nvp_obj = self.wpp.setExpressCheckout(self.item)
-        self.assertTrue(nvp_obj.ack == "Success")
+        self.assertEqual(nvp_obj.ack, "Success")
 
 
 ### DoExpressCheckoutPayment

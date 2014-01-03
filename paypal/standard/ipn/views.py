@@ -52,7 +52,7 @@ def ipn(request, item_check_callable=None):
             try:
                 #When commit = False, object is returned without saving to DB.
                 ipn_obj = form.save(commit=False)
-            except Exception, e:
+            except Exception as e:
                 flag = "Exception while processing. (%s)" % e
         else:
             flag = "Invalid form. (%s)" % form.errors

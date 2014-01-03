@@ -20,7 +20,8 @@ setup(
     maintainer_email="L.Plant.98@cantab.net",
     url=URL,
     install_requires=[
-        'Django>=1.4'
+        'Django>=1.4',
+        'six>=1.4.1',
     ],
     description = DESCRIPTION,
     long_description = "%s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, read("CHANGES.rst")),

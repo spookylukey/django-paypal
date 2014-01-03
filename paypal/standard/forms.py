@@ -153,7 +153,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
         # Iterate through the fields and pull out the ones that have a value.
         plaintext = 'cert_id=%s\n' % CERT_ID
-        for name, field in self.fields.iteritems():
+        for name, field in self.fields.items():
             value = None
             if name in self.initial:
                 value = self.initial[name]

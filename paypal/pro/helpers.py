@@ -5,16 +5,17 @@ import datetime
 import logging
 import pprint
 import time
-import urllib
-import urllib2
 
 from django.conf import settings
 from django.forms.models import fields_for_model
+from django.http import QueryDict
 from django.utils.datastructures import MergeDict
 from django.utils.http import urlencode
+from six.moves.urllib.parse import unquote
+from six.moves.urllib.request import urlopen
 
 from paypal.pro.signals import *
-from paypal.pro.models import PayPalNVP, L
+from paypal.pro.models import PayPalNVP
 from paypal.pro.exceptions import PayPalFailure
 
 TEST = settings.PAYPAL_TEST
@@ -25,7 +26,7 @@ VERSION = 54.0
 BASE_PARAMS = dict(USER=USER, PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSION)
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANDBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
-NVP_FIELDS = fields_for_model(PayPalNVP).keys()
+NVP_FIELDS = list(fields_for_model(PayPalNVP).keys())
 
 
 log = logging.getLogger(__file__)
@@ -71,8 +72,20 @@ class PayPalWPP(object):
     def doDirectPayment(self, params):
         """Call PayPal DoDirectPayment method."""
         defaults = {"method": "DoDirectPayment", "paymentaction": "Sale"}
-        required = L(
-            "creditcardtype acct expdate cvv2 ipaddress firstname lastname street city state countrycode zip amt")
+        required = ["creditcardtype",
+                    "acct",
+                    "expdate",
+                    "cvv2",
+                    "ipaddress",
+                    "firstname",
+                    "lastname",
+                    "street",
+                    "city",
+                    "state",
+                    "countrycode",
+                    "zip",
+                    "amt",
+                    ]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
@@ -96,7 +109,7 @@ class PayPalWPP(object):
             params = self._recurring_setExpressCheckout_adapter(params)
 
         defaults = {"method": "SetExpressCheckout", "noshipping": 1}
-        required = L("returnurl cancelurl amt")
+        required = ["returnurl", "cancelurl", "amt"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
@@ -107,7 +120,7 @@ class PayPalWPP(object):
         Check the dude out:
         """
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
-        required = L("returnurl cancelurl amt token payerid")
+        required = ["returnurl", "cancelurl", "amt", "token payerid"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
@@ -120,13 +133,13 @@ class PayPalWPP(object):
         Returns True PayPal successfully creates the profile otherwise False.
         """
         defaults = {"method": "CreateRecurringPaymentsProfile"}
-        required = L("profilestartdate billingperiod billingfrequency amt")
+        required = ["profilestartdate", "billingperiod", "billingfrequency", "amt"]
 
         # Direct payments require CC data
         if direct:
-            required + L("creditcardtype acct expdate firstname lastname")
+            required + ["creditcardtype", "acct", "expdate", "firstname", "lastname"]
         else:
-            required + L("token payerid")
+            required + ["token", "payerid"]
 
         nvp_obj = self._fetch(params, required, defaults)
 
@@ -138,7 +151,7 @@ class PayPalWPP(object):
 
     def getExpressCheckoutDetails(self, params):
         defaults = {"method": "GetExpressCheckoutDetails"}
-        required = L("token")
+        required = ["token"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
@@ -149,7 +162,7 @@ class PayPalWPP(object):
 
     def getTransactionDetails(self, params):
         defaults = {"method": "GetTransactionDetails"}
-        required = L("transactionid")
+        required = ["transactionid"]
 
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
@@ -164,7 +177,7 @@ class PayPalWPP(object):
 
     def updateRecurringPaymentsProfile(self, params):
         defaults = {"method": "UpdateRecurringPaymentsProfile"}
-        required = L("profileid")
+        required = ["profileid"]
 
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
@@ -180,7 +193,7 @@ class PayPalWPP(object):
         Action must be either "Cancel", "Suspend", or "Reactivate".
         """
         defaults = {"method": "ManageRecurringPaymentsProfileStatus"}
-        required = L("profileid action")
+        required = ["profileid", "action"]
 
         nvp_obj = self._fetch(params, required, defaults)
 
@@ -212,7 +225,7 @@ class PayPalWPP(object):
         params['l_billingtype0'] = "RecurringPayments"
         params['l_billingagreementdescription0'] = params['desc']
 
-        REMOVE = L("billingfrequency billingperiod profilestartdate desc")
+        REMOVE = ["billingfrequency", "billingperiod", "profilestartdate", "desc"]
         for k in params.keys():
             if k in REMOVE:
                 del params[k]
@@ -248,7 +261,7 @@ class PayPalWPP(object):
 
     def _request(self, data):
         """Moved out to make testing easier."""
-        return urllib2.urlopen(self.endpoint, data).read()
+        return urlopen(self.endpoint, data.encode("ascii")).read()
 
     def _check_and_update_params(self, required, params):
         """
@@ -260,12 +273,9 @@ class PayPalWPP(object):
                 raise PayPalError("Missing required param: %s" % r)
 
         # Upper case all the parameters for PayPal.
-        return (dict((k.upper(), v) for k, v in params.iteritems()))
+        return (dict((k.upper(), v) for k, v in params.items()))
 
     def _parse_response(self, response):
         """Turn the PayPal response into a dict"""
-        response_tokens = {}
-        for kv in response.split('&'):
-            key, value = kv.split("=")
-            response_tokens[key.lower()] = urllib.unquote(value)
-        return response_tokens
+        q = QueryDict(response, encoding='UTF-8').dict()
+        return {k.lower(): v for k,v in q.items()}

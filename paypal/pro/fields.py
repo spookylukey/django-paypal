@@ -5,6 +5,7 @@ from datetime import date
 
 from django import forms
 from django.utils.translation import ugettext as _
+from six.moves import range
 
 from paypal.pro.creditcard import verify_credit_card
 
@@ -45,8 +46,8 @@ class CreditCardExpiryWidget(forms.MultiWidget):
 
 
 class CreditCardExpiryField(forms.MultiValueField):
-    EXP_MONTH = [(x, x) for x in xrange(1, 13)]
-    EXP_YEAR = [(x, x) for x in xrange(date.today().year, date.today().year + 15)]
+    EXP_MONTH = [(x, x) for x in range(1, 13)]
+    EXP_YEAR = [(x, x) for x in range(date.today().year, date.today().year + 15)]
 
     default_error_messages = {
         'invalid_month': u'Enter a valid month.',
