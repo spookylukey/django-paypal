@@ -1,16 +1,14 @@
 import urllib
 
 from django.conf import settings
-from django.http import HttpResponse
 from django.test import TestCase
-from django.test.client import Client
 
 from paypal.standard.models import ST_PP_CANCELLED
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import (payment_was_successful,
-    payment_was_flagged, payment_was_refunded, payment_was_reversed,
-    recurring_skipped, recurring_failed,
-    recurring_create, recurring_payment, recurring_cancel)
+                                         payment_was_flagged, payment_was_refunded, payment_was_reversed,
+                                         recurring_skipped, recurring_failed,
+                                         recurring_create, recurring_payment, recurring_cancel)
 
 
 # Parameters are all bytestrings, so we can construct a bytestring
@@ -88,7 +86,7 @@ class IPNTest(TestCase):
         settings.DEBUG = self.old_debug
         PayPalIPN._postback = self.old_postback
 
-        payment_was_successful.receivers =self.payment_was_successful_receivers
+        payment_was_successful.receivers = self.payment_was_successful_receivers
         payment_was_flagged.receivers = self.payment_was_flagged_receivers
         payment_was_refunded.receivers = self.payment_was_refunded_receivers
         payment_was_reversed.receivers = self.payment_was_reversed_receivers
@@ -115,6 +113,7 @@ class IPNTest(TestCase):
         def handle_signal(sender, **kwargs):
             self.got_signal = True
             self.signal_obj = sender
+
         signal.connect(handle_signal)
         response = self.paypal_post(params)
         self.assertEqual(response.status_code, 200)
@@ -255,6 +254,7 @@ class IPNTest(TestCase):
         def handle_signal(sender, **kwargs):
             self.got_signal = True
             self.signal_obj = sender
+
         recurring_payment.connect(handle_signal)
         response = self.paypal_post(params)
         self.assertEqual(response.status_code, 200)

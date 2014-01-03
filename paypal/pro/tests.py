@@ -1,11 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.core.handlers.wsgi import WSGIRequest
 from django.forms import ValidationError
-from django.http import QueryDict
 from django.test import TestCase
-from django.test.client import Client, RequestFactory
+from django.test.client import RequestFactory
 
 from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import PayPalWPP, PayPalError
@@ -18,6 +16,7 @@ REQUEST = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
 
 class DummyPayPalWPP(PayPalWPP):
     pass
+
 #     """Dummy class for testing PayPalWPP."""
 #     responses = {
 #         # @@@ Need some reals data here.
@@ -37,14 +36,14 @@ class CreditCardFieldTest(TestCase):
 
     def test_invalidCreditCards(self):
         self.assertEquals(CreditCardField().clean('4797-5034-2987-9309'), '4797503429879309')
-        
+
+
 class PayPalWPPTest(TestCase):
     def setUp(self):
-    
         # Avoding blasting real requests at PayPal.
         self.old_debug = settings.DEBUG
         settings.DEBUG = True
-            
+
         self.item = {
             'amt': '9.95',
             'inv': 'inv',
@@ -52,9 +51,9 @@ class PayPalWPPTest(TestCase):
             'next': 'http://www.example.com/next/',
             'returnurl': 'http://www.example.com/pay/',
             'cancelurl': 'http://www.example.com/cancel/'
-        }                    
+        }
         self.wpp = DummyPayPalWPP(REQUEST)
-        
+
     def tearDown(self):
         settings.DEBUG = self.old_debug
 
@@ -75,10 +74,10 @@ class PayPalWPPTest(TestCase):
             'cvv2': '037',
             'acct': '4797503429879309',
             'creditcardtype': 'visa',
-            'ipaddress': '10.0.1.199',}
+            'ipaddress': '10.0.1.199', }
         data.update(self.item)
         self.assertTrue(self.wpp.doDirectPayment(data))
-    
+
     def test_doDirectPayment_invalid(self):
         data = {
             'firstname': 'Epic',
@@ -92,7 +91,7 @@ class PayPalWPPTest(TestCase):
             'cvv2': '999',
             'acct': '1234567890',
             'creditcardtype': 'visa',
-            'ipaddress': '10.0.1.199',}
+            'ipaddress': '10.0.1.199', }
         data.update(self.item)
         self.assertRaises(PayPalFailure, self.wpp.doDirectPayment, data)
 
