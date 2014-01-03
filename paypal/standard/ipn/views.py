@@ -5,8 +5,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.ipn.forms import PayPalIPNForm
 from paypal.standard.ipn.models import PayPalIPN
- 
- 
+
+
 @require_POST
 @csrf_exempt
 def ipn(request, item_check_callable=None):
@@ -22,7 +22,7 @@ def ipn(request, item_check_callable=None):
     #      of if checks just to determine if flag is set.
     flag = None
     ipn_obj = None
-    
+
     # Clean up the data as PayPal sends some weird values such as "N/A"
     # Also, need to cope with custom encoding, which is stored in the body (!).
     # Assuming the tolerate parsing of QueryDict and an ASCII-like encoding,
@@ -35,7 +35,7 @@ def ipn(request, item_check_callable=None):
         data = None
     else:
         try:
-            data = QueryDict(request.raw_post_data, encoding=encoding)
+            data = QueryDict(request.body, encoding=encoding)
         except LookupError:
             data = None
             flag = "Invalid form - invalid charset"
@@ -51,7 +51,7 @@ def ipn(request, item_check_callable=None):
         if form.is_valid():
             try:
                 #When commit = False, object is returned without saving to DB.
-                ipn_obj = form.save(commit = False)
+                ipn_obj = form.save(commit=False)
             except Exception, e:
                 flag = "Exception while processing. (%s)" % e
         else:
@@ -59,7 +59,7 @@ def ipn(request, item_check_callable=None):
 
     if ipn_obj is None:
         ipn_obj = PayPalIPN()
-    
+
     #Set query params and sender's IP address
     ipn_obj.initialize(request)
 

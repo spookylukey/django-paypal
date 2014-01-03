@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.conf import settings
 from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
@@ -30,6 +29,7 @@ try:
 except ImportError:
     Model = models.Model
 
+
 class PayPalStandardBase(Model):
     """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
     # @@@ Might want to add all these one distant day.
@@ -39,9 +39,9 @@ class PayPalStandardBase(Model):
                               ST_PP_CLEARED,
                               ST_PP_COMPLETED, ST_PP_CREATED, ST_PP_DENIED,
                               ST_PP_EXPIRED, ST_PP_FAILED, ST_PP_PAID,
-                              ST_PP_PENDING, ST_PP_PROCESSED,  ST_PP_REFUNDED,
+                              ST_PP_PENDING, ST_PP_PROCESSED, ST_PP_REFUNDED,
                               ST_PP_REFUSED, ST_PP_REVERSED, ST_PP_REWARDED,
-                              ST_PP_UNCLAIMED, ST_PP_UNCLEARED,ST_PP_VOIDED,)
+                              ST_PP_UNCLAIMED, ST_PP_UNCLEARED, ST_PP_VOIDED,)
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
     # ADDRESS_STATUS_CHOICES = "confirmed unconfirmed".split()
     # PAYER_STATUS_CHOICES = "verified / unverified".split()
@@ -52,7 +52,7 @@ class PayPalStandardBase(Model):
 
     # Transaction and Notification-Related Variables
     business = models.CharField(max_length=127, blank=True, help_text="Email where the money was sent.")
-    charset=models.CharField(max_length=32, blank=True)
+    charset = models.CharField(max_length=32, blank=True)
     custom = models.CharField(max_length=255, blank=True)
     notify_version = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     parent_txn_id = models.CharField("Parent Transaction ID", max_length=19, blank=True)
@@ -60,7 +60,8 @@ class PayPalStandardBase(Model):
     receiver_id = models.CharField(max_length=127, blank=True)  # 258DLEHY2BDK6
     residence_country = models.CharField(max_length=2, blank=True)
     test_ipn = models.BooleanField(default=False, blank=True)
-    txn_id = models.CharField("Transaction ID", max_length=19, blank=True, help_text="PayPal transaction ID.", db_index=True)
+    txn_id = models.CharField("Transaction ID", max_length=19, blank=True, help_text="PayPal transaction ID.",
+                              db_index=True)
     txn_type = models.CharField("Transaction Type", max_length=128, blank=True, help_text="PayPal transaction type.")
     verify_sign = models.CharField(max_length=255, blank=True)
 
@@ -104,7 +105,7 @@ class PayPalStandardBase(Model):
     payment_status = models.CharField(max_length=17, blank=True)
     payment_type = models.CharField(max_length=7, blank=True)
     pending_reason = models.CharField(max_length=14, blank=True)
-    protection_eligibility=models.CharField(max_length=32, blank=True)
+    protection_eligibility = models.CharField(max_length=32, blank=True)
     quantity = models.IntegerField(blank=True, default=1, null=True)
     reason_code = models.CharField(max_length=15, blank=True)
     remaining_settle = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
@@ -127,13 +128,13 @@ class PayPalStandardBase(Model):
     initial_payment_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     next_payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     outstanding_balance = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
-    payment_cycle= models.CharField(max_length=32, blank=True) #Monthly
+    payment_cycle = models.CharField(max_length=32, blank=True) #Monthly
     period_type = models.CharField(max_length=32, blank=True)
     product_name = models.CharField(max_length=128, blank=True)
-    product_type= models.CharField(max_length=128, blank=True)
+    product_type = models.CharField(max_length=128, blank=True)
     profile_status = models.CharField(max_length=32, blank=True)
     recurring_payment_id = models.CharField(max_length=128, blank=True)  # I-FA4XVST722B9
-    rp_invoice_id= models.CharField(max_length=127, blank=True)  # 1335-7816-2936-1451
+    rp_invoice_id = models.CharField(max_length=127, blank=True)  # 1335-7816-2936-1451
     time_created = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
 
     # Subscription Variables
@@ -162,7 +163,7 @@ class PayPalStandardBase(Model):
     case_type = models.CharField(max_length=24, blank=True)
 
     # Variables not categorized
-    receipt_id= models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451
+    receipt_id = models.CharField(max_length=64, blank=True)  # 1335-7816-2936-1451
     currency_code = models.CharField(max_length=32, default="USD", blank=True)
     handling_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     transaction_subject = models.CharField(max_length=255, blank=True)
@@ -321,7 +322,6 @@ class PayPalStandardBase(Model):
             elif self.is_subscription_modified():
                 subscription_modify.send(sender=self)
 
-
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
         if request.method == 'GET':
@@ -329,7 +329,7 @@ class PayPalStandardBase(Model):
             self.query = request.META.get('QUERY_STRING', '')
         elif request.method == 'POST':
             # The following works if paypal sends an ASCII bytestring, which it does.
-            self.query = request.raw_post_data
+            self.query = request.body
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):

@@ -16,10 +16,12 @@ from paypal.standard.pdt.signals import pdt_successful, pdt_failed
 class PayPalSettingsError(Exception):
     """Raised when settings are incorrect."""
 
+
 try:
     IDENTITY_TOKEN = settings.PAYPAL_IDENTITY_TOKEN
 except:
-    raise PayPalSettingsError("You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
+    raise PayPalSettingsError(
+        "You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
 
 
 class PayPalPDT(PayPalStandardBase):
@@ -56,6 +58,7 @@ class PayPalPDT(PayPalStandardBase):
     def _verify_postback(self):
         # ### Now we don't really care what result was, just whether a flag was set or not.
         from paypal.standard.pdt.forms import PayPalPDTForm
+
         result = False
         response_list = self.response.split('\n')
         response_dict = {}
@@ -78,7 +81,8 @@ class PayPalPDT(PayPalStandardBase):
 
         qd = QueryDict('', mutable=True)
         qd.update(response_dict)
-        qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info,flag=self.flag,flag_code=self.flag_code))
+        qd.update(dict(ipaddress=self.ipaddress, st=self.st, flag_info=self.flag_info, flag=self.flag,
+                       flag_code=self.flag_code))
         pdt_form = PayPalPDTForm(qd, instance=self)
         pdt_form.save(commit=False)
 

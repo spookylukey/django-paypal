@@ -9,6 +9,7 @@ from django.utils.encoding import smart_str
 def get_sha1_hexdigest(salt, raw_password):
     return hashlib.sha1(smart_str(salt) + smart_str(raw_password)).hexdigest()
 
+
 def duplicate_txn_id(ipn_obj):
     """
     Returns True if a record with this transaction id exists and its
@@ -20,13 +21,14 @@ def duplicate_txn_id(ipn_obj):
     """
 
     # get latest similar transaction(s)
-    similars = ipn_obj._default_manager.filter(txn_id = ipn_obj.txn_id).order_by('-created_at')[:1]
+    similars = ipn_obj._default_manager.filter(txn_id=ipn_obj.txn_id).order_by('-created_at')[:1]
 
     if len(similars) > 0:
         # we have a similar transaction, has the payment_status changed?
         return similars[0].payment_status == ipn_obj.payment_status
 
     return False
+
 
 def make_secret(form_instance, secret_fields=None):
     """
@@ -57,6 +59,7 @@ def make_secret(form_instance, secret_fields=None):
 
     secret = get_sha1_hexdigest(settings.SECRET_KEY, data)
     return secret
+
 
 def check_secret(form_instance, secret):
     """

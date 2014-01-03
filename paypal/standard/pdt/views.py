@@ -15,8 +15,9 @@ def pdt(request, item_check_callable=None, template="pdt/pdt.html", context=None
     pdt_obj, failed = process_pdt(request, item_check_callable)
 
     context = context or {}
-    context.update({"failed":failed, "pdt_obj":pdt_obj})
+    context.update({"failed": failed, "pdt_obj": pdt_obj})
     return render_to_response(template, context, RequestContext(request))
+
 
 def process_pdt(request, item_check_callable=None):
     """
