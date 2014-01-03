@@ -9,6 +9,7 @@ def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 DESCRIPTION = 'A pluggable Django application for integrating PayPal Payments Standard or Payments Pro'
+URL = 'https://github.com/spookylukey/django-paypal'
 
 setup(
     name='django-paypal',
@@ -17,12 +18,12 @@ setup(
     author_email='john@handimobility.ca',
     maintainer="Luke Plant",
     maintainer_email="L.Plant.98@cantab.net",
-    url='http://github.com/dcramer/django-paypal',
+    url=URL,
     install_requires=[
         'Django>=1.4'
     ],
     description = DESCRIPTION,
-    long_description = DESCRIPTION + "\n\n" + read("CHANGES.rst"),
+    long_description = "%s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, read("CHANGES.rst")),
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
