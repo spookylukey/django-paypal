@@ -259,7 +259,7 @@ class PayPalWPP(object):
             if r not in params:
                 raise PayPalError("Missing required param: %s" % r)
 
-                # Upper case all the parameters for PayPal.
+        # Upper case all the parameters for PayPal.
         return (dict((k.upper(), v) for k, v in params.iteritems()))
 
     def _parse_response(self, response):
