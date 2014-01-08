@@ -9,7 +9,7 @@ Django PayPal is a pluggable application that implements with PayPal Payments
 Standard and Payments Pro.
 
 Before diving in, a quick review of PayPal's payment methods is in order! [PayPal Payments Standard](https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/wp_standard_overview/) is the "Buy it Now" buttons you may have
-seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process [Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf) (IPN) but you may know it as [webhooks](http://blog.webhooks.org). This method kinda sucks because it drops your customers off at PayPal's website but it's easy to implement and doesn't require SSL.
+seen floating around the internets. Buyers click on the button and are taken to PayPal's website where they can pay for the product. After completing the purchase PayPal makes an HTTP POST to your  `notify_url`. PayPal calls this process [Instant Payment Notification](https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_OrderMgmt_IntegrationGuide.pdf) (IPN) but you may know it as [webhooks](http://www.webhooks.org/). This method kinda sucks because it drops your customers off at PayPal's website but it's easy to implement and doesn't require SSL.
 
 PayPal Payments Pro allows you to accept payments on your website. It contains two distinct payment flows - Direct Payment allows the user to enter credit card information on your website and pay on your website. Express Checkout sends the user over to PayPal to confirm their payment method before redirecting back to your website for confirmation. PayPal rules state that both methods must be implemented.
 
@@ -21,7 +21,7 @@ Using PayPal Payments Standard IPN:
 
 1. Download the code from GitHub:
 
-        git clone git://github.com/johnboxall/django-paypal.git paypal
+        git clone git://github.com/spookylukey/django-paypal.git paypal
 
 1. Edit `settings.py` and add  `paypal.standard.ipn` to your `INSTALLED_APPS` 
    and `PAYPAL_RECEIVER_EMAIL`:
