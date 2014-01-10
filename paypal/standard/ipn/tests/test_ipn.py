@@ -8,7 +8,8 @@ from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import (payment_was_successful,
                                          payment_was_flagged, payment_was_refunded, payment_was_reversed,
                                          recurring_skipped, recurring_failed,
-                                         recurring_create, recurring_payment, recurring_cancel)
+                                         recurring_create, recurring_payment, recurring_cancel,
+                                         recurring_suspended, recurring_suspended_due_to_max_failed_payment)
 
 
 # Parameters are all bytestrings, so we can construct a bytestring
@@ -70,6 +71,8 @@ class IPNTest(TestCase):
         self.recurring_create_receivers = recurring_create.receivers
         self.recurring_payment_receivers = recurring_payment.receivers
         self.recurring_cancel_receivers = recurring_cancel.receivers
+        self.recurring_suspended_receivers = recurring_suspended.receivers
+        self.recurring_suspended_due_to_max_failed_payment_receivers = recurring_suspended_due_to_max_failed_payment.receivers
 
         payment_was_successful.receivers = []
         payment_was_flagged.receivers = []
@@ -80,7 +83,8 @@ class IPNTest(TestCase):
         recurring_create.receivers = []
         recurring_payment.receivers = []
         recurring_cancel.receivers = []
-
+        recurring_suspended.receivers = []
+        recurring_suspended_due_to_max_failed_payment.receivers = []
 
     def tearDown(self):
         settings.DEBUG = self.old_debug
@@ -95,6 +99,8 @@ class IPNTest(TestCase):
         recurring_create.receivers = self.recurring_create_receivers
         recurring_payment.receivers = self.recurring_payment_receivers
         recurring_cancel.receivers = self.recurring_cancel_receivers
+        recurring_suspended.receivers = self.recurring_suspended_receivers
+        recurring_suspended_due_to_max_failed_payment.receivers = self.recurring_suspended_due_to_max_failed_payment_receivers
 
     def paypal_post(self, params):
         """
@@ -232,6 +238,28 @@ class IPNTest(TestCase):
         params.update(update)
 
         self.assertGotSignal(recurring_cancel, False, params)
+
+    def test_recurring_payment_suspended_due_to_max_failed_payment_ipn(self):
+        update = {
+            "recurring_payment_id": "BN5JZ2V7MLEV4",
+            "txn_type": "recurring_payment_suspended_due_to_max_failed_payment",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+
+        self.assertGotSignal(recurring_suspended_due_to_max_failed_payment, False, params)
+
+    def test_recurring_payment_suspended_ipn(self):
+        update = {
+            "recurring_payment_id": "BN5JZ2V7MLEV4",
+            "txn_type": "recurring_payment_suspended",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+
+        self.assertGotSignal(recurring_suspended, False, params)
 
     def test_recurring_payment_ipn(self):
         """

@@ -41,3 +41,7 @@ recurring_cancel = Signal()
 recurring_skipped = Signal()
 
 recurring_failed = Signal()
+
+recurring_suspended = Signal()
+
+recurring_suspended_due_to_max_failed_payment = Signal()
