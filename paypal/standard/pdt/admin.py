@@ -107,14 +107,14 @@ class PayPalPDTAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ["__unicode__",
-                    "flag".
+                    "flag",
                     "invoice",
                     "custom",
                     "payment_status",
                     "created_at",
                     ]
     search_fields = ["txn_id",
-                     "recurring_payment_id".
+                     "recurring_payment_id",
                      ]
 
 
