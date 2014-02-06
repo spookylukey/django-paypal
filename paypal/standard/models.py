@@ -252,7 +252,7 @@ class PayPalStandardBase(Model):
         if code is not None:
             self.flag_code = code
 
-    def verify(self, item_check_callable=None):
+    def verify(self, raw_ipn, item_check_callable=None):
         """
         Verifies an IPN and a PDT.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
@@ -263,7 +263,7 @@ class PayPalStandardBase(Model):
         that `mc_gross`, `mc_currency` `item_name` and `item_number` are all correct.
 
         """
-        self.response = self._postback()
+        self.response = self._postback(raw_ipn)
         self._verify_postback()
         if not self.flag:
             if self.is_transaction():

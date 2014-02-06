@@ -14,9 +14,9 @@ class PayPalIPN(PayPalStandardBase):
         db_table = "paypal_ipn"
         verbose_name = "PayPal IPN"
 
-    def _postback(self):
+    def _postback(self, raw_ipn):
         """Perform PayPal Postback validation."""
-        return urlopen(self.get_endpoint(), "cmd=_notify-validate&%s" % self.query).read()
+        return urlopen(self.get_endpoint(), "cmd=_notify-validate&%s" % raw_ipn).read()
 
     def _verify_postback(self):
         if self.response != "VERIFIED":
