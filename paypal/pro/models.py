@@ -3,8 +3,14 @@
 from django.db import models
 from django.utils.http import urlencode
 from django.forms.models import model_to_dict
-from django.contrib.auth.models import User
 
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
+    
 try:
     from idmapper.models import SharedMemoryModel as Model
 except ImportError:
