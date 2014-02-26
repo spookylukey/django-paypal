@@ -98,6 +98,12 @@ class PayPalPaymentsForm(forms.Form):
     def __init__(self, button_type="buy", *args, **kwargs):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
+        if 'initial' in kwargs:
+            # Dynamically create, so we can support everything PayPal does.
+            for k, v in kwargs['initial'].items():
+                if k not in self.base_fields:
+                    self.fields[k] = forms.CharField(label=k, widget=ValueHiddenInput(), initial=v)
+
 
     def render(self):
         return mark_safe(u"""<form action="%s" method="post">
