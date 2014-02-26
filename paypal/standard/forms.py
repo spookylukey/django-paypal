@@ -33,6 +33,7 @@ class PayPalPaymentsForm(forms.Form):
     """
     CMD_CHOICES = (
         ("_xclick", "Buy now or Donations"),
+        ("_donations", "Donations"),
         ("_cart", "Shopping cart"),
         ("_xclick-subscriptions", "Subscribe")
     )
