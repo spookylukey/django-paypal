@@ -120,7 +120,7 @@ class PayPalWPP(object):
         Check the dude out:
         """
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
-        required = ["returnurl", "cancelurl", "amt", "token payerid"]
+        required = ["returnurl", "cancelurl", "amt", "token", "payerid"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
