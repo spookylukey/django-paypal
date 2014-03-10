@@ -42,6 +42,11 @@ Using PayPal Payments Standard IPN:
         INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
         ...
         PAYPAL_RECEIVER_EMAIL = "yourpaypalemail@example.com"
+        
+        # For installations on which you want to use the sandbox,
+        # set PAYPAL_TEST to True.  Ensure PAYPAL_RECEIVER_EMAIL is set to
+        # your sandbox account email too.
+        # PAYPAL_TEST = True
 
 1. Create an instance of the `PayPalPaymentsForm` in the view where you would
    like to collect money. Call `render` on the instance in your template to
