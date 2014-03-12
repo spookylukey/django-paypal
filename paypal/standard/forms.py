@@ -115,14 +115,14 @@ class PayPalPaymentsForm(forms.Form):
             return POSTBACK_ENDPOINT
 
 
-     def render(self):
-         return mark_safe(u"""<form action="%s" method="post">
-     %s
-     <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
+    def render(self):
+        return mark_safe(u"""<form action="%s" method="post">
+    %s
+    <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
 </form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
- 
- 
-     def sandbox(self):
+
+
+    def sandbox(self):
         "Deprecated.  Use self.render() instead."
         import warnings
         warnings.warn("""PaypalPaymentsForm.sandbox() is deprecated.
