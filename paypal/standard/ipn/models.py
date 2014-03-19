@@ -16,10 +16,12 @@ class PayPalIPN(PayPalStandardBase):
 
     def _postback(self):
         """Perform PayPal Postback validation."""
-        return urlopen(self.get_endpoint(), "cmd=_notify-validate&%s" % self.query).read()
+        command = "cmd=_notify-validate&".encode()  # Make sure binary string
+        command += self.query
+        return urlopen(self.get_endpoint(), command).read()
 
     def _verify_postback(self):
-        if self.response != "VERIFIED":
+        if self.response != "VERIFIED".encode():
             self.set_flag("Invalid postback. (%s)" % self.response)
 
     def send_signals(self):
