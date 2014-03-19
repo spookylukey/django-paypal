@@ -144,6 +144,16 @@ class IPNTest(TestCase):
 
         self.assertGotSignal(payment_was_refunded, False, params)
 
+    def test_with_na_date(self):
+        update = {
+            "payment_status": "Refunded",
+            "time_created": "N/A"
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+
+        self.assertGotSignal(payment_was_refunded, False, params)
+
     def test_reversed_ipn(self):
         update = {
             "payment_status": "Reversed"
