@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.utils.http import urlencode
 
 from paypal.pro.forms import PaymentForm, ConfirmForm
-from paypal.pro.helpers import PayPalWPP, TEST
+from paypal.pro.helpers import PayPalWPP
 from paypal.pro.exceptions import PayPalFailure
 
 # PayPal Edit IPN URL:
@@ -146,7 +147,7 @@ class PayPalPro(object):
         return render_to_response(self.payment_template, self.context, RequestContext(self.request))
 
     def get_endpoint(self):
-        if TEST:
+        if getattr(settings, 'PAYPAL_TEST', True):
             return SANDBOX_EXPRESS_ENDPOINT
         else:
             return EXPRESS_ENDPOINT

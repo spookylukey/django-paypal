@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.utils.safestring import mark_safe
-from paypal.standard.conf import *
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
-                                  RECEIVER_EMAIL)
+                                  RECEIVER_EMAIL,
+                                  IMAGE, SUBSCRIPTION_IMAGE, DONATION_IMAGE,
+                                  SANDBOX_IMAGE, SUBSCRIPTION_SANDBOX_IMAGE, DONATION_SANDBOX_IMAGE)
 from django.conf import settings
 
 
@@ -106,10 +107,12 @@ class PayPalPaymentsForm(forms.Form):
                 if k not in self.base_fields:
                     self.fields[k] = forms.CharField(label=k, widget=ValueHiddenInput(), initial=v)
 
+    def test_mode(self):
+        return getattr(settings, 'PAYPAL_TEST', True)
 
     def get_endpoint(self):
         "Returns the endpoint url for the form."
-        if settings.PAYPAL_TEST:
+        if self.test_mode():
             return SANDBOX_POSTBACK_ENDPOINT
         else:
             return POSTBACK_ENDPOINT
@@ -129,7 +132,6 @@ class PayPalPaymentsForm(forms.Form):
                     Use the render() method instead.""", DeprecationWarning)
         return self.render()
 
-
     def get_image(self):
         return {
             (True, self.SUBSCRIBE): SUBSCRIPTION_SANDBOX_IMAGE,
@@ -138,7 +140,7 @@ class PayPalPaymentsForm(forms.Form):
             (False, self.SUBSCRIBE): SUBSCRIPTION_IMAGE,
             (False, self.BUY): IMAGE,
             (False, self.DONATE): DONATION_IMAGE,
-        }[TEST, self.button_type]
+        }[self.test_mode(), self.button_type]
 
     def is_transaction(self):
         return not self.is_subscription()

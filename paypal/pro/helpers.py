@@ -18,7 +18,6 @@ from paypal.pro.signals import *
 from paypal.pro.models import PayPalNVP
 from paypal.pro.exceptions import PayPalFailure
 
-TEST = settings.PAYPAL_TEST
 USER = settings.PAYPAL_WPP_USER
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
 SIGNATURE = settings.PAYPAL_WPP_SIGNATURE
@@ -62,7 +61,7 @@ class PayPalWPP(object):
     def __init__(self, request, params=BASE_PARAMS):
         """Required - USER / PWD / SIGNATURE / VERSION"""
         self.request = request
-        if TEST:
+        if getattr(settings, 'PAYPAL_TEST', True):
             self.endpoint = SANDBOX_ENDPOINT
         else:
             self.endpoint = ENDPOINT
