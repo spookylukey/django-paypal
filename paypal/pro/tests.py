@@ -8,6 +8,7 @@ from django.test.client import RequestFactory
 from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import PayPalWPP, PayPalError
 from paypal.pro.exceptions import PayPalFailure
+from paypal.pro.signals import payment_was_successful
 
 
 RF = RequestFactory()
@@ -94,6 +95,33 @@ class PayPalWPPTest(TestCase):
             'ipaddress': '10.0.1.199', }
         data.update(self.item)
         self.assertRaises(PayPalFailure, self.wpp.doDirectPayment, data)
+
+    def test_doDirectPayment_valid_with_signal(self):
+        data = {
+            'firstname': 'Brave',
+            'lastname': 'Star',
+            'street': '1 Main St',
+            'city': u'San Jos\xe9',
+            'state': 'CA',
+            'countrycode': 'US',
+            'zip': '95131',
+            'expdate': '012019',
+            'cvv2': '037',
+            'acct': '4797503429879309',
+            'creditcardtype': 'visa',
+            'ipaddress': '10.0.1.199', }
+        data.update(self.item)
+
+        self.got_signal = False
+        self.signal_obj = None
+
+        def handle_signal(sender, **kwargs):
+            self.got_signal = True
+            self.signal_obj = sender
+
+        payment_was_successful.connect(handle_signal)
+        self.assertTrue(self.wpp.doDirectPayment(data))
+        self.assertTrue(self.got_signal)
 
     def test_setExpressCheckout(self):
         # We'll have to stub out tests for doExpressCheckoutPayment and friends
