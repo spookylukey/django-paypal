@@ -164,7 +164,7 @@ some seconds. [You will need to enable PDT in your PayPal account to use it](htt
 
 1. Download the code from GitHub:
 
-        git clone git://github.com/johnboxall/django-paypal.git paypal
+        git clone git://github.com/spookylukey/django-paypal.git paypal
 
 1. Edit `settings.py` and add  `paypal.standard.pdt` to your `INSTALLED_APPS`. Also set `PAYPAL_IDENTITY_TOKEN` - you can find the correct value of this setting from the PayPal website:
 
