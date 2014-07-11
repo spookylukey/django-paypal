@@ -10,6 +10,7 @@ class PaymentForm(forms.Form):
     """Form used to process direct payments."""
     firstname = forms.CharField(255, label="First Name")
     lastname = forms.CharField(255, label="Last Name")
+    email = forms.EmailField(label="Email")
     street = forms.CharField(255, label="Street Address")
     city = forms.CharField(255, label="City")
     state = forms.CharField(255, label="State")
