@@ -122,8 +122,8 @@ Using PayPal Payments Standard IPN:
    Connect to these signals and update your data accordingly.
    [Django Signals Documentation](http://docs.djangoproject.com/en/dev/topics/signals/).
 
-       # models.py
-       ...
+   models.py:
+
        from paypal.standard.ipn.signals import payment_was_successful
 
        def show_me_the_money(sender, **kwargs):
