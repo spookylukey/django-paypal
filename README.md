@@ -124,20 +124,20 @@ Using PayPal Payments Standard IPN:
 
    models.py:
 
-       from paypal.standard.ipn.signals import payment_was_successful
+        from paypal.standard.ipn.signals import payment_was_successful
 
-       def show_me_the_money(sender, **kwargs):
-           ipn_obj = sender
-           # You need to check 'payment_status' of the IPN
+        def show_me_the_money(sender, **kwargs):
+            ipn_obj = sender
+            # You need to check 'payment_status' of the IPN
 
-           if ipn_obj.payment_status == "Completed":
-               # Undertake some action depending upon `ipn_obj`.
-               if ipn_obj.custom == "Upgrade all users!":
-                   Users.objects.update(paid=True)
-           else
-               ...
+            if ipn_obj.payment_status == "Completed":
+                # Undertake some action depending upon `ipn_obj`.
+                if ipn_obj.custom == "Upgrade all users!":
+                    Users.objects.update(paid=True)
+            else
+                ...
 
-       payment_was_successful.connect(show_me_the_money)
+        payment_was_successful.connect(show_me_the_money)
 
    The data variables that are return on the IPN object are documented here:
 
