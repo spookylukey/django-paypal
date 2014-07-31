@@ -164,9 +164,7 @@ class PayPalPro(object):
             self.context['errors'] = self.errors['paypal']
             return self.render_payment_form()
         else:
-            pp_params = dict(token=nvp_obj.token, AMT=self.item['amt'],
-                             RETURNURL=self.item['returnurl'],
-                             CANCELURL=self.item['cancelurl'])
+            pp_params = dict(token=nvp_obj.token)
             pp_url = self.get_endpoint() % urlencode(pp_params)
             return HttpResponseRedirect(pp_url)
 
