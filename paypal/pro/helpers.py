@@ -159,6 +159,17 @@ class PayPalWPP(object):
     def setCustomerBillingAgreement(self, params):
         raise DeprecationWarning
 
+    def createBillingAgreement(self, params):
+        """
+        Create a billing agreement for future use, without any initial payment
+        """
+        defaults = {"method": "CreateBillingAgreement"}
+        required = ["token"]
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
+
     def getTransactionDetails(self, params):
         defaults = {"method": "GetTransactionDetails"}
         required = ["transactionid"]
