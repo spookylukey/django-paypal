@@ -212,6 +212,22 @@ class PayPalWPP(object):
     def refundTransaction(self, params):
         raise NotImplementedError
 
+    def doReferenceTransaction(self, params):
+        """
+        Process a payment from a buyer's account, identified by a previous
+        transaction.
+        The `paymentaction` param defaults to "Sale", but may also contain the
+        values "Authorization" or "Order".
+        """
+        defaults = {"method": "DoReferenceTransaction",
+                    "paymentaction": "Sale"}
+        required = ["referenceid", "amt"]
+
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
+
     def _is_recurring(self, params):
         """Returns True if the item passed is a recurring transaction."""
         return 'billingfrequency' in params
