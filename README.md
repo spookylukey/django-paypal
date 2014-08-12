@@ -242,7 +242,7 @@ it. Thanks to [Jon Atkinson](http://jonatkinson.co.uk/) for the
 
     [https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
 
-    [https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
+    [https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
 
 1. Copy your `cert id` - you'll need it in two steps. It's on the screen where
    you uploaded your public key.
