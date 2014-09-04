@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from six import b
-from six.moves.urllib.request import urlopen
+from django.utils.six.moves.urllib.request import urlopen
 
 from paypal.standard.models import PayPalStandardBase
 from paypal.standard.ipn.signals import *
