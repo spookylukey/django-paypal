@@ -114,6 +114,9 @@ class PayPalWPPTest(TestCase):
         self.assertIn('TOKEN=dummy+token', call_args[0][1])
         self.assertEquals(nvp.method, 'CreateBillingAgreement')
         self.assertEquals(nvp.ack, 'Success')
+        mock_request_object.return_value = 'ack=Failure&l_errorcode=42&l_longmessage0=Broken'
+        with self.assertRaises(PayPalFailure):
+            nvp = wpp.createBillingAgreement({'token': 'dummy token'})
 
 
 ### DoExpressCheckoutPayment
