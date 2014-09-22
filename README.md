@@ -42,7 +42,7 @@ Using PayPal Payments Standard IPN:
         INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
         ...
         PAYPAL_RECEIVER_EMAIL = "yourpaypalemail@example.com"
-        
+
         # For installations on which you want to use the sandbox,
         # set PAYPAL_TEST to True.  Ensure PAYPAL_RECEIVER_EMAIL is set to
         # your sandbox account email too.
@@ -98,7 +98,7 @@ Using PayPal Payments Standard IPN:
 
 1. Whenever an IPN is processed a signal will be sent with the result of the
    transaction. Connect the signals to actions to perform the needed operations
-   when a successful payment is recieved.
+   when a successful payment is received.
 
    There are four signals for basic transactions:
    - `payment_was_successful`
