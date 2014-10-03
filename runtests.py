@@ -4,6 +4,10 @@ import sys
 import django
 from django.conf import settings
 
+import warnings
+warnings.simplefilter("always", PendingDeprecationWarning)
+warnings.simplefilter("always", DeprecationWarning)
+
 settings.configure(
     ROOT_URLCONF='',
     DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
