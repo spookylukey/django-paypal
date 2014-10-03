@@ -14,7 +14,7 @@ from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from six.moves.urllib.request import urlopen
 
-from paypal.pro.signals import *
+from paypal.pro.signals import payment_was_successful, recurring_cancel, recurring_suspend, recurring_reactivate, payment_profile_created
 from paypal.pro.models import PayPalNVP
 from paypal.pro.exceptions import PayPalFailure
 
