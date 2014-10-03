@@ -434,6 +434,21 @@ def create_billing_agreement_view(request):
     `SetExpressCheckout` API call, the billing agreement is created when you
     call the `DoExpressCheckoutPayment` API operation.
 
+* doReferenceTransaction
+
+    The DoReferenceTransaction API operation processes a payment from a buyer's
+    account, which is identified by a previous transaction.
+```python
+from paypal.pro.helpers import PayPalWPP
+
+def do_reference_transaction_view(request):
+    wpp = PayPalWPP(request)
+    reference_id = request.POST.get('reference_id')
+    amount = request.POST.get('amount')
+    wpp.doReferenceTransaction({'referenceid': reference_id, 'amt': amount})
+    ...
+```
+
 * getExpressCheckoutDetails
 
     The GetExpressCheckoutDetails API operation obtains information about a
