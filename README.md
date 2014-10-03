@@ -42,7 +42,7 @@ Using PayPal Payments Standard IPN:
         INSTALLED_APPS = (... 'paypal.standard.ipn', ...)
         ...
         PAYPAL_RECEIVER_EMAIL = "yourpaypalemail@example.com"
-        
+
         # For installations on which you want to use the sandbox,
         # set PAYPAL_TEST to True.  Ensure PAYPAL_RECEIVER_EMAIL is set to
         # your sandbox account email too.
@@ -98,7 +98,7 @@ Using PayPal Payments Standard IPN:
 
 1. Whenever an IPN is processed a signal will be sent with the result of the
    transaction. Connect the signals to actions to perform the needed operations
-   when a successful payment is recieved.
+   when a successful payment is received.
 
    There are four signals for basic transactions:
    - `payment_was_successful`
@@ -242,7 +242,7 @@ it. Thanks to [Jon Atkinson](http://jonatkinson.co.uk/) for the
 
     [https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
 
-    [https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
+    [https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert](https://www.sandbox.paypal.com/us/cgi-bin/webscr?cmd=_profile-website-cert)
 
 1. Copy your `cert id` - you'll need it in two steps. It's on the screen where
    you uploaded your public key.
@@ -306,6 +306,9 @@ Using PayPal Payments Pro (WPP)
 WPP is the more awesome version of PayPal that lets you accept payments on your
 site. WPP reuses code from `paypal.standard` so you'll need to include both
 apps.
+
+django-paypal makes this whole process incredibly easy to use through the
+provided `PayPalPro` class.
 
 1. Obtain PayPal Pro API credentials: login to PayPal, click *My Account*,
   *Profile*, *Request API credentials*, *Set up PayPal API credentials and
@@ -380,6 +383,81 @@ apps.
 
 
 8. Profit.
+
+Alternatively, if you want to get down to the nitty gritty and perform some
+more advanced operations with Payments Pro, the `paypal.pro.helpers.PayPalWPP`
+class provides the following methods:
+
+* createBillingAgreement
+    
+    The CreateBillingAgreement API operation creates a billing agreement with
+    a PayPal account holder. CreateBillingAgreement is only valid for
+    reference transactions.
+```python
+from paypal.pro.helpers import PayPalWPP
+        
+def create_billing_agreement_view(request):
+    wpp = PayPalWPP(request)
+    token = request.GET.get('token')
+    wpp.createBillingAgreement({'token': token})
+    ...
+```
+
+* createRecurringPaymentsProfile
+
+    The CreateRecurringPaymentsProfile API operation creates a recurring
+    payments profile. You must invoke the CreateRecurringPaymentsProfile API
+    operation for each profile you want to create. The API operation creates
+    a profile and an associated billing agreement.
+    
+    **Note:** There is a one-to-one correspondence between billing agreements
+    and recurring payments profiles. To associate a recurring payments
+    profile with its billing agreement, you must ensure that the description
+    in the recurring payments profile matches the description of a billing
+    agreement. For version 54.0 and later, use SetExpressCheckout to initiate
+    creation of a billing agreement.
+
+* doDirectPayment
+
+    The DoDirectPayment API Operation enables you to process a credit card
+    payment.
+
+* doExpressCheckoutPayment
+
+    The DoExpressCheckoutPayment API operation completes an Express Checkout
+    transaction. If you set up a billing agreement in your SetExpressCheckout
+    API call, the billing agreement is created when you call the
+    DoExpressCheckoutPayment API operation.
+    
+    The `DoExpressCheckoutPayment` API operation completes an Express
+    Checkout transaction. If you set up a billing agreement in your
+    `SetExpressCheckout` API call, the billing agreement is created when you
+    call the `DoExpressCheckoutPayment` API operation.
+
+* getExpressCheckoutDetails
+
+    The GetExpressCheckoutDetails API operation obtains information about a
+    specific Express Checkout transaction.
+
+* getTransactionDetails
+
+    The GetTransactionDetails API operation obtains information about a
+    specific transaction.
+
+* manageRecurringPaymentsProfileStatus
+
+    The ManageRecurringPaymentsProfileStatus API operation cancels, suspends,
+    or reactivates a recurring payments profile.
+
+* setExpressCheckout
+
+    The SetExpressCheckout API operation initiates an Express Checkout
+    transaction.
+
+* updateRecurringPaymentsProfile
+
+    The UpdateRecurringPaymentsProfile API operation updates a recurring
+    payments profile.
 
 
 Links:

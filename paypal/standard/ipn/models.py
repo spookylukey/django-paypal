@@ -6,7 +6,7 @@ from six import b
 from six.moves.urllib.request import urlopen
 
 from paypal.standard.models import PayPalStandardBase
-from paypal.standard.ipn.signals import *
+from paypal.standard.ipn.signals import payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful, recurring_create, recurring_payment, recurring_cancel, recurring_skipped, recurring_failed, subscription_cancel, subscription_signup, subscription_eot, subscription_modify
 
 
 class PayPalIPN(PayPalStandardBase):
