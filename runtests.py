@@ -28,6 +28,7 @@ settings.configure(
             'KEY_PREFIX': 'paypal_tests_',
         }
     },
+    MIDDLEWARE_CLASSES=[],
 )
 
 

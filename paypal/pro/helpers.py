@@ -9,7 +9,6 @@ import time
 from django.conf import settings
 from django.forms.models import fields_for_model
 from django.http import QueryDict
-from django.utils.datastructures import MergeDict
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from six.moves.urllib.request import urlopen
@@ -261,7 +260,9 @@ class PayPalWPP(object):
 
         # Gather all NVP parameters to pass to a new instance.
         nvp_params = {}
-        for k, v in MergeDict(defaults, response_params).items():
+        tmpd = defaults.copy()
+        tmpd.update(response_params)
+        for k, v in tmpd.items():
             if k in self.NVP_FIELDS:
                 nvp_params[str(k)] = v
 
