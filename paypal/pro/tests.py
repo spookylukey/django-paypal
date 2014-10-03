@@ -1,12 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import mock
+
 from django.conf import settings
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
 
 from paypal.pro.fields import CreditCardField
-from paypal.pro.helpers import PayPalWPP, PayPalError
+from paypal.pro.helpers import PayPalWPP, PayPalError, VERSION
 from paypal.pro.exceptions import PayPalFailure
 
 
@@ -100,6 +102,21 @@ class PayPalWPPTest(TestCase):
         # because they're behind paypal's doors.
         nvp_obj = self.wpp.setExpressCheckout(self.item)
         self.assertEqual(nvp_obj.ack, "Success")
+
+    @mock.patch.object(PayPalWPP, '_request', autospec=True)
+    def test_createBillingAgreement(self, mock_request_object):
+        mock_request_object.return_value = 'ack=Success&billingagreementid=B-XXXXX&version=%s' % VERSION
+        wpp = PayPalWPP(REQUEST)
+        nvp = wpp.createBillingAgreement({'token': 'dummy token'})
+        call_args = mock_request_object.call_args
+        self.assertIn('VERSION=%s' % VERSION, call_args[0][1])
+        self.assertIn('METHOD=CreateBillingAgreement', call_args[0][1])
+        self.assertIn('TOKEN=dummy+token', call_args[0][1])
+        self.assertEquals(nvp.method, 'CreateBillingAgreement')
+        self.assertEquals(nvp.ack, 'Success')
+        mock_request_object.return_value = 'ack=Failure&l_errorcode=42&l_longmessage0=Broken'
+        with self.assertRaises(PayPalFailure):
+            nvp = wpp.createBillingAgreement({'token': 'dummy token'})
 
 
 ### DoExpressCheckoutPayment
