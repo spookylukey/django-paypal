@@ -10,8 +10,8 @@ from django.conf import settings
 from django.forms.models import fields_for_model
 from django.http import QueryDict
 from django.utils.datastructures import MergeDict
+from django.utils.functional import cached_property
 from django.utils.http import urlencode
-from six.moves.urllib.parse import unquote
 from six.moves.urllib.request import urlopen
 
 from paypal.pro.signals import *
@@ -25,7 +25,6 @@ VERSION = 54.0
 BASE_PARAMS = dict(USER=USER, PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSION)
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANDBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
-NVP_FIELDS = list(fields_for_model(PayPalNVP).keys())
 
 
 log = logging.getLogger(__file__)
@@ -67,6 +66,12 @@ class PayPalWPP(object):
             self.endpoint = ENDPOINT
         self.signature_values = params
         self.signature = urlencode(self.signature_values) + "&"
+
+    @cached_property
+    def NVP_FIELDS(self):
+        # Put this onto class and load lazily, because in some cases there is an
+        # import order problem if we put it at module level.
+        return list(fields_for_model(PayPalNVP).keys())
 
     def doDirectPayment(self, params):
         """Call PayPal DoDirectPayment method."""
@@ -159,6 +164,17 @@ class PayPalWPP(object):
     def setCustomerBillingAgreement(self, params):
         raise DeprecationWarning
 
+    def createBillingAgreement(self, params):
+        """
+        Create a billing agreement for future use, without any initial payment
+        """
+        defaults = {"method": "CreateBillingAgreement"}
+        required = ["token"]
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
+
     def getTransactionDetails(self, params):
         defaults = {"method": "GetTransactionDetails"}
         required = ["transactionid"]
@@ -246,7 +262,7 @@ class PayPalWPP(object):
         # Gather all NVP parameters to pass to a new instance.
         nvp_params = {}
         for k, v in MergeDict(defaults, response_params).items():
-            if k in NVP_FIELDS:
+            if k in self.NVP_FIELDS:
                 nvp_params[str(k)] = v
 
         # PayPal timestamp has to be formatted.
