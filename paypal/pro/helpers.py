@@ -131,6 +131,15 @@ class PayPalWPP(object):
         """
         Check the dude out:
         """
+        if "amt" in params:
+            import warnings
+
+            warnings.warn("'amt' has been deprecated. 'paymentrequest_0_amt' "
+                          "should be used instead.", DeprecationWarning)
+            # Make a copy so we don't change things unexpectedly
+            params = params.copy()
+            params.update({'paymentrequest_0_amt': params['amt']})
+            del params['amt']
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
         required = ["returnurl", "cancelurl", "paymentrequest_0_amt", "token", "payerid"]
         nvp_obj = self._fetch(params, required, defaults)
