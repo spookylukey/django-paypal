@@ -108,6 +108,15 @@ class PayPalWPP(object):
         reference transactions and recurring payments.
         Returns a NVP instance - check for token and payerid to continue!
         """
+        if "amt" in params:
+            import warnings
+
+            warnings.warn("'amt' has been deprecated. 'paymentrequest_0_amt' "
+                          "should be used instead.", DeprecationWarning)
+            # Make a copy so we don't change things unexpectedly
+            params = params.copy()
+            params.update({'paymentrequest_0_amt': params['amt']})
+            del params['amt']
         if self._is_recurring(params):
             params = self._recurring_setExpressCheckout_adapter(params)
 

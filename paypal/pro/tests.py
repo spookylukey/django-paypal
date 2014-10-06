@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal
 import mock
+import warnings
 
 from django.conf import settings
 from django.forms import ValidationError
@@ -55,6 +56,15 @@ class PayPalWPPTest(TestCase):
             'returnurl': 'http://www.example.com/pay/',
             'cancelurl': 'http://www.example.com/cancel/'
         }
+        # Handle different parameters for Express Checkout
+        self.ec_item = {
+            'paymentrequest_0_amt': '9.95',
+            'inv': 'inv',
+            'custom': 'custom',
+            'next': 'http://www.example.com/next/',
+            'returnurl': 'http://www.example.com/pay/',
+            'cancelurl': 'http://www.example.com/cancel/'
+        }
         self.wpp = DummyPayPalWPP(REQUEST)
 
     def tearDown(self):
@@ -101,8 +111,25 @@ class PayPalWPPTest(TestCase):
     def test_setExpressCheckout(self):
         # We'll have to stub out tests for doExpressCheckoutPayment and friends
         # because they're behind paypal's doors.
-        nvp_obj = self.wpp.setExpressCheckout(self.item)
+        nvp_obj = self.wpp.setExpressCheckout(self.ec_item)
         self.assertEqual(nvp_obj.ack, "Success")
+
+    @mock.patch.object(PayPalWPP, '_request', autospec=True)
+    def test_setExpressCheckout_deprecation(self, mock_request_object):
+        mock_request_object.return_value = 'ack=Success&token=EC-XXXX&version=%s'
+        item = self.ec_item.copy()
+        item.update({'amt': item['paymentrequest_0_amt']})
+        del item['paymentrequest_0_amt']
+        with warnings.catch_warnings(record=True) as warning_list:
+            nvp_obj = self.wpp.setExpressCheckout(item)
+            # Make sure our warning was given
+            self.assertTrue(any(item.category == DeprecationWarning
+                                for item in warning_list))
+            # Make sure the method still went through
+            call_args = mock_request_object.call_args
+            self.assertIn('PAYMENTREQUEST_0_AMT=%s' % item['amt'],
+                          call_args[0][1])
+            self.assertEqual(nvp_obj.ack, "Success")
 
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_createBillingAgreement(self, mock_request_object):
