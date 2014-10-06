@@ -133,8 +133,8 @@ class PayPalWPPTest(TestCase):
         self.assertIn('METHOD=DoReferenceTransaction', call_args[0][1])
         self.assertIn('REFERENCEID=%s' % reference_id, call_args[0][1])
         self.assertIn('AMT=%s' % amount, call_args[0][1])
-        self.assertEquals(nvp.method, 'DoReferenceTransaction')
-        self.assertEquals(nvp.ack, 'Success')
+        self.assertEqual(nvp.method, 'DoReferenceTransaction')
+        self.assertEqual(nvp.ack, 'Success')
 
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_doReferenceTransaction_invalid(self, mock_request_object):
