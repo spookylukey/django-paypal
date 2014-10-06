@@ -123,8 +123,58 @@ class PayPalWPPTest(TestCase):
         with warnings.catch_warnings(record=True) as warning_list:
             nvp_obj = self.wpp.setExpressCheckout(item)
             # Make sure our warning was given
-            self.assertTrue(any(item.category == DeprecationWarning
-                                for item in warning_list))
+            self.assertTrue(any(warned.category == DeprecationWarning
+                                for warned in warning_list))
+            # Make sure the method still went through
+            call_args = mock_request_object.call_args
+            self.assertIn('PAYMENTREQUEST_0_AMT=%s' % item['amt'],
+                          call_args[0][1])
+            self.assertEqual(nvp_obj.ack, "Success")
+
+    @mock.patch.object(PayPalWPP, '_request', autospec=True)
+    def test_doExpressCheckoutPayment(self, mock_request_object):
+        ec_token = 'EC-1234567890'
+        payerid = 'LXYZABC1234'
+        item = self.ec_item.copy()
+        item.update({'token': ec_token, 'payerid': payerid})
+        mock_request_object.return_value = 'ack=Success&token=%s&version=%spaymentinfo_0_amt=%s' % \
+            (ec_token, VERSION, self.ec_item['paymentrequest_0_amt'])
+        wpp = PayPalWPP(REQUEST)
+        wpp.doExpressCheckoutPayment(item)
+        call_args = mock_request_object.call_args
+        self.assertIn('VERSION=%s' % VERSION, call_args[0][1])
+        self.assertIn('METHOD=DoExpressCheckoutPayment', call_args[0][1])
+        self.assertIn('TOKEN=%s' % ec_token, call_args[0][1])
+        self.assertIn('PAYMENTREQUEST_0_AMT=%s' % item['paymentrequest_0_amt'],
+                      call_args[0][1])
+        self.assertIn('PAYERID=%s' % payerid, call_args[0][1])
+
+    @mock.patch.object(PayPalWPP, '_request', autospec=True)
+    def test_doExpressCheckoutPayment_invalid(self, mock_request_object):
+        ec_token = 'EC-1234567890'
+        payerid = 'LXYZABC1234'
+        item = self.ec_item.copy()
+        item.update({'token': ec_token, 'payerid': payerid})
+        mock_request_object.return_value = 'ack=Failure&l_errorcode=42&l_longmessage0=Broken'
+        wpp = PayPalWPP(REQUEST)
+        with self.assertRaises(PayPalFailure):
+            nvp = wpp.doExpressCheckoutPayment(item)
+
+    @mock.patch.object(PayPalWPP, '_request', autospec=True)
+    def test_doExpressCheckoutPayment_deprecation(self, mock_request_object):
+        mock_request_object.return_value = 'ack=Success&token=EC-XXXX&version=%s'
+        ec_token = 'EC-1234567890'
+        payerid = 'LXYZABC1234'
+        item = self.ec_item.copy()
+        item.update({'amt': item['paymentrequest_0_amt'],
+                     'token': ec_token,
+                     'payerid': payerid})
+        del item['paymentrequest_0_amt']
+        with warnings.catch_warnings(record=True) as warning_list:
+            nvp_obj = self.wpp.doExpressCheckoutPayment(item)
+            # Make sure our warning was given
+            self.assertTrue(any(warned.category == DeprecationWarning
+                                for warned in warning_list))
             # Make sure the method still went through
             call_args = mock_request_object.call_args
             self.assertIn('PAYMENTREQUEST_0_AMT=%s' % item['amt'],
