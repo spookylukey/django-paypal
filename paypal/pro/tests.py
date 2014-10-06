@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from decimal import Decimal
 import mock
 
 from django.conf import settings
@@ -33,11 +34,11 @@ class CreditCardFieldTest(TestCase):
     def test_CreditCardField(self):
         field = CreditCardField()
         field.clean('4797503429879309')
-        self.assertEquals(field.card_type, "Visa")
+        self.assertEqual(field.card_type, "Visa")
         self.assertRaises(ValidationError, CreditCardField().clean, '1234567890123455')
 
     def test_invalidCreditCards(self):
-        self.assertEquals(CreditCardField().clean('4797-5034-2987-9309'), '4797503429879309')
+        self.assertEqual(CreditCardField().clean('4797-5034-2987-9309'), '4797503429879309')
 
 
 class PayPalWPPTest(TestCase):
@@ -112,11 +113,38 @@ class PayPalWPPTest(TestCase):
         self.assertIn('VERSION=%s' % VERSION, call_args[0][1])
         self.assertIn('METHOD=CreateBillingAgreement', call_args[0][1])
         self.assertIn('TOKEN=dummy+token', call_args[0][1])
-        self.assertEquals(nvp.method, 'CreateBillingAgreement')
-        self.assertEquals(nvp.ack, 'Success')
+        self.assertEqual(nvp.method, 'CreateBillingAgreement')
+        self.assertEqual(nvp.ack, 'Success')
         mock_request_object.return_value = 'ack=Failure&l_errorcode=42&l_longmessage0=Broken'
         with self.assertRaises(PayPalFailure):
             nvp = wpp.createBillingAgreement({'token': 'dummy token'})
+
+    @mock.patch.object(PayPalWPP, '_request', autospec=True)
+    def test_doReferenceTransaction_valid(self, mock_request_object):
+        reference_id = 'B-1234'
+        amount = Decimal('10.50')
+        mock_request_object.return_value = 'ack=Success&paymentstatus=Completed&amt=%s&version=%s&billingagreementid=%s' % \
+            (amount, VERSION, reference_id)
+        wpp = PayPalWPP(REQUEST)
+        nvp = wpp.doReferenceTransaction({'referenceid': reference_id,
+                                          'amt': amount})
+        call_args = mock_request_object.call_args
+        self.assertIn('VERSION=%s' % VERSION, call_args[0][1])
+        self.assertIn('METHOD=DoReferenceTransaction', call_args[0][1])
+        self.assertIn('REFERENCEID=%s' % reference_id, call_args[0][1])
+        self.assertIn('AMT=%s' % amount, call_args[0][1])
+        self.assertEquals(nvp.method, 'DoReferenceTransaction')
+        self.assertEquals(nvp.ack, 'Success')
+
+    @mock.patch.object(PayPalWPP, '_request', autospec=True)
+    def test_doReferenceTransaction_invalid(self, mock_request_object):
+        reference_id = 'B-1234'
+        amount = Decimal('10.50')
+        mock_request_object.return_value = 'ack=Failure&l_errorcode=42&l_longmessage0=Broken'
+        wpp = PayPalWPP(REQUEST)
+        with self.assertRaises(PayPalFailure):
+            nvp = wpp.doReferenceTransaction({'referenceid': reference_id,
+                                              'amt': amount})
 
 
 ### DoExpressCheckoutPayment

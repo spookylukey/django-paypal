@@ -9,7 +9,6 @@ import time
 from django.conf import settings
 from django.forms.models import fields_for_model
 from django.http import QueryDict
-from django.utils.datastructures import MergeDict
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from six.moves.urllib.request import urlopen
@@ -228,6 +227,22 @@ class PayPalWPP(object):
     def refundTransaction(self, params):
         raise NotImplementedError
 
+    def doReferenceTransaction(self, params):
+        """
+        Process a payment from a buyer's account, identified by a previous
+        transaction.
+        The `paymentaction` param defaults to "Sale", but may also contain the
+        values "Authorization" or "Order".
+        """
+        defaults = {"method": "DoReferenceTransaction",
+                    "paymentaction": "Sale"}
+        required = ["referenceid", "amt"]
+
+        nvp_obj = self._fetch(params, required, defaults)
+        if nvp_obj.flag:
+            raise PayPalFailure(nvp_obj.flag_info)
+        return nvp_obj
+
     def _is_recurring(self, params):
         """Returns True if the item passed is a recurring transaction."""
         return 'billingfrequency' in params
@@ -261,7 +276,9 @@ class PayPalWPP(object):
 
         # Gather all NVP parameters to pass to a new instance.
         nvp_params = {}
-        for k, v in MergeDict(defaults, response_params).items():
+        tmpd = defaults.copy()
+        tmpd.update(response_params)
+        for k, v in tmpd.items():
             if k in self.NVP_FIELDS:
                 nvp_params[str(k)] = v
 
