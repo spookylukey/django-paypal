@@ -13,6 +13,14 @@ Version 0.1.4
 
 * Support for PayPalPro CreateBillingAgreement method
 
+* Support for PayPalPro DoReferenceTransaction method
+
+* Upgraded to PayPal Pro API version 116.0
+
+  * This deprecates the "amt" parameter for SetExpressCheckout and
+    DoExpressCheckoutPayment. paymentrequest_0_amt should be used instead. Use
+    of amt will raise a DeprecationWarning for now.
+
 * Various bug fixes, refactorings and small features.
 
 Version 0.1.3

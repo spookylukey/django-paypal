@@ -20,7 +20,7 @@ from paypal.pro.exceptions import PayPalFailure
 USER = settings.PAYPAL_WPP_USER
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
 SIGNATURE = settings.PAYPAL_WPP_SIGNATURE
-VERSION = 54.0
+VERSION = 116.0
 BASE_PARAMS = dict(USER=USER, PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSION)
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANDBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
@@ -108,11 +108,20 @@ class PayPalWPP(object):
         reference transactions and recurring payments.
         Returns a NVP instance - check for token and payerid to continue!
         """
+        if "amt" in params:
+            import warnings
+
+            warnings.warn("'amt' has been deprecated. 'paymentrequest_0_amt' "
+                          "should be used instead.", DeprecationWarning)
+            # Make a copy so we don't change things unexpectedly
+            params = params.copy()
+            params.update({'paymentrequest_0_amt': params['amt']})
+            del params['amt']
         if self._is_recurring(params):
             params = self._recurring_setExpressCheckout_adapter(params)
 
         defaults = {"method": "SetExpressCheckout", "noshipping": 1}
-        required = ["returnurl", "cancelurl", "amt"]
+        required = ["returnurl", "cancelurl", "paymentrequest_0_amt"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
@@ -122,8 +131,17 @@ class PayPalWPP(object):
         """
         Check the dude out:
         """
+        if "amt" in params:
+            import warnings
+
+            warnings.warn("'amt' has been deprecated. 'paymentrequest_0_amt' "
+                          "should be used instead.", DeprecationWarning)
+            # Make a copy so we don't change things unexpectedly
+            params = params.copy()
+            params.update({'paymentrequest_0_amt': params['amt']})
+            del params['amt']
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
-        required = ["returnurl", "cancelurl", "amt", "token", "payerid"]
+        required = ["returnurl", "cancelurl", "paymentrequest_0_amt", "token", "payerid"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
