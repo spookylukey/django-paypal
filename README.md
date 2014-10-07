@@ -26,6 +26,11 @@ user over to PayPal to confirm their payment method before redirecting back to
 your website for confirmation. PayPal rules state that both methods must be
 implemented.
 
+More recently, PayPal have implemented newer APIs, including "PayPal Payments
+Pro (Payflow Edition)". This is not to be confused with the "Classic" PayPal
+Payments Pro that is implemented by django-paypal. "Payflow Edition" is not yet
+supported by django-paypal.
+
 
 Using PayPal Payments Standard IPN:
 -----------------------------------
@@ -303,12 +308,16 @@ Use postbacks for validation if:
 Using PayPal Payments Pro (WPP)
 -------------------------------
 
-WPP is the more awesome version of PayPal that lets you accept payments on your
-site. WPP reuses code from `paypal.standard` so you'll need to include both
-apps.
+PayPal Payments Pro (or "Website Payments Pro") is a more awesome version of
+PayPal that lets you accept payments on your site. This is now documented by
+PayPal as a [Classic
+API](https://developer.paypal.com/webapps/developer/docs/classic/products/) and
+should not be confused with the "PayPal Payments Pro (Payflow Edition)" which is
+a newer API.
 
-django-paypal makes this whole process incredibly easy to use through the
-provided `PayPalPro` class.
+The PayPal Payments Pro solution reuses code from `paypal.standard` so you'll
+need to include both apps. django-paypal makes the whole process incredibly easy
+to use through the provided `PayPalPro` class.
 
 1. Obtain PayPal Pro API credentials: login to PayPal, click *My Account*,
   *Profile*, *Request API credentials*, *Set up PayPal API credentials and
