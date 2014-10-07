@@ -19,31 +19,31 @@ SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-c
 class PayPalPro(object):
     """
     This class-based view takes care of PayPal WebsitePaymentsPro (WPP).
-    PayPalPro has two separate flows - DirectPayment and ExpressPayFlow. In 
+    PayPalPro has two separate flows - DirectPayment and ExpressPayFlow. In
     DirectPayment the user buys on your site. In ExpressPayFlow the user is
-    direct to PayPal to confirm their purchase. PayPalPro implements both 
+    direct to PayPal to confirm their purchase. PayPalPro implements both
     flows. To it create an instance using the these parameters:
 
     item: a dictionary that holds information about the item being purchased.
-    
+
     For single item purchase (pay once):
-    
+
         Required Keys:
             * amt: Float amount of the item.
-        
+
         Optional Keys:
             * custom: You can set this to help you identify a transaction.
             * invnum: Unique ID that identifies this transaction.
-    
+
     For recurring billing:
-    
+
         Required Keys:
           * amt: Float amount for each billing cycle.
           * billingperiod: String unit of measure for the billing cycle (Day|Week|SemiMonth|Month|Year)
           * billingfrequency: Integer number of periods that make up a cycle.
           * profilestartdate: The date to begin billing. "2008-08-05T17:00:00Z" UTC/GMT
           * desc: Description of what you're billing for.
-          
+
         Optional Keys:
           * trialbillingperiod: String unit of measure for trial cycle (Day|Week|SemiMonth|Month|Year)
           * trialbillingfrequency: Integer # of periods in a cycle.
@@ -58,16 +58,16 @@ class PayPalPro(object):
           * initamt: Initial non-recurring payment due upon creation.
           * currencycode: defaults to USD
           * + a bunch of shipping fields
-        
+
     payment_form_cls: form class that will be used to display the payment form.
     It should inherit from `paypal.pro.forms.PaymentForm` if you're adding more.
-    
+
     payment_template: template used to ask the dude for monies. To comply with
     PayPal standards it must include a link to PayPal Express Checkout.
-    
+
     confirm_form_cls: form class that will be used to display the confirmation form.
     It should inherit from `paypal.pro.forms.ConfirmForm`. It is only used in the Express flow.
-    
+
     success_url / fail_url: URLs to be redirected to when the payment successful or fails.
     """
     errors = {
@@ -154,7 +154,7 @@ class PayPalPro(object):
 
     def redirect_to_express(self):
         """
-        First step of ExpressCheckout. Redirect the request to PayPal using the 
+        First step of ExpressCheckout. Redirect the request to PayPal using the
         data returned from setExpressCheckout.
         """
         wpp = PayPalWPP(self.request)
