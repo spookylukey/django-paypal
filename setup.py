@@ -13,7 +13,7 @@ URL = 'https://github.com/spookylukey/django-paypal'
 
 setup(
     name='django-paypal',
-    version=".".join(map(str, paypal.__version__)),
+    version=paypal.__version__,
     author='John Boxall',
     author_email='john@handimobility.ca',
     maintainer="Luke Plant",
