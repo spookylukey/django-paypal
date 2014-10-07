@@ -189,9 +189,9 @@ class PayPalPro(object):
         # @@@ This check and call could be moved into PayPalWPP.
         try:
             if self.is_recurring():
-                nvp_obj = wpp.createRecurringPaymentsProfile(self.item)
+                wpp.createRecurringPaymentsProfile(self.item)
             else:
-                nvp_obj = wpp.doExpressCheckoutPayment(self.item)
+                wpp.doExpressCheckoutPayment(self.item)
         except PayPalFailure:
             self.context['errors'] = self.errors['processing']
             return self.render_payment_form()
