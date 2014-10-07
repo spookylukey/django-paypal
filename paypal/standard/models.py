@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.utils.functional import cached_property
 
 from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
@@ -206,6 +207,22 @@ class PayPalStandardBase(Model):
             return self.format % ("Transaction", self.txn_id)
         else:
             return self.format % ("Recurring", self.recurring_payment_id)
+
+    @cached_property
+    def posted_data_dict(self):
+        """
+        All the data that PayPal posted to us, as a correctly parsed dictionary of values.
+        """
+        if not self.query:
+            return None
+        from django.http import QueryDict
+        roughdecode = dict(item.split('=', 1) for item in self.query.split('&'))
+        encoding = roughdecode.get('charset', None)
+        if encoding is None:
+            return None
+        query = self.query.encode('ascii')
+        data = QueryDict(query, encoding=encoding)
+        return data.dict()
 
     def is_transaction(self):
         return len(self.txn_id) > 0

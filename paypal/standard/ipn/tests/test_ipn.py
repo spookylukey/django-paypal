@@ -283,6 +283,50 @@ class IPNTest(IPNTestBase):
         self.assertEqual(len(ipns), 1)
         self.assertFalse(self.got_signal)
 
+    def test_posted_params_attribute(self):
+        params = {'btn_id1': b('3453595'),
+                  'business': b('email-facilitator@gmail.com'),
+                  'charset': b('windows-1252'),
+                  'custom': b('blahblah'),
+                  "first_name": b("J\xF6rg"),
+                  'ipn_track_id': b('a48170aadb705'),
+                  'item_name1': b('Romanescoins'),
+                  'item_number1': b(''),
+                  'last_name': b('LASTNAME'),
+                  'mc_currency': b('EUR'),
+                  'mc_fee': b('0.35'),
+                  'mc_gross': b('3.00'),
+                  'mc_gross_1': b('3.00'),
+                  'mc_handling': b('0.00'),
+                  'mc_handling1': b('0.00'),
+                  'mc_shipping': b('0.00'),
+                  'mc_shipping1': b('0.00'),
+                  'notify_version': b('3.8'),
+                  'num_cart_items': b('1'),
+                  'payer_email': b('email@gmail.com'),
+                  'payer_id': b('6EQ6SKDFMPU36'),
+                  'payer_status': b('verified'),
+                  'payment_date': b('03:06:57 Jun 27, 2014 PDT'),
+                  'payment_fee': b(''),
+                  'payment_gross': b(''),
+                  'payment_status': b('Completed'),
+                  'payment_type': b('instant'),
+                  'protection_eligibility': b('Ineligible'),
+                  'quantity1': b('3'),
+                  'receiver_email': b('email-facilitator@gmail.com'),
+                  'receiver_id': b('UCWM6R2TARF36'),
+                  'residence_country': b('FR'),
+                  'tax': b('0.00'),
+                  'tax1': b('0.00'),
+                  'test_ipn': b('1'),
+                  'transaction_subject': b('blahblah'),
+                  'txn_id': b('KW31266C37C2593K4'),
+                  'txn_type': b('cart'),
+                  'verify_sign': b('A_SECRET_CODE')}
+        self.paypal_post(params)
+        ipn = PayPalIPN.objects.get()
+        self.assertEqual(ipn.posted_data_dict['quantity1'], '3')
+        self.assertEqual(ipn.posted_data_dict['first_name'], u"J\u00f6rg")
 
 class IPNPostbackTest(IPNTestBase):
     """
