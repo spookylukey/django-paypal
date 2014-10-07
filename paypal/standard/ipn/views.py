@@ -25,7 +25,7 @@ def ipn(request, item_check_callable=None):
 
     # Clean up the data as PayPal sends some weird values such as "N/A"
     # Also, need to cope with custom encoding, which is stored in the body (!).
-    # Assuming the tolerate parsing of QueryDict and an ASCII-like encoding,
+    # Assuming the tolerant parsing of QueryDict and an ASCII-like encoding,
     # such as windows-1252, latin1 or UTF8, the following will work:
 
     encoding = request.POST.get('charset', None)
