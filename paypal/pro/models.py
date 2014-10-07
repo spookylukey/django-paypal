@@ -83,9 +83,12 @@ class PayPalNVP(Model):
 
     def init(self, request, paypal_request, paypal_response):
         """Initialize a PayPalNVP instance from a HttpRequest."""
-        self.ipaddress = request.META.get('REMOTE_ADDR', '').split(':')[0]
-        if hasattr(request, "user") and request.user.is_authenticated():
-            self.user = request.user
+        if request is not None:
+            self.ipaddress = request.META.get('REMOTE_ADDR', '').split(':')[0]
+            if hasattr(request, "user") and request.user.is_authenticated():
+                self.user = request.user
+        else:
+            self.ipaddress = ''
 
         # No storing credit card info.
         query_data = dict((k, v) for k, v in paypal_request.items() if k not in self.RESTRICTED_FIELDS)

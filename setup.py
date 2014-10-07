@@ -22,6 +22,7 @@ setup(
     install_requires=[
         'Django>=1.4',
         'six>=1.4.1',
+        'South>=1.0',
     ],
     description = DESCRIPTION,
     long_description = "%s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, read("CHANGES.rst")),
@@ -34,5 +35,6 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Software Development",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.3",
     ],
 )

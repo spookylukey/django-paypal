@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from six import b
 from six.moves.urllib.request import urlopen
 
 from paypal.standard.models import PayPalStandardBase
-from paypal.standard.ipn.signals import *
+from paypal.standard.ipn.signals import payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful, recurring_create, recurring_payment, recurring_cancel, recurring_skipped, recurring_failed, subscription_cancel, subscription_signup, subscription_eot, subscription_modify
 
 
 class PayPalIPN(PayPalStandardBase):
@@ -16,11 +19,11 @@ class PayPalIPN(PayPalStandardBase):
 
     def _postback(self):
         """Perform PayPal Postback validation."""
-        return urlopen(self.get_endpoint(), "cmd=_notify-validate&%s" % self.query).read()
+        return urlopen(self.get_endpoint(), b("cmd=_notify-validate&%s" % self.query)).read()
 
     def _verify_postback(self):
         if self.response != "VERIFIED":
-            self.set_flag("Invalid postback. (%s)" % self.response)
+            self.set_flag("Invalid postback. ({0})".format(self.response))
 
     def send_signals(self):
         """Shout for the world to hear whether a txn was successful."""

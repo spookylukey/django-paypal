@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.db import models
+
 from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import RECEIVER_EMAIL, POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
@@ -263,7 +264,7 @@ class PayPalStandardBase(Model):
         that `mc_gross`, `mc_currency` `item_name` and `item_number` are all correct.
 
         """
-        self.response = self._postback()
+        self.response = self._postback().decode('ascii')
         self._verify_postback()
         if not self.flag:
             if self.is_transaction():
@@ -329,7 +330,7 @@ class PayPalStandardBase(Model):
             self.query = request.META.get('QUERY_STRING', '')
         elif request.method == 'POST':
             # The following works if paypal sends an ASCII bytestring, which it does.
-            self.query = request.body
+            self.query = request.body.decode('ascii')
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):

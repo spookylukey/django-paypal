@@ -50,16 +50,12 @@ IPN_POST_PARAMS = {
 }
 
 
-class IPNTest(TestCase):
+class IPNTestBase(TestCase):
     urls = 'paypal.standard.ipn.tests.test_urls'
 
     def setUp(self):
         self.old_debug = settings.DEBUG
         settings.DEBUG = True
-
-        # Monkey patch over PayPalIPN to make it get a VERFIED response.
-        self.old_postback = PayPalIPN._postback
-        PayPalIPN._postback = lambda self: "VERIFIED"
 
         self.payment_was_successful_receivers = payment_was_successful.receivers
         self.payment_was_flagged_receivers = payment_was_flagged.receivers
@@ -81,10 +77,8 @@ class IPNTest(TestCase):
         recurring_payment.receivers = []
         recurring_cancel.receivers = []
 
-
     def tearDown(self):
         settings.DEBUG = self.old_debug
-        PayPalIPN._postback = self.old_postback
 
         payment_was_successful.receivers = self.payment_was_successful_receivers
         payment_was_flagged.receivers = self.payment_was_flagged_receivers
@@ -126,13 +120,34 @@ class IPNTest(TestCase):
         self.assertEqual(self.signal_obj, ipn_obj)
         return ipn_obj
 
+    def assertFlagged(self, updates, flag_info):
+        params = IPN_POST_PARAMS.copy()
+        params.update(updates)
+        response = self.paypal_post(params)
+        self.assertEqual(response.status_code, 200)
+        ipn_obj = PayPalIPN.objects.all()[0]
+        self.assertEqual(ipn_obj.flag, True)
+        self.assertEqual(ipn_obj.flag_info, flag_info)
+        return ipn_obj
+
+
+class IPNTest(IPNTestBase):
+
+    def setUp(self):
+        # Monkey patch over PayPalIPN to make it get a VERFIED response.
+        self.old_postback = PayPalIPN._postback
+        PayPalIPN._postback = lambda self: b("VERIFIED")
+
+    def tearDown(self):
+        PayPalIPN._postback = self.old_postback
+
     def test_correct_ipn(self):
         ipn_obj = self.assertGotSignal(payment_was_successful, False)
         # Check some encoding issues:
         self.assertEqual(ipn_obj.first_name, u"J\u00f6rg")
 
     def test_failed_ipn(self):
-        PayPalIPN._postback = lambda self: "INVALID"
+        PayPalIPN._postback = lambda self: b("INVALID")
         self.assertGotSignal(payment_was_flagged, True)
 
     def test_refunded_ipn(self):
@@ -162,15 +177,6 @@ class IPNTest(TestCase):
         params.update(update)
 
         self.assertGotSignal(payment_was_reversed, False, params)
-
-    def assertFlagged(self, updates, flag_info):
-        params = IPN_POST_PARAMS.copy()
-        params.update(updates)
-        response = self.paypal_post(params)
-        self.assertEqual(response.status_code, 200)
-        ipn_obj = PayPalIPN.objects.all()[0]
-        self.assertEqual(ipn_obj.flag, True)
-        self.assertEqual(ipn_obj.flag_info, flag_info)
 
     def test_incorrect_receiver_email(self):
         update = {"receiver_email": "incorrect_email@someotherbusiness.com"}
@@ -271,3 +277,12 @@ class IPNTest(TestCase):
         ipns = PayPalIPN.objects.all()
         self.assertEqual(len(ipns), 1)
         self.assertFalse(self.got_signal)
+
+
+class IPNPostbackTest(IPNTestBase):
+    """
+    Tests an actual postback to PayPal server.
+    """
+    def test_postback(self):
+        # Incorrect signature means we will always get failure
+        self.assertFlagged({}, u'Invalid postback. (INVALID)')

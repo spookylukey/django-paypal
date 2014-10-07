@@ -18,6 +18,7 @@ class PaymentForm(forms.Form):
     acct = CreditCardField(label="Credit Card Number")
     expdate = CreditCardExpiryField(label="Expiration Date")
     cvv2 = CreditCardCVV2Field(label="Card Security Code")
+    currencycode = forms.CharField(widget=forms.HiddenInput(), initial="USD")
 
     def process(self, request, item):
         """Process a PayPal direct payment."""
