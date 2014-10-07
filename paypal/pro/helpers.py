@@ -92,7 +92,7 @@ class PayPalWPP(object):
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
-        payment_was_successful.send(params)
+        payment_was_successful.send(sender=nvp_obj, **params)
         # @@@ Could check cvv2match / avscode are both 'X' or '0'
         # qd = django.http.QueryDict(nvp_obj.response)
         # if qd.get('cvv2match') not in ['X', '0']:
@@ -127,7 +127,7 @@ class PayPalWPP(object):
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
-        payment_was_successful.send(params)
+        payment_was_successful.send(sender=nvp_obj, **params)
         return nvp_obj
 
     def createRecurringPaymentsProfile(self, params, direct=False):
@@ -149,7 +149,7 @@ class PayPalWPP(object):
         # Flag if profile_type != ActiveProfile
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info)
-        payment_profile_created.send(params)
+        payment_profile_created.send(sender=nvp_obj, **params)
         return nvp_obj
 
     def getExpressCheckoutDetails(self, params):
