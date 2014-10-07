@@ -283,14 +283,12 @@ class PayPalStandardBase(Model):
                 pass
 
         self.save()
-        self.send_signals()
 
     def verify_secret(self, form_instance, secret):
         """Verifies an IPN payment over SSL using EWP."""
         if not check_secret(form_instance, secret):
             self.set_flag("Invalid secret. (%s)") % secret
         self.save()
-        self.send_signals()
 
     def get_endpoint(self):
         """Set Sandbox endpoint if the test variable is present."""

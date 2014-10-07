@@ -74,4 +74,5 @@ def ipn(request, item_check_callable=None):
             ipn_obj.verify(item_check_callable)
 
     ipn_obj.save()
+    ipn_obj.send_signals()
     return HttpResponse("OKAY")

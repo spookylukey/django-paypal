@@ -27,11 +27,13 @@ class PayPalIPN(PayPalStandardBase):
 
     def send_signals(self):
         """Shout for the world to hear whether a txn was successful."""
+        if self.flag:
+            payment_was_flagged.send(sender=self)
+            return
+
         # Transaction signals:
         if self.is_transaction():
-            if self.flag:
-                payment_was_flagged.send(sender=self)
-            elif self.is_refund():
+            if self.is_refund():
                 payment_was_refunded.send(sender=self)
             elif self.is_reversed():
                 payment_was_reversed.send(sender=self)

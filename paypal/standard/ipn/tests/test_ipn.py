@@ -150,6 +150,11 @@ class IPNTest(IPNTestBase):
         PayPalIPN._postback = lambda self: b("INVALID")
         self.assertGotSignal(payment_was_flagged, True)
 
+    def test_ipn_missing_charset(self):
+        params = IPN_POST_PARAMS.copy()
+        del params['charset']
+        self.assertGotSignal(payment_was_flagged, True, params=params)
+
     def test_refunded_ipn(self):
         update = {
             "payment_status": "Refunded"
