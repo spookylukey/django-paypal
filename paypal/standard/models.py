@@ -301,27 +301,7 @@ class PayPalStandardBase(Model):
 
     def send_signals(self):
         """Shout for the world to hear whether a txn was successful."""
-
-        # Don't do anything if we're not notifying!
-        if self.from_view != 'notify':
-            return
-
-        # Transaction signals:
-        if self.is_transaction():
-            if self.flag:
-                payment_was_flagged.send(sender=self)
-            else:
-                payment_was_successful.send(sender=self)
-        # Subscription signals:
-        else:
-            if self.is_subscription_cancellation():
-                subscription_cancel.send(sender=self)
-            elif self.is_subscription_signup():
-                subscription_signup.send(sender=self)
-            elif self.is_subscription_end_of_term():
-                subscription_eot.send(sender=self)
-            elif self.is_subscription_modified():
-                subscription_modify.send(sender=self)
+        raise NotImplementedError
 
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
