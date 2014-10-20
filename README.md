@@ -151,8 +151,8 @@ Using PayPal Payments Standard IPN:
    You need to pay particular attention to `payment_status`.
 
 1. You will also need to implement the 'return_url' and 'cancel_return' views
-   to handle someone returning from PayPal. Note that these views need
-   @csrf_exempt applied to them, because PayPal will POST to them, so they
+   to handle someone returning from PayPal. Note that these views don't need
+   @csrf_exempt applied to them, because PayPal will GET to them, so they
    should be custom views that don't need to handle POSTs otherwise.
 
    For 'return_url' you need to cope with the possibility that the IPN has not
@@ -186,11 +186,12 @@ some seconds. [You will need to enable PDT in your PayPal account to use it](htt
    The view `paypal.standard.pdt.views.pdt` handles PDT processing. to specify the correct
     `return_url` add the following to your `urls.py`:
 
-       # urls.py
-       ...
-       urlpatterns = patterns('',
+
+        # urls.py
+        ...
+        urlpatterns = patterns('',
            (r'^paypal/pdt/', include('paypal.standard.pdt.urls')),
-           ...
+        ...
        )
 
 Using PayPal Payments Standard with Subscriptions:
@@ -200,9 +201,9 @@ Using PayPal Payments Standard with Subscriptions:
    the subscription buttons and the command, plus any subscription-specific
    settings:
 
-       # views.py
-       ...
-       paypal_dict = {
+        # views.py
+        ...
+        paypal_dict = {
            "cmd": "_xclick-subscriptions",
            "business": "your_account@paypal",
            "a3": "9.99",                      # monthly price
@@ -222,7 +223,7 @@ Using PayPal Payments Standard with Subscriptions:
 
        # Output the button.
        form.render()
-
+       ...
 
 Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------
