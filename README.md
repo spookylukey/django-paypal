@@ -200,9 +200,9 @@ Using PayPal Payments Standard with Subscriptions:
    the subscription buttons and the command, plus any subscription-specific
    settings:
 
-       # views.py
-       ...
-       paypal_dict = {
+        # views.py
+        ...
+        paypal_dict = {
            "cmd": "_xclick-subscriptions",
            "business": "your_account@paypal",
            "a3": "9.99",                      # monthly price
@@ -220,9 +220,9 @@ Using PayPal Payments Standard with Subscriptions:
        # Create the instance.
        form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
 
-       # Output the button.
-       form.render()
-
+        # Output the button.
+        form.render()
+        ...
 
 Using PayPal Payments Standard with Encrypted Buttons:
 ------------------------------------------------------
