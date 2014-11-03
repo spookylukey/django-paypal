@@ -50,8 +50,7 @@ class PayPalPDT(PayPalStandardBase):
         return urlopen(self.get_endpoint(), postback_params).read()
 
     def get_endpoint(self):
-        """Use the sandbox when in DEBUG mode as we don't have a test_ipn variable in pdt."""
-        if getattr(settings, 'PAYPAL_DEBUG', settings.DEBUG):
+        if getattr(settings, 'PAYPAL_TEST', True):
             return SANDBOX_POSTBACK_ENDPOINT
         else:
             return POSTBACK_ENDPOINT

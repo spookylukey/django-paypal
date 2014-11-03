@@ -179,6 +179,10 @@ some seconds. [You will need to enable PDT in your PayPal account to use it](htt
 
         PAYPAL_IDENTITY_TOKEN = "xxx"
 
+        # For installations on which you want to use the sandbox,
+        # set PAYPAL_TEST to True:
+        # PAYPAL_TEST = True
+
 1. Create a view that uses `PayPalPaymentsForm` just like in PayPal IPN.
 
 1. After someone uses this button to buy something PayPal will return the user to your site at
