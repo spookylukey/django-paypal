@@ -8,7 +8,8 @@ from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import (payment_was_successful,
                                          payment_was_flagged, payment_was_refunded, payment_was_reversed,
                                          recurring_skipped, recurring_failed,
-                                         recurring_create, recurring_payment, recurring_cancel)
+                                         recurring_create, recurring_payment, recurring_cancel,
+                                         billing_agreement_create, billing_agreement_cancel)
 
 
 # Parameters are all bytestrings, so we can construct a bytestring
@@ -63,6 +64,8 @@ class IPNTestBase(TestCase):
         self.recurring_create_receivers = recurring_create.receivers
         self.recurring_payment_receivers = recurring_payment.receivers
         self.recurring_cancel_receivers = recurring_cancel.receivers
+        self.billing_agreement_create_receivers = billing_agreement_create.receivers
+        self.billing_agreement_cancel_receivers = billing_agreement_cancel.receivers
 
         payment_was_successful.receivers = []
         payment_was_flagged.receivers = []
@@ -73,6 +76,8 @@ class IPNTestBase(TestCase):
         recurring_create.receivers = []
         recurring_payment.receivers = []
         recurring_cancel.receivers = []
+        billing_agreement_create.receivers = []
+        billing_agreement_cancel.receivers = []
 
     def tearDown(self):
         payment_was_successful.receivers = self.payment_was_successful_receivers
@@ -83,7 +88,8 @@ class IPNTestBase(TestCase):
         recurring_failed.receivers = self.recurring_failed_receivers
         recurring_create.receivers = self.recurring_create_receivers
         recurring_payment.receivers = self.recurring_payment_receivers
-        recurring_cancel.receivers = self.recurring_cancel_receivers
+        billing_agreement_create.receivers = self.billing_agreement_create_receivers
+        billing_agreement_cancel.receivers = self.billing_agreement_cancel_receivers
 
     def paypal_post(self, params):
         """
@@ -277,6 +283,28 @@ class IPNTest(IPNTestBase):
         ipns = PayPalIPN.objects.all()
         self.assertEqual(len(ipns), 1)
         self.assertFalse(self.got_signal)
+
+    def test_billing_agreement_create_ipn(self):
+        update = {
+            "mp_id": "B-0G433009BJ555711U",
+            "txn_type": "mp_signup",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+
+        self.assertGotSignal(billing_agreement_create, False, params)
+
+    def test_billing_agreement_cancel_ipn(self):
+        update = {
+            "mp_id": "B-0G433009BJ555711U",
+            "txn_type": "mp_cancel",
+            "txn_id": ""
+        }
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+
+        self.assertGotSignal(billing_agreement_cancel, False, params)
 
     def test_posted_params_attribute(self):
         params = {'btn_id1': b('3453595'),

@@ -6,7 +6,7 @@ from six import b
 from six.moves.urllib.request import urlopen
 
 from paypal.standard.models import PayPalStandardBase
-from paypal.standard.ipn.signals import payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful, recurring_create, recurring_payment, recurring_cancel, recurring_skipped, recurring_failed, subscription_cancel, subscription_signup, subscription_eot, subscription_modify
+from paypal.standard.ipn.signals import payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful, recurring_create, recurring_payment, recurring_cancel, recurring_skipped, recurring_failed, subscription_cancel, subscription_signup, subscription_eot, subscription_modify, billing_agreement_create, billing_agreement_cancel
 
 
 class PayPalIPN(PayPalStandardBase):
@@ -52,6 +52,12 @@ class PayPalIPN(PayPalStandardBase):
                 recurring_skipped.send(sender=self)
             elif self.is_recurring_failed():
                 recurring_failed.send(sender=self)
+        # Billing agreement signals:
+        elif self.is_billing_agreement():
+            if self.is_billing_agreement_create():
+                billing_agreement_create.send(sender=self)
+            elif self.is_billing_agreement_cancel():
+                billing_agreement_cancel.send(sender=self)
        # Subscription signals:
         else:
             if self.is_subscription_cancellation():
