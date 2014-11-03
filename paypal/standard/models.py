@@ -159,6 +159,9 @@ class PayPalStandardBase(Model):
     subscr_id = models.CharField(max_length=19, blank=True)
     username = models.CharField(max_length=64, blank=True)
 
+    # Bulling Agreement Variables
+    mp_id = models.CharField(max_length=128, blank=True)  # B-0G433009BJ555711U
+
     # Dispute Resolution Variables
     case_creation_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     case_id = models.CharField(max_length=14, blank=True)
@@ -262,6 +265,15 @@ class PayPalStandardBase(Model):
 
     def is_recurring_failed(self):
         return self.txn_type == "recurring_payment_failed"
+
+    def is_billing_agreement(self):
+        return len(self.mp_id) > 0
+
+    def is_billing_agreement_create(self):
+        return self.txn_type == "mp_signup"
+
+    def is_billing_agreement_cancel(self):
+        return self.txn_type == "mp_cancel"
 
     def set_flag(self, info, code=None):
         """Sets a flag on the transaction and also sets a reason."""

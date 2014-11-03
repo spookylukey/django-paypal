@@ -41,3 +41,8 @@ recurring_cancel = Signal()
 recurring_skipped = Signal()
 
 recurring_failed = Signal()
+
+# billing agreements
+billing_agreement_create = Signal()
+
+billing_agreement_cancel = Signal()

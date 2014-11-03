@@ -132,6 +132,7 @@ class Migration(SchemaMigration):
                             {'default': '0', 'null': 'True', 'max_digits': '64', 'decimal_places': '2',
                              'blank': 'True'}),
             'memo': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'mp_id': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
             'next_payment_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'notify_version': ('django.db.models.fields.DecimalField', [],
                                {'default': '0', 'null': 'True', 'max_digits': '64', 'decimal_places': '2',
