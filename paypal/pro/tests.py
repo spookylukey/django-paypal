@@ -45,9 +45,6 @@ class CreditCardFieldTest(TestCase):
 
 class PayPalWPPTest(TestCase):
     def setUp(self):
-        # Avoding blasting real requests at PayPal.
-        self.old_debug = settings.DEBUG
-        settings.DEBUG = True
 
         self.item = {
             'amt': '9.95',
@@ -67,9 +64,6 @@ class PayPalWPPTest(TestCase):
             'cancelurl': 'http://www.example.com/cancel/'
         }
         self.wpp = DummyPayPalWPP(REQUEST)
-
-    def tearDown(self):
-        settings.DEBUG = self.old_debug
 
     def test_doDirectPayment_missing_params(self):
         data = {'firstname': 'Chewbacca'}

@@ -54,9 +54,6 @@ class IPNTestBase(TestCase):
     urls = 'paypal.standard.ipn.tests.test_urls'
 
     def setUp(self):
-        self.old_debug = settings.DEBUG
-        settings.DEBUG = True
-
         self.payment_was_successful_receivers = payment_was_successful.receivers
         self.payment_was_flagged_receivers = payment_was_flagged.receivers
         self.payment_was_refunded_receivers = payment_was_refunded.receivers
@@ -78,8 +75,6 @@ class IPNTestBase(TestCase):
         recurring_cancel.receivers = []
 
     def tearDown(self):
-        settings.DEBUG = self.old_debug
-
         payment_was_successful.receivers = self.payment_was_successful_receivers
         payment_was_flagged.receivers = self.payment_was_flagged_receivers
         payment_was_refunded.receivers = self.payment_was_refunded_receivers
