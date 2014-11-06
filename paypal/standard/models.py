@@ -159,7 +159,7 @@ class PayPalStandardBase(Model):
     subscr_id = models.CharField(max_length=19, blank=True)
     username = models.CharField(max_length=64, blank=True)
 
-    # Bulling Agreement Variables
+    # Billing Agreement Variables
     mp_id = models.CharField(max_length=128, blank=True)  # B-0G433009BJ555711U
 
     # Dispute Resolution Variables
