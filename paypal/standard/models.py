@@ -160,7 +160,7 @@ class PayPalStandardBase(Model):
     username = models.CharField(max_length=64, blank=True)
 
     # Billing Agreement Variables
-    mp_id = models.CharField(max_length=128, blank=True)  # B-0G433009BJ555711U
+    mp_id = models.CharField(max_length=128, blank=True, null=True)  # B-0G433009BJ555711U
 
     # Dispute Resolution Variables
     case_creation_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
