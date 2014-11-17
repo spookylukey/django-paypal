@@ -48,6 +48,16 @@ depending on what apps you have installed.
 Upgrading to Django 1.7
 -----------------------
 
-In Django 1.7, the migration framework is good at automatically noticing
-migrations that have been applied and not applying them twice. So you should be
-able to switch to Django 1.7 at any point.
+The recommended upgrade procedure is:
+
+* first upgrade django-paypal to the latest version and run migrations as above.
+
+* then upgrade Django to 1.7, and run the following as appropriate for your
+  situation::
+
+    ./manage.py migrate ipn --fake
+    ./manage.py migrate pdt --fake
+    ./manage.py migrate pro --fake
+
+  In this way, you can avoid running equivalent migrations twice (the South versions
+  and the Django built-in versions).
