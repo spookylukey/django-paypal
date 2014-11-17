@@ -17,13 +17,14 @@ settings.configure(
     PAYPAL_WPP_USER='dcrame_1278645792_biz_api1.gmail.com',
     PAYPAL_WPP_PASSWORD='1278645801',
     PAYPAL_WPP_SIGNATURE='A4k1.O6xTyld5TiKeVmCuOgqzLRuAKuTtSG.7BD3R9E8SBa-J0pbUeYp',
+    PAYPAL_IDENTITY_TOKEN='xxx',
     INSTALLED_APPS=[
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'paypal.pro',
         'paypal.standard',
         'paypal.standard.ipn',
-        # 'paypal.standard.pdt', # we need the PDT token
+        'paypal.standard.pdt',
     ],
     CACHES={
         'default': {
@@ -42,9 +43,9 @@ argv = [sys.argv[0], "test"]
 if len(sys.argv) == 1:
     # Nothing following 'runtests.py':
     if django.VERSION < (1,6):
-        argv.extend(["pro", "ipn"])
+        argv.extend(["pro", "ipn", "pdt"])
     else:
-        argv.extend(["paypal.pro.tests", "paypal.standard.ipn.tests"])
+        argv.extend(["paypal.pro.tests", "paypal.standard.ipn.tests", "paypal.standard.pdt.tests"])
 else:
     # Allow tests to be specified:
     argv.extend(sys.argv[1:])

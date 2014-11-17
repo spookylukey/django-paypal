@@ -29,7 +29,6 @@ class DummyPayPalPDT(object):
 
     def _postback(self, test=True):
         """Perform a Fake PayPal PDT Postback request."""
-        # @@@ would be cool if this could live in the test templates dir...
         return render_to_response("pdt/test_pdt_response.html", self.context_dict).content
 
 
@@ -47,6 +46,11 @@ class PDTTest(TestCase):
         self.dpppdt = DummyPayPalPDT()
         self.dpppdt.update_with_get_params(self.get_params)
         PayPalPDT._postback = self.dpppdt._postback
+        self.old_template_dirs = settings.TEMPLATE_DIRS
+        settings.TEMPLATE_DIRS = self.template_dirs
+
+    def tearDown(self):
+        settings.TEMPLATE_DIRS = self.old_template_dirs
 
     def test_verify_postback(self):
         dpppdt = DummyPayPalPDT()
