@@ -4,7 +4,11 @@ Change log
 Version 0.1.4
 -------------
 
+* New docs!
+
 * Python 3 support.
+
+* Django 1.7 support.
 
 * Support for custom User model via AUTH_USER_MODEL. If you change AUTH_USER_MODEL
   you will still need to write your own migrations.
