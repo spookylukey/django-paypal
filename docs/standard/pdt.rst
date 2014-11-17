@@ -34,9 +34,11 @@ To use PDT:
    set PAYPAL_TEST to True.  Ensure PAYPAL_RECEIVER_EMAIL is set to
    your sandbox account email too.
 
-2. Create a view that uses `PayPalPaymentsForm` just like in :doc:`ipn`.
+2. :doc:`/updatedb`
 
-3. After someone uses this button to buy something PayPal will return the user
+3. Create a view that uses `PayPalPaymentsForm` just like in :doc:`ipn`.
+
+4. After someone uses this button to buy something PayPal will return the user
    to your site at your ``return_url`` with some extra GET parameters.
 
    The view ``paypal.standard.pdt.views.pdt`` handles PDT processing and renders

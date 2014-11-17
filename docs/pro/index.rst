@@ -31,7 +31,7 @@ to use through the provided ``PayPalPro`` class.
        PAYPAL_WPP_PASSWORD = "???"
        PAYPAL_WPP_SIGNATURE = "???"
 
-3. Run ``python manage.py syncdb`` to add the required tables.
+3. :doc:`/updatedb`
 
 4. Write a wrapper view for ``paypal.pro.views.PayPalPro``:
 

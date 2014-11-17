@@ -23,7 +23,9 @@ Using PayPal Standard IPN
    set PAYPAL_TEST to True.  Ensure PAYPAL_RECEIVER_EMAIL is set to
    your sandbox account email too.
 
-2. Create an instance of the `PayPalPaymentsForm` in the view where you would
+2. :doc:`/updatedb`
+
+3. Create an instance of the `PayPalPaymentsForm` in the view where you would
    like to collect money. Call `render` on the instance in your template to
    write out the HTML.
 
@@ -66,7 +68,7 @@ Using PayPal Standard IPN
        {{ form.render }}
 
 
-3. When someone uses this button to buy something PayPal makes a HTTP POST to
+4. When someone uses this button to buy something PayPal makes a HTTP POST to
    your "notify_url". PayPal calls this Instant Payment Notification (IPN).
    The view ``paypal.standard.ipn.views.ipn`` handles IPN processing. To set the
    correct ``notify_url`` add the following to your ``urls.py``:
@@ -77,7 +79,7 @@ Using PayPal Standard IPN
            (r'^something/paypal/', include('paypal.standard.ipn.urls')),
        )
 
-4. Whenever an IPN is processed a signal will be sent with the result of the
+5. Whenever an IPN is processed a signal will be sent with the result of the
    transaction. Connect the signals to actions to perform the needed operations
    when a successful payment is received.
 
@@ -133,7 +135,7 @@ Using PayPal Standard IPN
 
    You need to pay particular attention to ``payment_status``.
 
-5. You will also need to implement the ``return_url`` and ``cancel_return`` views
+6. You will also need to implement the ``return_url`` and ``cancel_return`` views
    to handle someone returning from PayPal. Note that these views need
    ``@csrf_exempt`` applied to them, because PayPal will POST to them, so they
    should be custom views that don't need to handle POSTs otherwise.
