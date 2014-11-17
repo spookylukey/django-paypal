@@ -3,6 +3,8 @@
 # This manage.py exists for the purpose of creating migrations
 import sys
 
+import django
+
 from django.conf import settings
 
 settings.configure(
@@ -20,7 +22,7 @@ settings.configure(
         'paypal.standard',
         'paypal.standard.ipn',
         'paypal.standard.pdt',
-    ],
+    ] + ['south'] if django.VERSION < (1,7) else [],
     CACHES={
         'default': {
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
