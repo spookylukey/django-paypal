@@ -9,7 +9,6 @@ from six.moves.urllib.parse import unquote_plus
 
 from paypal.standard.models import PayPalStandardBase
 from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
-from paypal.standard.pdt.signals import pdt_successful, pdt_failed
 
 # ### Todo: Move this logic to conf.py:
 # if paypal.standard.pdt is in installed apps
@@ -86,10 +85,3 @@ class PayPalPDT(PayPalStandardBase):
                        flag_code=self.flag_code))
         pdt_form = PayPalPDTForm(qd, instance=self)
         pdt_form.save(commit=False)
-
-    def send_signals(self):
-        # Send the PDT signals...
-        if self.flag:
-            pdt_failed.send(sender=self)
-        else:
-            pdt_successful.send(sender=self)

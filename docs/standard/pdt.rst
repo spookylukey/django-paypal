@@ -59,5 +59,5 @@ To use PDT:
 
    More than likely, however, you will want to write a custom view that
    calls ``paypal.standard.pdt.views.process_pdt``. This function returns
-   a tuple containing ``(PDT object, flag)``, where the ``flag`` is set
+   a tuple containing ``(PDT object, flag)``, where the ``flag`` is True
    if verification failed.

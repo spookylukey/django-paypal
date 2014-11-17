@@ -7,7 +7,6 @@ from django.conf import settings
 from django.shortcuts import render_to_response
 from django.test import TestCase
 from paypal.standard.pdt.models import PayPalPDT
-from paypal.standard.pdt.signals import pdt_successful, pdt_failed
 
 
 class DummyPayPalPDT(object):
@@ -70,29 +69,6 @@ class PDTTest(TestCase):
         paypal_response = self.client.get("/pdt/", self.get_params)
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
-
-    def test_pdt_signals(self):
-        self.successful_pdt_fired = False
-        self.failed_pdt_fired = False
-
-        def successful_pdt(sender, **kwargs):
-            self.successful_pdt_fired = True
-
-        pdt_successful.connect(successful_pdt)
-
-        def failed_pdt(sender, **kwargs):
-            self.failed_pdt_fired = True
-
-        pdt_failed.connect(failed_pdt)
-
-        self.assertEqual(len(PayPalPDT.objects.all()), 0)
-        paypal_response = self.client.get("/pdt/", self.get_params)
-        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
-        self.assertEqual(len(PayPalPDT.objects.all()), 1)
-        self.assertTrue(self.successful_pdt_fired)
-        self.assertFalse(self.failed_pdt_fired)
-        pdt_obj = PayPalPDT.objects.all()[0]
-        self.assertEqual(pdt_obj.flag, False)
 
     def test_double_pdt_get(self):
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
