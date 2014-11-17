@@ -45,6 +45,8 @@ It will probably look something like::
 
 depending on what apps you have installed.
 
+Please also see upgrade notes in the CHANGES file: https://github.com/spookylukey/django-paypal/blob/master/CHANGES.rst
+
 Upgrading to Django 1.7
 -----------------------
 

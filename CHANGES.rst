@@ -1,6 +1,21 @@
 Change log
 ==========
 
+Version 0.1.5
+-------------
+
+* Fixed support for custom User model in South migrations
+
+  If you:
+
+  * are using a custom AUTH_USER_MODEL
+  * are using the 'pro' app
+  * installed version 0.1.4 and ran the migrations,
+
+  you will need to reverse the migrations in the 'pro' app that were applied
+  when you ran "./manage.py migrate".
+
+
 Version 0.1.4
 -------------
 
