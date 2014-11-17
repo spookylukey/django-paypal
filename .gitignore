@@ -8,3 +8,4 @@
 *.swp
 .tox
 .idea/
+doc/_build
