@@ -53,7 +53,7 @@ class PDTTest(TestCase):
 
     def test_verify_postback(self):
         dpppdt = DummyPayPalPDT()
-        paypal_response = dpppdt._postback()
+        paypal_response = dpppdt._postback().decode('ascii')
         assert ('SUCCESS' in paypal_response)
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
         pdt_obj = PayPalPDT()
