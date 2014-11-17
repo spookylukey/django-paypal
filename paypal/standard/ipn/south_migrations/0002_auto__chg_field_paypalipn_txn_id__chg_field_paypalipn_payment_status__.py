@@ -29,20 +29,20 @@ class Migration(SchemaMigration):
 
 
         # Changing field 'PayPalIPN.txn_id'
-        db.alter_column('paypal_ipn', 'txn_id', self.gf('models.CharField')("Transaction ID", max_length=19))
+        db.alter_column('paypal_ipn', 'txn_id', self.gf('django.db.models.CharField')("Transaction ID", max_length=19))
 
         # Changing field 'PayPalIPN.payment_status'
-        db.alter_column('paypal_ipn', 'payment_status', self.gf('models.CharField')(max_length=9))
+        db.alter_column('paypal_ipn', 'payment_status', self.gf('django.db.models.CharField')(max_length=9))
 
         # Changing field 'PayPalIPN.txn_type'
-        db.alter_column('paypal_ipn', 'txn_type', self.gf('models.CharField')("Transaction Type", max_length=128))
+        db.alter_column('paypal_ipn', 'txn_type', self.gf('django.db.models.CharField')("Transaction Type", max_length=128))
 
         # Changing field 'PayPalIPN.parent_txn_id'
         db.alter_column('paypal_ipn', 'parent_txn_id',
-                        self.gf('models.CharField')("Parent Transaction ID", max_length=19))
+                        self.gf('django.db.models.CharField')("Parent Transaction ID", max_length=19))
 
         # Changing field 'PayPalIPN.ipaddress'
-        db.alter_column('paypal_ipn', 'ipaddress', self.gf('models.IPAddressField')())
+        db.alter_column('paypal_ipn', 'ipaddress', self.gf('django.db.models.IPAddressField')())
 
     models = {
         'ipn.paypalipn': {
