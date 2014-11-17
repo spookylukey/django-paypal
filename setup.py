@@ -10,6 +10,7 @@ def read(*rnames):
 
 DESCRIPTION = 'A pluggable Django application for integrating PayPal Payments Standard or Payments Pro'
 URL = 'https://github.com/spookylukey/django-paypal'
+DOCS_URL = 'https://django-paypal.readthedocs.org'
 
 setup(
     name='django-paypal',
@@ -25,7 +26,7 @@ setup(
         'South>=1.0',
     ],
     description = DESCRIPTION,
-    long_description = "%s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, read("CHANGES.rst")),
+    long_description = "%s\n\nHome page: %s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, DOCS_URL, read("CHANGES.rst")),
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
