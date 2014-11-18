@@ -55,7 +55,7 @@ Using PayPal Standard IPN
            return render_to_response("payment.html", context)
 
    For a full list of variables that can be used in ``paypal_dict``, see
-   `PayPal HTML variables documentation" <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_
+   `PayPal HTML variables documentation <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_.
 
 
    payment.html:
@@ -94,9 +94,9 @@ Using PayPal Standard IPN
 
    * ``invalid_ipn_received``
 
-      This is sent when a transaction was flagged - because of a failed check
-      with PayPal, for example, or a duplicate transaction ID. You should never
-      act on these, but might want to be notified of a problem.
+     This is sent when a transaction was flagged - because of a failed check
+     with PayPal, for example, or a duplicate transaction ID. You should never
+     act on these, but might want to be notified of a problem.
 
    Connect the signals to actions to perform the needed operations
    when a successful payment is received (as described in the `Django Signals
@@ -133,7 +133,7 @@ Using PayPal Standard IPN
    ``@csrf_exempt`` applied to them, because PayPal will POST to them, so they
    should be custom views that don't need to handle POSTs otherwise.
 
-   For 'return_url' you need to cope with the possibility that the IPN has not
+   For ``return_url``, you need to cope with the possibility that the IPN has not
    yet been received and handled by the IPN listener you implemented (which can
    happen rarely), or that there was some kind of error with the IPN.
 
