@@ -102,10 +102,13 @@ Using PayPal Standard IPN
    when a successful payment is received (as described in the `Django Signals
    Documentation <http://docs.djangoproject.com/en/dev/topics/signals/>`_).
 
-   In the past there were more specific signals, but there were named
-   confusingly, and used inconsistently, and are now deprecated.
+   In the past there were more specific signals, but they were named
+   confusingly, and used inconsistently, and are now deprecated. (`See v0.1.5
+   docs for details
+   <http://django-paypal.readthedocs.org/en/v0.1.5/standard/ipn.html>`_)
 
-   models.py:
+
+   Example code:
 
    .. code-block:: python
 
