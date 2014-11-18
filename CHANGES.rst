@@ -74,6 +74,8 @@ Version 0.1.4
 
 * Various bug fixes, refactorings and small features.
 
+* Removed PDT signals (which were never fired)
+
 Version 0.1.3
 -------------
 
