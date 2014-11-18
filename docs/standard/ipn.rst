@@ -1,8 +1,8 @@
 Using PayPal Standard IPN
 =========================
 
-1. Edit `settings.py` and add  `paypal.standard.ipn` to your `INSTALLED_APPS`
-   and `PAYPAL_RECEIVER_EMAIL`:
+1. Edit ``settings.py`` and add ``paypal.standard.ipn`` to your ``INSTALLED_APPS``
+   and ``PAYPAL_RECEIVER_EMAIL``:
 
    settings.py:
 
@@ -25,8 +25,8 @@ Using PayPal Standard IPN
 
 2. :doc:`/updatedb`
 
-3. Create an instance of the `PayPalPaymentsForm` in the view where you would
-   like to collect money. Call `render` on the instance in your template to
+3. Create an instance of the ``PayPalPaymentsForm`` in the view where you would
+   like to collect money. Call ``render`` on the instance in your template to
    write out the HTML.
 
    views.py:
@@ -80,46 +80,39 @@ Using PayPal Standard IPN
        )
 
 5. Whenever an IPN is processed a signal will be sent with the result of the
-   transaction. Connect the signals to actions to perform the needed operations
-   when a successful payment is received.
+   transaction.
 
-   The IPN signals should be imported from ``paypal.standard.ipn.signals``.
+   The IPN signals should be imported from ``paypal.standard.ipn.signals``. They
+   are:
 
-   There are four signals for basic transactions:
+   * ``valid_ipn_received``
 
-   * ``payment_was_successful``
-   * ``payment_was_flagged``
-   * ``payment_was_refunded``
-   * ``payment_was_reversed``
+     This indicates a correct, non-duplicate IPN message from PayPal. The
+     handler will receive a :class:`paypal.standard.ipn.models.PayPalIPN` object
+     as the sender. You will need to check the ``payment_status`` attribute and
+     other attributes to know what action to take.
 
-   And four signals for subscriptions:
+   * ``invalid_ipn_received``
 
-   * ``subscription_cancel`` - Sent when a subscription is cancelled.
-   * ``subscription_eot`` - Sent when a subscription expires.
-   * ``subscription_modify`` - Sent when a subscription is modified.
-   * ``subscription_signup`` - Sent when a subscription is created.
+      This is sent when a transaction was flagged - because of a failed check
+      with PayPal, for example, or a duplicate transaction ID. You should never
+      act on these, but might want to be notified of a problem.
 
-   Several more exist for recurring payments:
+   Connect the signals to actions to perform the needed operations
+   when a successful payment is received (as described in the `Django Signals
+   Documentation <http://docs.djangoproject.com/en/dev/topics/signals/>`_).
 
-   * ``recurring_create`` - Sent when a recurring payment is created.
-   * ``recurring_payment`` - Sent when a payment is received from a recurring payment.
-   * ``recurring_cancel`` - Sent when a recurring payment is cancelled.
-   * ``recurring_suspend`` - Sent when a recurring payment is suspended.
-   * ``recurring_reactivate`` - Sent when a recurring payment is reactivated.
-
-   Connect to these signals and update your data accordingly.  `Django Signals
-   Documentation <http://docs.djangoproject.com/en/dev/topics/signals/>`_.
+   In the past there were more specific signals, but there were named
+   confusingly, and used inconsistently, and are now deprecated.
 
    models.py:
 
    .. code-block:: python
 
-       from paypal.standard.ipn.signals import payment_was_successful
+       from paypal.standard.ipn.signals import valid_ipn_received
 
        def show_me_the_money(sender, **kwargs):
            ipn_obj = sender
-           # You need to check 'payment_status' of the IPN
-
            if ipn_obj.payment_status == "Completed":
                # Undertake some action depending upon `ipn_obj`.
                if ipn_obj.custom == "Upgrade all users!":
@@ -127,9 +120,9 @@ Using PayPal Standard IPN
            else:
                #...
 
-       payment_was_successful.connect(show_me_the_money)
+       valid_ipn_received.connect(show_me_the_money)
 
-   The data variables that are return on the IPN object are documented here:
+   The data variables that are returned on the IPN object are documented here:
 
    https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
 
