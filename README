@@ -1,7 +1,8 @@
 Django PayPal
 =============
 
-https://travis-ci.org/spookylukey/django-paypal.svg?branch=master
+[![Build Status](https://travis-ci.org/spookylukey/django-paypal.svg?branch=master)](https://travis-ci.org/spookylukey/django-paypal)
+
 
 Django PayPal is a pluggable application that implements with PayPal Payments
 Standard and Payments Pro.
