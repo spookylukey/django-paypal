@@ -181,7 +181,7 @@ class PayPalWPPTest(TestCase):
         mock_request_object.return_value = 'ack=Failure&l_errorcode=42&l_longmessage0=Broken'
         wpp = PayPalWPP(REQUEST)
         with self.assertRaises(PayPalFailure):
-            nvp = wpp.doExpressCheckoutPayment(item)
+            wpp.doExpressCheckoutPayment(item)
 
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_doExpressCheckoutPayment_deprecation(self, mock_request_object):
