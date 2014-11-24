@@ -143,6 +143,7 @@ class PayPalWPPTest(TestCase):
         item.update({'amt': item['paymentrequest_0_amt']})
         del item['paymentrequest_0_amt']
         with warnings.catch_warnings(record=True) as warning_list:
+            warnings.simplefilter("always")
             nvp_obj = self.wpp.setExpressCheckout(item)
             # Make sure our warning was given
             self.assertTrue(any(warned.category == DeprecationWarning
@@ -193,6 +194,7 @@ class PayPalWPPTest(TestCase):
                      'payerid': payerid})
         del item['paymentrequest_0_amt']
         with warnings.catch_warnings(record=True) as warning_list:
+            warnings.simplefilter("always")
             nvp_obj = self.wpp.doExpressCheckoutPayment(item)
             # Make sure our warning was given
             self.assertTrue(any(warned.category == DeprecationWarning
