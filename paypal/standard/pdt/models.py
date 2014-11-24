@@ -58,16 +58,12 @@ class PayPalPDT(PayPalStandardBase):
         # ### Now we don't really care what result was, just whether a flag was set or not.
         from paypal.standard.pdt.forms import PayPalPDTForm
 
-        # TODO: this needs testing and probably fixing under Python 3
-        result = False
         response_list = self.response.split('\n')
         response_dict = {}
         for i, line in enumerate(response_list):
             unquoted_line = unquote_plus(line).strip()
             if i == 0:
                 self.st = unquoted_line
-                if self.st == "SUCCESS":
-                    result = True
             else:
                 if self.st != "SUCCESS":
                     self.set_flag(line)
