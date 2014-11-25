@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from urllib import urlencode
 from django.db import models
 from django.utils.functional import cached_property
 
@@ -342,8 +343,8 @@ class PayPalStandardBase(Model):
             # PDT only - this data is currently unused
             self.query = request.META.get('QUERY_STRING', '')
         elif request.method == 'POST':
-            # The following works if paypal sends an ASCII bytestring, which it does.
-            self.query = request.body.decode('ascii')
+            # if the params are received as urlencoded form format
+            self.query = urlencode(request.POST)
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):
