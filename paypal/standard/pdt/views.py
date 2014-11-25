@@ -2,24 +2,29 @@
 # -*- coding: utf-8 -*-
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from django.views.decorators.http import require_GET
+from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.pdt.models import PayPalPDT
 from paypal.standard.pdt.forms import PayPalPDTForm
 
 
-@require_GET
+@csrf_exempt
 def pdt(request, item_check_callable=None, template="pdt/pdt.html", context=None):
     """Standard implementation of a view that processes PDT and then renders a template
     For more advanced uses, create your own view and call process_pdt.
     """
-    pdt_obj, failed = process_pdt(request, item_check_callable)
+    if request.method == "GET":
+        sent_vars = request.GET
+    else:
+        sent_vars = request.POST
+        
+    pdt_obj, failed = process_pdt(request, item_check_callable, sent_vars)
 
     context = context or {}
     context.update({"failed": failed, "pdt_obj": pdt_obj})
     return render_to_response(template, context, RequestContext(request))
 
 
-def process_pdt(request, item_check_callable=None):
+def process_pdt(request, item_check_callable=None, sent_vars=None):
     """
     Payment data transfer implementation: http://tinyurl.com/c9jjmw
     This function returns a tuple of (pdt_obj, failed)
@@ -30,8 +35,11 @@ def process_pdt(request, item_check_callable=None):
     pdt_obj.flag == False
     """
 
+    if sent_vars is None:
+        sent_vars = request.GET
+
     pdt_obj = None
-    txn_id = request.GET.get('tx')
+    txn_id = sent_vars.get('tx')
     failed = False
     if txn_id is not None:
         # If an existing transaction with the id tx exists: use it
@@ -42,7 +50,7 @@ def process_pdt(request, item_check_callable=None):
             pass
 
         if pdt_obj is None:
-            form = PayPalPDTForm(request.GET)
+            form = PayPalPDTForm(sent_vars)
             if form.is_valid():
                 try:
                     pdt_obj = form.save(commit=False)
