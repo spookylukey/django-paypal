@@ -344,7 +344,7 @@ class PayPalStandardBase(Model):
             self.query = request.META.get('QUERY_STRING', '')
         elif request.method == 'POST':
             # if the params are received as urlencoded form format
-            self.query = urlencode(request.POST)
+            self.query = urlencode(dict([k, v.encode('utf-8')] for k, v in request.POST))
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):
