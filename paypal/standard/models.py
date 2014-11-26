@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from urllib import urlencode
 from django.db import models
 from django.utils.functional import cached_property
 
@@ -225,6 +224,9 @@ class PayPalStandardBase(Model):
         if encoding is None:
             return None
         query = self.query.encode('ascii')
+        #from pdb import set_trace
+        #set_trace()
+        #query = self.query
         data = QueryDict(query, encoding=encoding)
         return data.dict()
 
@@ -343,7 +345,7 @@ class PayPalStandardBase(Model):
             # PDT only - this data is currently unused
             self.query = request.META.get('QUERY_STRING', '')
         elif request.method == 'POST':
-            self.query = request.POST.urlencode()
+            self.query = request.read()
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):
