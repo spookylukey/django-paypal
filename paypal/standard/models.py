@@ -224,9 +224,6 @@ class PayPalStandardBase(Model):
         if encoding is None:
             return None
         query = self.query.encode('ascii')
-        #from pdb import set_trace
-        #set_trace()
-        #query = self.query
         data = QueryDict(query, encoding=encoding)
         return data.dict()
 
