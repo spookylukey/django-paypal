@@ -4,7 +4,7 @@ from calendar import monthrange
 from datetime import date
 
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from six.moves import range
 
 from paypal.pro.creditcard import verify_credit_card
