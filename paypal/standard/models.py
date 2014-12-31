@@ -204,6 +204,7 @@ class PayPalStandardBase(Model):
 
     class Meta:
         abstract = True
+        app_label = 'paypal_standard_base' # Keep Django 1.7 quiet
 
     def __unicode__(self):
         if self.is_transaction():
