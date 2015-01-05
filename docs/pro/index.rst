@@ -43,18 +43,18 @@ to use through the provided ``PayPalPro`` class.
        from paypal.pro.views import PayPalPro
 
        def buy_my_item(request):
-           item = {"amt": "10.00",             # amount to charge for item
+           item = {"paymentrequest_0_amt": "10.00",  # amount to charge for item
                    "inv": "inventory",         # unique tracking variable paypal
                    "custom": "tracking",       # custom tracking variable for you
                    "cancelurl": "http://...",  # Express checkout cancel url
                    "returnurl": "http://..."}  # Express checkout return url
 
-           kw = {"item": item,                            # what you're selling
-                 "payment_template": "payment.html",      # template name for payment
-                 "confirm_template": "confirmation.html", # template name for confirmation
-                 "success_url": "/success/"}              # redirect location after success
+           ppp = PayPalPro(
+                     item=item,                            # what you're selling
+                     payment_template="payment.html",      # template name for payment
+                     confirm_template="confirmation.html", # template name for confirmation
+                     success_url="/success/")              # redirect location after success
 
-           ppp = PayPalPro(**kw)
            return ppp(request)
 
 5. Create templates for payment and confirmation. By default both templates are
