@@ -33,3 +33,18 @@ Version 0.2
     removed in version 1.0.
 
     Please see :doc:`standard/ipn`.
+
+  * Pro:
+
+    This used signals even though they weren't really appropriate.
+
+    Instead:
+
+    * If you are using `PayPalWPP` directly, the returned `PayPalNVP` objects
+      from all method should just be used. Remember that you need to handle
+      `PayPalFailure` exceptions from all direct calls.
+
+    * If you are using the `PayPalPro` wrapper, you should pass a callable
+      `nvp_handler` keyword argument.
+
+    Please see :doc:`pro/index`.

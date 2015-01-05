@@ -47,18 +47,22 @@ class CreditCardFieldTest(TestCase):
 
 
 
-def ppp_wrapper(request):
+def ppp_wrapper(request, handler=None):
     item = {"paymentrequest_0_amt": "10.00",
             "inv": "inventory",
             "custom": "tracking",
             "cancelurl": "http://foo.com/cancel",
             "returnurl": "http://foo.com/return"}
 
+    if handler is None:
+        handler = lambda nvp: nvp # NOP
     ppp = PayPalPro(
         item=item,                            # what you're selling
         payment_template="payment.html",      # template name for payment
         confirm_template="confirmation.html", # template name for confirmation
-        success_url="/success/")              # redirect location after success
+        success_url="/success/",              # redirect location after success
+        nvp_handler=handler
+        )
 
     return ppp(request)
 
@@ -90,12 +94,18 @@ class PayPalProTest(TestCase):
     def test_validate_confirm_form_ok(self, doExpressCheckoutPayment):
         nvp = {'mock': True}
         doExpressCheckoutPayment.return_value = nvp
+
+        received = []
+        def handler(nvp):
+            received.append(nvp)
+
         response = ppp_wrapper(self.factory.post('/',
                                                  {'token': '123',
-                                                  'PayerID': '456'}))
+                                                  'PayerID': '456'}),
+                               handler=handler)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/success/')
-
+        self.assertEqual(len(received), 1)
 
 class PayPalWPPTest(TestCase):
     def setUp(self):

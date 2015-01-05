@@ -42,6 +42,11 @@ to use through the provided ``PayPalPro`` class.
 
        from paypal.pro.views import PayPalPro
 
+       def nvp_handler(nvp):
+           # This is passed a PayPalNVP object when payment succeeds.
+           # This should do something useful!
+           pass
+
        def buy_my_item(request):
            item = {"paymentrequest_0_amt": "10.00",  # amount to charge for item
                    "inv": "inventory",         # unique tracking variable paypal
@@ -53,8 +58,8 @@ to use through the provided ``PayPalPro`` class.
                      item=item,                            # what you're selling
                      payment_template="payment.html",      # template name for payment
                      confirm_template="confirmation.html", # template name for confirmation
-                     success_url="/success/")              # redirect location after success
-
+                     success_url="/success/",              # redirect location after success
+                     nvp_handler=nvp_handler)
            return ppp(request)
 
 5. Create templates for payment and confirmation. By default both templates are
@@ -94,13 +99,7 @@ to use through the provided ``PayPalPro`` class.
            (r'^some/obscure/name/', include('paypal.standard.ipn.urls')),
        )
 
-7. Connect to the provided signals in ``paypal.pro.signals`` and have them do something useful:
-
-   * ``payment_was_successful``
-   * ``payment_was_flagged``
-
-
-8. Profit.
+7. Profit.
 
 Alternatively, if you want to get down to the nitty gritty and perform some
 more advanced operations with Payments Pro, use the :class:`paypal.pro.helpers.PayPalWPP` class directly.
