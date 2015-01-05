@@ -8,6 +8,9 @@ env:
 - TOXENV=py33-django15
 - TOXENV=py33-django16
 - TOXENV=py33-django17
+- TOXENV=py34-django15
+- TOXENV=py34-django16
+- TOXENV=py34-django17
 install:
 - pip install tox
 script:
