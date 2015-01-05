@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from decimal import Decimal
-import mock
+import os
 import warnings
 
+import mock
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -12,6 +13,7 @@ from django.test.utils import override_settings
 from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import PayPalWPP, PayPalError, VERSION
 from paypal.pro.exceptions import PayPalFailure
+from paypal.pro.views import PayPalPro
 from paypal.pro.signals import payment_was_successful
 
 
@@ -27,7 +29,7 @@ class DummyPayPalWPP(PayPalWPP):
 #         # @@@ Need some reals data here.
 #         "DoDirectPayment": """ack=Success&timestamp=2009-03-12T23%3A52%3A33Z&l_severitycode0=Error&l_shortmessage0=Security+error&l_longmessage0=Security+header+is+not+valid&version=54.0&build=854529&l_errorcode0=&correlationid=""",
 #     }
-# 
+#
 #     def _request(self, data):
 #         return self.responses["DoDirectPayment"]
 
@@ -41,6 +43,58 @@ class CreditCardFieldTest(TestCase):
 
     def test_invalidCreditCards(self):
         self.assertEqual(CreditCardField().clean('4797-5034-2987-9309'), '4797503429879309')
+
+
+
+
+def ppp_wrapper(request):
+    item = {"paymentrequest_0_amt": "10.00",
+            "inv": "inventory",
+            "custom": "tracking",
+            "cancelurl": "http://foo.com/cancel",
+            "returnurl": "http://foo.com/return"}
+
+    ppp = PayPalPro(
+        item=item,                            # what you're selling
+        payment_template="payment.html",      # template name for payment
+        confirm_template="confirmation.html", # template name for confirmation
+        success_url="/success/")              # redirect location after success
+
+    return ppp(request)
+
+
+@override_settings(TEMPLATE_DIRS=[os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tests/templates')])
+class PayPalProTest(TestCase):
+    def setUp(self):
+        super(PayPalProTest, self).setUp()
+        self.factory = RequestFactory()
+
+    def test_get(self):
+        response = ppp_wrapper(self.factory.get('/'))
+        self.assertContains(response, 'Show me the money')
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_redirect(self):
+        response = ppp_wrapper(self.factory.get('/', {'express': '1'}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_validate_confirm_form_error(self):
+        response = ppp_wrapper(self.factory.post('/',
+                                                 {'token': '123',
+                                                  'PayerID': '456'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context_data.get('errors', ''),
+                         PayPalPro.errors['processing'])
+
+    @mock.patch.object(PayPalWPP, 'doExpressCheckoutPayment', autospec=True)
+    def test_validate_confirm_form_ok(self, doExpressCheckoutPayment):
+        nvp = {'mock': True}
+        doExpressCheckoutPayment.return_value = nvp
+        response = ppp_wrapper(self.factory.post('/',
+                                                 {'token': '123',
+                                                  'PayerID': '456'}))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/success/')
 
 
 class PayPalWPPTest(TestCase):
@@ -260,7 +314,7 @@ class PayPalWPPTest(TestCase):
 #  'paymentaction': 'Sale',
 #  'returnurl': u'http://xxx.xxx.xxx.xxx/deploy/480/upgrade/?upgrade=cname',
 #  'token': u'EC-6HW17184NE0084127'}
-# 
+#
 # PayPal Response:
 # {'ack': 'Success',
 #  'amt': '10.00',
