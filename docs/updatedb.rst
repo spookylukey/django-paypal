@@ -30,11 +30,11 @@ To update your database:
   ./manage.py migrate
 
 
-Upgrading from previous versions
+Upgrading from very old versions
 --------------------------------
 
-If you using Django < 1.7 and are upgrading from a version that wasn't using
-South, you will have to use ``--fake`` - see
+If you using Django < 1.7 and are upgrading from a very old version (before
+0.1.1) that wasn't using South, you will have to use ``--fake`` - see
 http://south.readthedocs.org/en/latest/commands.html?highlight=fake
 
 It will probably look something like::
@@ -42,6 +42,9 @@ It will probably look something like::
     ./manage.py migrate ipn --fake --initial
     ./manage.py migrate pdt --fake --initial
     ./manage.py migrate pro --fake --initial
+    ./manage.py migrate ipn
+    ./manage.py migrate pdt
+    ./manage.py migrate pro
 
 depending on what apps you have installed.
 
@@ -50,11 +53,18 @@ Please also see upgrade notes in the CHANGES file: https://github.com/spookyluke
 Upgrading to Django 1.7
 -----------------------
 
+If you installed django-paypal with an older version of Django, you will have
+been using South to handle database migrations. Due to the new built-in database
+migration framework in Django 1.7, the upgrade procedure is slightly
+complicated.
+
 The recommended upgrade procedure is:
 
-* first upgrade django-paypal to the latest version and run migrations as above.
+* Before upgrading to Django 1.7, first upgrade django-paypal to the latest
+  version and run migrations as above (including deploying to your production
+  environment and running migrations there).
 
-* then upgrade Django to 1.7, and run the following as appropriate for your
+* Then upgrade Django to 1.7, and run the following as appropriate for your
   situation::
 
     ./manage.py migrate ipn --fake

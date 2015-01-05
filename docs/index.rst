@@ -19,6 +19,7 @@ Contents:
    standard/index
    pro/index
    tests
+   release_notes
 
 
 
