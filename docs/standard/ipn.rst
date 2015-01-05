@@ -112,11 +112,12 @@ Using PayPal Standard IPN
 
    .. code-block:: python
 
+       from paypal.standard.models import ST_PP_COMPLETED
        from paypal.standard.ipn.signals import valid_ipn_received
 
        def show_me_the_money(sender, **kwargs):
            ipn_obj = sender
-           if ipn_obj.payment_status == "Completed":
+           if ipn_obj.payment_status == ST_PP_COMPLETED:
                # Undertake some action depending upon `ipn_obj`.
                if ipn_obj.custom == "Upgrade all users!":
                    Users.objects.update(paid=True)
@@ -129,7 +130,9 @@ Using PayPal Standard IPN
 
    https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
 
-   You need to pay particular attention to ``payment_status``.
+   You need to pay particular attention to ``payment_status`` (`docs
+   <https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/#id091EB04C0HS__id0913D0E0UQU>`_). Use
+   can use the ``ST_PP_*`` constants in ``paypal.standard.models`` to help.
 
 6. You will also need to implement the ``return_url`` and ``cancel_return`` views
    to handle someone returning from PayPal. Note that these views need
