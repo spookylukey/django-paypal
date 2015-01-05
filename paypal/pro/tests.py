@@ -4,7 +4,6 @@ from decimal import Decimal
 import mock
 import warnings
 
-from django.conf import settings
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -244,8 +243,8 @@ class PayPalWPPTest(TestCase):
         mock_request_object.return_value = 'ack=Failure&l_errorcode=42&l_longmessage0=Broken'
         wpp = PayPalWPP(REQUEST)
         with self.assertRaises(PayPalFailure):
-            nvp = wpp.doReferenceTransaction({'referenceid': reference_id,
-                                              'amt': amount})
+            wpp.doReferenceTransaction({'referenceid': reference_id,
+                                        'amt': amount})
 
 
 ### DoExpressCheckoutPayment
