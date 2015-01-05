@@ -63,7 +63,7 @@ def ppp_wrapper(request):
     return ppp(request)
 
 
-@override_settings(TEMPLATE_DIRS=[os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tests/templates')])
+@override_settings(TEMPLATE_DIRS=[os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')])
 class PayPalProTest(TestCase):
     def setUp(self):
         super(PayPalProTest, self).setUp()
