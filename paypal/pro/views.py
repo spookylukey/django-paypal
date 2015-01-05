@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.template import RequestContext
-from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.utils.http import urlencode
 
 from paypal.pro.forms import PaymentForm, ConfirmForm
@@ -130,7 +129,7 @@ class PayPalPro(object):
     def render_payment_form(self):
         """Display the DirectPayment for entering payment information."""
         self.context[self.form_context_name] = self.payment_form_cls()
-        return render_to_response(self.payment_template, self.context, RequestContext(self.request))
+        return TemplateResponse(self.request, self.payment_template, self.context)
 
     def validate_payment_form(self):
         """Try to validate and then process the DirectPayment form."""
@@ -144,7 +143,7 @@ class PayPalPro(object):
 
         self.context[self.form_context_name] = form
         self.context.setdefault("errors", self.errors['form'])
-        return render_to_response(self.payment_template, self.context, RequestContext(self.request))
+        return TemplateResponse(self.request, self.payment_template, self.context)
 
     def get_endpoint(self):
         if getattr(settings, 'PAYPAL_TEST', True):
@@ -175,7 +174,7 @@ class PayPalPro(object):
         """
         initial = dict(token=self.request.GET['token'], PayerID=self.request.GET['PayerID'])
         self.context[self.form_context_name] = self.confirm_form_cls(initial=initial)
-        return render_to_response(self.confirm_template, self.context, RequestContext(self.request))
+        return TemplateResponse(self.request, self.confirm_template, self.context)
 
     def validate_confirm_form(self):
         """
