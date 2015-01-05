@@ -2,6 +2,7 @@ import warnings
 
 from django.conf import settings
 from django.test import TestCase
+from django.test.utils import override_settings
 from six import b
 from six.moves.urllib.parse import urlencode
 
@@ -53,9 +54,8 @@ IPN_POST_PARAMS = {
 }
 
 
+@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
 class IPNTestBase(TestCase):
-    urls = 'paypal.standard.ipn.tests.test_urls'
-
     def setUp(self):
         self.valid_ipn_received_receivers = valid_ipn_received.receivers
         self.invalid_ipn_received_receivers = invalid_ipn_received.receivers

@@ -7,6 +7,7 @@ import warnings
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django.test.utils import override_settings
 
 from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import PayPalWPP, PayPalError, VERSION

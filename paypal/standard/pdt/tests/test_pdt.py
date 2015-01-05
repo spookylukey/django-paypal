@@ -6,6 +6,8 @@ import os
 from django.conf import settings
 from django.shortcuts import render_to_response
 from django.test import TestCase
+from django.test.utils import override_settings
+
 from paypal.standard.pdt.models import PayPalPDT
 
 
@@ -31,8 +33,8 @@ class DummyPayPalPDT(object):
         return render_to_response("pdt/test_pdt_response.html", self.context_dict).content
 
 
+@override_settings(ROOT_URLCONF="paypal.standard.pdt.tests.test_urls")
 class PDTTest(TestCase):
-    urls = "paypal.standard.pdt.tests.test_urls"
     template_dirs = [os.path.join(os.path.dirname(__file__), 'templates'), ]
 
     def setUp(self):
