@@ -69,23 +69,20 @@ def ppp_wrapper(request, handler=None):
 
 @override_settings(TEMPLATE_DIRS=[os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')])
 class PayPalProTest(TestCase):
-    def setUp(self):
-        super(PayPalProTest, self).setUp()
-        self.factory = RequestFactory()
 
     def test_get(self):
-        response = ppp_wrapper(self.factory.get('/'))
+        response = ppp_wrapper(RF.get('/'))
         self.assertContains(response, 'Show me the money')
         self.assertEqual(response.status_code, 200)
 
     def test_get_redirect(self):
-        response = ppp_wrapper(self.factory.get('/', {'express': '1'}))
+        response = ppp_wrapper(RF.get('/', {'express': '1'}))
         self.assertEqual(response.status_code, 302)
 
     def test_validate_confirm_form_error(self):
-        response = ppp_wrapper(self.factory.post('/',
-                                                 {'token': '123',
-                                                  'PayerID': '456'}))
+        response = ppp_wrapper(RF.post('/',
+                                       {'token': '123',
+                                        'PayerID': '456'}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context_data.get('errors', ''),
                          PayPalPro.errors['processing'])
@@ -99,9 +96,9 @@ class PayPalProTest(TestCase):
         def handler(nvp):
             received.append(nvp)
 
-        response = ppp_wrapper(self.factory.post('/',
-                                                 {'token': '123',
-                                                  'PayerID': '456'}),
+        response = ppp_wrapper(RF.post('/',
+                                       {'token': '123',
+                                        'PayerID': '456'}),
                                handler=handler)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/success/')
