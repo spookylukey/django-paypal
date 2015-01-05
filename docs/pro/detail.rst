@@ -1,3 +1,6 @@
+Website Payments Pro detail
+===========================
+
 .. py:currentmodule:: paypal.pro.helpers
 
 .. py:class:: PayPalWPP
