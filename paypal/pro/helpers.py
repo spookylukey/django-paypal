@@ -25,8 +25,12 @@ BASE_PARAMS = dict(USER=USER, PWD=PASSWORD, SIGNATURE=SIGNATURE, VERSION=VERSION
 ENDPOINT = "https://api-3t.paypal.com/nvp"
 SANDBOX_ENDPOINT = "https://api-3t.sandbox.paypal.com/nvp"
 
+EXPRESS_ENDPOINT = "https://www.paypal.com/webscr?cmd=_express-checkout&%s"
+SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout&%s"
+
 
 log = logging.getLogger(__file__)
+
 
 
 def paypal_time(time_obj=None):
@@ -43,6 +47,16 @@ def paypaltime2datetime(s):
 
 class PayPalError(TypeError):
     """Error thrown when something be wrong."""
+
+def express_endpoint():
+    if getattr(settings, 'PAYPAL_TEST', True):
+        return SANDBOX_EXPRESS_ENDPOINT
+    else:
+        return EXPRESS_ENDPOINT
+
+def express_endpoint_for_token(token):
+    pp_params = dict(token=token)
+    return express_endpoint() % urlencode(pp_params)
 
 
 class PayPalWPP(object):
