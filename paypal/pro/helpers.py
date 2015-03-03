@@ -56,7 +56,7 @@ class PayPalWPP(object):
     https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_NVPAPI_DeveloperGuide.pdf
     """
 
-    def __init__(self, request, params=BASE_PARAMS):
+    def __init__(self, request=None, params=BASE_PARAMS):
         """Required - USER / PWD / SIGNATURE / VERSION"""
         self.request = request
         if getattr(settings, 'PAYPAL_TEST', True):
