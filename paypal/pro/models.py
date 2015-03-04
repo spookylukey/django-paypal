@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.db import models
+from django.http.request import QueryDict
+from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from django.forms.models import model_to_dict
 
@@ -80,6 +82,14 @@ class PayPalNVP(Model):
     class Meta:
         db_table = "paypal_nvp"
         verbose_name = "PayPal NVP"
+
+    @cached_property
+    def response_dict(self):
+        """
+        Returns a (MultiValueDict) dictionary containing all the parameters returned in the PayPal response.
+        """
+        # Undo the urlencode done in init
+        return QueryDict(self.response)
 
     def init(self, request, paypal_request, paypal_response):
         """Initialize a PayPalNVP instance from a HttpRequest."""

@@ -9,6 +9,11 @@ detailed information about all changes.
 
 Below is a summary:
 
+Version 0.2.1
+-------------
+
+* Added ``PayPalNVP.response_dict`` attribute.
+
 Version 0.2
 -----------
 

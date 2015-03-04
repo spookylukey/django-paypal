@@ -117,3 +117,13 @@ See the PayPal docs for more information:
 
       The UpdateRecurringPaymentsProfile API operation updates a recurring
       payments profile.
+
+.. py:currentmodule:: paypal.pro.models
+
+.. py:class:: PayPalNVP
+
+   This stores the response returned by PayPal for any of the API calls above.
+
+   It has fields for all the common values. For other values, you can access
+   ``response_dict`` which is a dictionary-like object containing everything
+   PayPal returned.
