@@ -6,12 +6,12 @@ import logging
 import pprint
 import time
 
+import requests
 from django.conf import settings
 from django.forms.models import fields_for_model
 from django.http import QueryDict
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
-from six.moves.urllib.request import urlopen
 
 from paypal.pro.signals import payment_was_successful, recurring_cancel, recurring_suspend, recurring_reactivate, payment_profile_created
 from paypal.pro.models import PayPalNVP
@@ -325,7 +325,7 @@ class PayPalWPP(object):
 
     def _request(self, data):
         """Moved out to make testing easier."""
-        return urlopen(self.endpoint, data.encode("ascii")).read()
+        return requests.post(self.endpoint, data=data.encode("ascii")).content
 
     def _check_and_update_params(self, required, params):
         """

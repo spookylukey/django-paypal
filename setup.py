@@ -24,6 +24,7 @@ setup(
         'Django>=1.4',
         'six>=1.4.1',
         'South>=1.0',
+        'requests>=2.5.3',
     ],
     description = DESCRIPTION,
     long_description = "%s\n\nHome page: %s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, DOCS_URL, read("CHANGES.rst")),

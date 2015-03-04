@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import requests
 from django.db import models
 from django.conf import settings
 from django.http import QueryDict
-from django.utils.http import urlencode
-from six.moves.urllib.request import urlopen
 from six.moves.urllib.parse import unquote_plus
 
 from paypal.standard.models import PayPalStandardBase
@@ -44,9 +43,8 @@ class PayPalPDT(PayPalStandardBase):
         SUCCESS or FAILED.
 
         """
-        postback_dict = dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)
-        postback_params = urlencode(postback_dict)
-        return urlopen(self.get_endpoint(), postback_params).read()
+        return requests.post(self.get_endpoint(),
+                             data=dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)).content
 
     def get_endpoint(self):
         if getattr(settings, 'PAYPAL_TEST', True):
