@@ -1,19 +1,26 @@
 Website Payments Pro detail
 ===========================
 
-This class wraps the PayPal classic APIs, and sends data using Name-Value Pairs
-(NVP). The methods all take a ``params`` dictionary, the contents of which
-depend on the API being called. All parameter keys should be passed as lowercase
-values (unless otherwise specified), not the mixed case/upper case that is shown
-in PayPal docs.
-
-See the PayPal docs for more information:
-
-* `Express Checkout APIs <https://developer.paypal.com/docs/classic/api/>`_
 
 .. py:currentmodule:: paypal.pro.helpers
 
 .. py:class:: PayPalWPP
+
+   This class wraps the PayPal classic APIs, and sends data using Name-Value
+   Pairs (NVP). The methods all take a ``params`` dictionary, the contents of
+   which depend on the API being called. All parameter keys should be passed as
+   lowercase values (unless otherwise specified), not the mixed case/upper case
+   that is shown in PayPal docs.
+
+   For API parameters, see the PayPal docs for more information:
+
+   * `Express Checkout APIs <https://developer.paypal.com/docs/classic/api/>`_
+
+   The method calls all return a :class:`paypal.pro.models.PayPalNVP` object on
+   success. If an API call does not return ``ack=Success`` or
+   ``ack=SuccessWithWarning``, a ``PayPalFailure`` exception is raised. The NVP
+   object is available as an attribute named ``nvp`` on this exception object.
+
 
    .. py:method:: __init__(request=None, params=BASE_PARAMS)
 

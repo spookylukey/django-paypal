@@ -105,7 +105,7 @@ class PayPalWPP(object):
                     ]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         payment_was_successful.send(sender=nvp_obj, **params)
         # @@@ Could check cvv2match / avscode are both 'X' or '0'
         # qd = django.http.QueryDict(nvp_obj.response)
@@ -138,7 +138,7 @@ class PayPalWPP(object):
         required = ["returnurl", "cancelurl", "paymentrequest_0_amt"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 
     def doExpressCheckoutPayment(self, params):
@@ -155,10 +155,10 @@ class PayPalWPP(object):
             params.update({'paymentrequest_0_amt': params['amt']})
             del params['amt']
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
-        required = ["returnurl", "cancelurl", "paymentrequest_0_amt", "token", "payerid"]
+        required = ["paymentrequest_0_amt", "token", "payerid"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         payment_was_successful.send(sender=nvp_obj, **params)
         return nvp_obj
 
@@ -180,7 +180,7 @@ class PayPalWPP(object):
 
         # Flag if profile_type != ActiveProfile
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         payment_profile_created.send(sender=nvp_obj, **params)
         return nvp_obj
 
@@ -189,7 +189,7 @@ class PayPalWPP(object):
         required = ["token"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 
     def setCustomerBillingAgreement(self, params):
@@ -203,7 +203,7 @@ class PayPalWPP(object):
         required = ["token"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 
     def getTransactionDetails(self, params):
@@ -212,7 +212,7 @@ class PayPalWPP(object):
 
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 
     def massPay(self, params):
@@ -227,7 +227,7 @@ class PayPalWPP(object):
 
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 
     def billOutstandingAmount(self, params):
@@ -253,7 +253,7 @@ class PayPalWPP(object):
             elif params['action'] == 'Reactivate':
                 recurring_reactivate.send(sender=nvp_obj)
         else:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 
     def refundTransaction(self, params):
@@ -272,7 +272,7 @@ class PayPalWPP(object):
 
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
-            raise PayPalFailure(nvp_obj.flag_info)
+            raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 
     def _is_recurring(self, params):
