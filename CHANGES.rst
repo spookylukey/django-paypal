@@ -14,6 +14,7 @@ Version 0.2.1
 
 * Added ``PayPalNVP.response_dict`` attribute.
 * Added ``PayPalFailure.nvp`` attribute to get full info
+* Switched to using ``requests`` library for HTTP calls.
 
 Version 0.2
 -----------
