@@ -143,6 +143,13 @@ Using PayPal Standard IPN
    yet been received and handled by the IPN listener you implemented (which can
    happen rarely), or that there was some kind of error with the IPN.
 
+   If you are attempting to test this in development, and your machine is behind
+   a firewall/router and therefore is not publicly accessible on the internet
+   (this will be the case for most developer machines), PayPal will not be able
+   to post back to your view. You will need to use a tool like
+   https://ngrok.com/ to make your machine publicly accessible, and ensure
+   that you are sending PayPal your public URL, not ``localhost``.
+
 See also
 --------
 
