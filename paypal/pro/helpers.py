@@ -48,14 +48,23 @@ def paypaltime2datetime(s):
 class PayPalError(TypeError):
     """Error thrown when something be wrong."""
 
+
 def express_endpoint():
     if getattr(settings, 'PAYPAL_TEST', True):
         return SANDBOX_EXPRESS_ENDPOINT
     else:
         return EXPRESS_ENDPOINT
 
-def express_endpoint_for_token(token):
+
+def express_endpoint_for_token(token, commit=False):
+    """
+    Returns the PayPal Express Checkout endpoint for a token.
+    Pass 'commit=True' if you will not prompt for confirmation when the user
+    returns to your site.
+    """
     pp_params = dict(token=token)
+    if commit:
+        pp_params['useraction'] = 'commit'
     return express_endpoint() % urlencode(pp_params)
 
 
