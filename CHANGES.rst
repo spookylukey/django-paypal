@@ -9,6 +9,11 @@ detailed information about all changes.
 
 Below is a summary:
 
+Version 0.2.2
+-------------
+
+* Added 'commit' kwarg to ``express_endpoint_for_token()``
+
 Version 0.2.1
 -------------
 
