@@ -72,6 +72,13 @@ class PDTTest(TestCase):
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
 
+    def test_pdt_with_post(self):
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)
+        self.dpppdt.update_with_get_params(self.get_params)
+        paypal_response = self.client.post("/pdt/", self.get_params)
+        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 1)
+
     def test_double_pdt_get(self):
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
         paypal_response = self.client.get("/pdt/", self.get_params)
@@ -85,6 +92,19 @@ class PDTTest(TestCase):
         pdt_obj = PayPalPDT.objects.all()[0]
         self.assertEqual(pdt_obj.flag, False)
 
+    def test_double_pdt_get_with_post(self):
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)
+        paypal_response = self.client.post("/pdt/", self.get_params)
+        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 1)
+        pdt_obj = PayPalPDT.objects.all()[0]
+        self.assertEqual(pdt_obj.flag, False)
+        paypal_response = self.client.post("/pdt/", self.get_params)
+        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 1) # we don't create a new pdt        
+        pdt_obj = PayPalPDT.objects.all()[0]
+        self.assertEqual(pdt_obj.flag, False)
+
     def test_no_txn_id_in_pdt(self):
         self.dpppdt.context_dict.pop('txn_id')
         self.get_params = {}
@@ -92,10 +112,26 @@ class PDTTest(TestCase):
         self.assertContains(paypal_response, 'Transaction Failed', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
 
+    def test_no_txn_id_in_pdt_with_post(self):
+        self.dpppdt.context_dict.pop('txn_id')
+        self.get_params = {}
+        paypal_response = self.client.post("/pdt/", self.get_params)
+        self.assertContains(paypal_response, 'Transaction Failed', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)
+
     def test_custom_passthrough(self):
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
         self.dpppdt.update_with_get_params(self.get_params)
         paypal_response = self.client.get("/pdt/", self.get_params)
+        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 1)
+        pdt_obj = PayPalPDT.objects.all()[0]
+        self.assertEqual(pdt_obj.custom, self.get_params['cm'])
+
+    def test_custom_passthrough_with_post(self):
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)
+        self.dpppdt.update_with_get_params(self.get_params)
+        paypal_response = self.client.post("/pdt/", self.get_params)
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
         pdt_obj = PayPalPDT.objects.all()[0]

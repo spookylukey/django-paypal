@@ -343,8 +343,7 @@ class PayPalStandardBase(Model):
             # PDT only - this data is currently unused
             self.query = request.META.get('QUERY_STRING', '')
         elif request.method == 'POST':
-            # The following works if paypal sends an ASCII bytestring, which it does.
-            self.query = request.body.decode('ascii')
+            self.query = request.read()
         self.ipaddress = request.META.get('REMOTE_ADDR', '')
 
     def _postback(self):
