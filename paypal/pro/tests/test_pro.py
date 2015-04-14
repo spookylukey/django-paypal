@@ -16,6 +16,7 @@ from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.views import PayPalPro
 from paypal.pro.signals import payment_was_successful
 
+from .settings import TEMPLATES, TEMPLATE_DIRS
 
 RF = RequestFactory()
 REQUEST = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
@@ -67,7 +68,8 @@ def ppp_wrapper(request, handler=None):
     return ppp(request)
 
 
-@override_settings(TEMPLATE_DIRS=[os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')])
+@override_settings(TEMPLATE_DIRS=TEMPLATE_DIRS,
+                   TEMPLATES=TEMPLATES)
 class PayPalProTest(TestCase):
 
     def test_get(self):

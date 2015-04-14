@@ -2,13 +2,14 @@
 run this with ./manage.py test website
 see http://www.djangoproject.com/documentation/testing/ for details
 """
-import os
 from django.conf import settings
-from django.shortcuts import render_to_response
+from django.template.loader import render_to_string
 from django.test import TestCase
 from django.test.utils import override_settings
 
 from paypal.standard.pdt.models import PayPalPDT
+
+from .settings import TEMPLATES, TEMPLATE_DIRS
 
 
 class DummyPayPalPDT(object):
@@ -30,12 +31,13 @@ class DummyPayPalPDT(object):
 
     def _postback(self, test=True):
         """Perform a Fake PayPal PDT Postback request."""
-        return render_to_response("pdt/test_pdt_response.html", self.context_dict).content
+        return render_to_string("pdt/test_pdt_response.html", self.context_dict).encode('utf-8')
 
 
-@override_settings(ROOT_URLCONF="paypal.standard.pdt.tests.test_urls")
+@override_settings(ROOT_URLCONF="paypal.standard.pdt.tests.test_urls",
+                   TEMPLATES=TEMPLATES,
+                   TEMPLATE_DIRS=TEMPLATE_DIRS)
 class PDTTest(TestCase):
-    template_dirs = [os.path.join(os.path.dirname(__file__), 'templates'), ]
 
     def setUp(self):
         # set up some dummy PDT get parameters
@@ -47,11 +49,6 @@ class PDTTest(TestCase):
         self.dpppdt = DummyPayPalPDT()
         self.dpppdt.update_with_get_params(self.get_params)
         PayPalPDT._postback = self.dpppdt._postback
-        self.old_template_dirs = settings.TEMPLATE_DIRS
-        settings.TEMPLATE_DIRS = self.template_dirs
-
-    def tearDown(self):
-        settings.TEMPLATE_DIRS = self.old_template_dirs
 
     def test_verify_postback(self):
         dpppdt = DummyPayPalPDT()

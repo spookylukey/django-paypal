@@ -52,7 +52,7 @@ Using PayPal Standard IPN
            # Create the instance.
            form = PayPalPaymentsForm(initial=paypal_dict)
            context = {"form": form}
-           return render_to_response("payment.html", context)
+           return render(request, "payment.html", context)
 
    For a full list of variables that can be used in ``paypal_dict``, see
    `PayPal HTML variables documentation <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_.
