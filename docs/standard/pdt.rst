@@ -49,11 +49,12 @@ To use PDT:
 
    .. code-block:: python
 
+       from django.conf.urls import url, include
        ...
-       urlpatterns = patterns('',
-           (r'^paypal/pdt/', include('paypal.standard.pdt.urls')),
+       urlpatterns = [
+           url(r'^paypal/pdt/', include('paypal.standard.pdt.urls')),
            ...
-       )
+       ]
 
    Then specify the ``return_url`` to use this URL.
 

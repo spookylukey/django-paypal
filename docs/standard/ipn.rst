@@ -75,9 +75,11 @@ Using PayPal Standard IPN
 
    .. code-block:: python
 
-       urlpatterns = patterns('',
-           (r'^something/paypal/', include('paypal.standard.ipn.urls')),
-       )
+       from django.conf.urls import url, include
+
+       urlpatterns = [
+           url(r'^something/paypal/', include('paypal.standard.ipn.urls')),
+       ]
 
 5. Whenever an IPN is processed a signal will be sent with the result of the
    transaction.
