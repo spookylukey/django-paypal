@@ -58,6 +58,9 @@ To use PDT:
 
    Then specify the ``return_url`` to use this URL.
 
+   You will also need to have a ``base.html`` template with a block
+   ``content``. This template is inherited by the PDT view template.
+
    More than likely, however, you will want to write a custom view that
    calls ``paypal.standard.pdt.views.process_pdt``. This function returns
    a tuple containing ``(PDT object, flag)``, where the ``flag`` is True
