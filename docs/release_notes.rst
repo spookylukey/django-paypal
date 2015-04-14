@@ -48,3 +48,10 @@ Version 0.2
       `nvp_handler` keyword argument.
 
     Please see :doc:`pro/index`.
+
+* You must explicitly set ``PAYPAL_TEST`` to ``True`` or ``False`` in your
+  settings, depending on whether you want production or sandbox PayPal. (The
+  default is ``True`` i.e. sandbox mode).
+
+  The ``sandbox()`` method on any forms is deprecated. You should use ``render``
+  and set ``PAYPAL_TEST`` in your settings instead.
