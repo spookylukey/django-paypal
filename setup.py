@@ -5,6 +5,7 @@ from setuptools import setup, find_packages
 
 import paypal
 
+
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
@@ -26,8 +27,8 @@ setup(
         'South>=1.0',
         'requests>=2.5.3',
     ],
-    description = DESCRIPTION,
-    long_description = "%s\n\nHome page: %s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, DOCS_URL, read("CHANGES.rst")),
+    description=DESCRIPTION,
+    long_description="%s\n\nHome page: %s\n\nDocs: %s\n\n%s" % (DESCRIPTION, URL, DOCS_URL, read("CHANGES.rst")),
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
