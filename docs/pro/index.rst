@@ -1,6 +1,14 @@
 Using PayPal Payments Pro (WPP)
 ===============================
 
+
+.. toctree::
+   :maxdepth: 2
+
+   index
+   detail
+
+
 PayPal Payments Pro (or "Website Payments Pro") is a more awesome version of
 PayPal that lets you accept payments on your site. This is now documented by
 PayPal as a `Classic API

@@ -1,5 +1,5 @@
-Website Payments Pro detail
-===========================
+Website Payments Pro models and helpers
+=======================================
 
 
 .. py:currentmodule:: paypal.pro.helpers
@@ -124,6 +124,12 @@ Website Payments Pro detail
 
       The UpdateRecurringPaymentsProfile API operation updates a recurring
       payments profile.
+
+.. py:function:: express_endpoint_for_token(token, commit=False)
+
+    Returns the PayPal Express Checkout endpoint for a token. Pass
+    ``commit=True`` if you will not prompt for confirmation when the user
+    returns to your site.
 
 .. py:currentmodule:: paypal.pro.models
 
