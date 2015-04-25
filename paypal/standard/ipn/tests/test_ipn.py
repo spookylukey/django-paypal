@@ -351,6 +351,42 @@ class IPNTest(IPNTestBase):
         self.assertEqual(ipn.posted_data_dict['quantity1'], '3')
         self.assertEqual(ipn.posted_data_dict['first_name'], u"J\u00f6rg")
 
+    def test_posted_params_with_na_value(self):
+        """
+        Test the ability to receive a "N/A" value in IPN post parameters
+        """
+        params = {
+            'amount': b('49.00'),
+            'amount_per_cycle': b('49.00'),
+            'charset': b('windows-1252'),
+            'currency_code': b('CHF'),
+            'first_name': b('FIRST_NAME'),
+            'initial_payment_amount': b('0.00'),
+            'ipn_track_id': b('a48170aadb705'),
+            'last_name': b('LASTNAME'),
+            'notify_version': b('3.8'),
+            'payer_id': b('6EQ6SKDFMPU36'),
+            'payment_status': b('verified'),
+            'payer_status': b('Monthly'),
+            'product_name': b('exodoc - Basic'),
+            'product_type': b('1'),
+            'profile_status': b('Suspended'),
+            'receiver_email': b('invoice@exodoc.ch'),
+            'recurring_payment_id': b('I-555555555555'),
+            'residence_country': b('ch'),
+            'shipping': b('0.00'),
+            'tax': b('0.00'),
+            'txn_type': b('recurring_payment_suspended_due_to_max_failed_payment'),
+            'time_created': b('06:56:31 Mar 19, 2014 PDT'),
+            # field that should be removed
+            'next_payment_date': b('N/A'),
+            'verify_sign': b('A_SECRET_CODE')}
+        self.paypal_post(params)
+        ipn = PayPalIPN.objects.get()
+        self.assertTrue('time_created' in ipn.posted_data_dict)
+        self.assertTrue('next_payment_date' in ipn.posted_data_dict)
+        
+        
 class IPNPostbackTest(IPNTestBase):
     """
     Tests an actual postback to PayPal server.
