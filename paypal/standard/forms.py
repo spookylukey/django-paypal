@@ -4,6 +4,7 @@ import logging
 from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
                                   IMAGE, SUBSCRIPTION_IMAGE, DONATION_IMAGE,
@@ -24,6 +25,15 @@ PAYPAL_DATE_FORMATS = ["%H:%M:%S %b. %d, %Y PST",
 
 class PayPalDateTimeField(forms.DateTimeField):
     input_formats = PAYPAL_DATE_FORMATS
+
+    def strptime(self, value, format):
+        dt = super(PayPalDateTimeField, self).strptime(value, format)
+        parts = format.split(" ")
+        if timezone.pytz and settings.USE_TZ:
+            if parts[-1] in ["PDT", "PST"]:
+                # PST/PDT is 'US/Pacific'
+                dt = timezone.make_aware(dt, timezone.pytz.timezone('US/Pacific'))
+        return dt
 
 
 class PayPalPaymentsForm(forms.Form):
