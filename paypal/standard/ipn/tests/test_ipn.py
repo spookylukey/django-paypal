@@ -351,6 +351,23 @@ class IPNTest(IPNTestBase):
         self.assertEqual(ipn.posted_data_dict['quantity1'], '3')
         self.assertEqual(ipn.posted_data_dict['first_name'], u"J\u00f6rg")
 
+    def test_paypal_date_format(self):
+        update = {
+            "next_payment_date": b("23:04:06 Feb 02, 2009 PST"),
+            "subscr_date": b("23:04:06 Jan 02, 2009 PST"),
+            "subscr_effective": b("23:04:06 Jan 02, 2009 PST"),
+            "auction_closing_date": b("23:04:06 Jan 02, 2009 PST"),
+            "retry_at": b("23:04:06 Jan 02, 2009 PST"),
+            "case_creation_date": b("23:04:06 Jan 02, 2009 PST"),
+            "time_created": b("23:04:06 Jan 02, 2009 PST"),
+        }
+
+        params = IPN_POST_PARAMS.copy()
+        params.update(update)
+
+        response = self.paypal_post(params)
+        self.assertFalse(PayPalIPN.objects.get().flag)
+
 class IPNPostbackTest(IPNTestBase):
     """
     Tests an actual postback to PayPal server.
