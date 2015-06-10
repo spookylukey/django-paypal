@@ -385,3 +385,9 @@ class IPNSimulatorTests(TestCase):
         ipn = self.get_ipn()
         self.assertFalse(ipn.flag)
         self.assertEqual(ipn.mc_gross, Decimal("12.34"))
+
+    def test_declined(self):
+        paypal_input = b'payment_type=instant&payment_date=23%3A04%3A06%20Feb%2002%2C%202009%20PDT&payment_status=Declined&address_status=confirmed&payer_status=verified&first_name=John&last_name=Smith&payer_email=buyer%40paypalsandbox.com&payer_id=TESTBUYERID01&address_name=John%20Smith&address_country=United%20States&address_country_code=US&address_zip=95131&address_state=CA&address_city=San%20Jose&address_street=123%20any%20street&business=seller%40paypalsandbox.com&receiver_email=seller%40paypalsandbox.com&receiver_id=seller%40paypalsandbox.com&residence_country=US&item_name=something&item_number=AK-1234&quantity=1&shipping=3.04&tax=2.02&mc_currency=USD&mc_fee=0.44&mc_gross=131.22&mc_gross1=131.22&txn_type=web_accept&txn_id=153826001&notify_version=2.1&custom=xyz123&invoice=abc1234&test_ipn=1&verify_sign=AiPC9BjkCyDFQXbSkoZcgqH3hpacAIG977yabdROlR9d0bf98jevF2-i'
+        self.post_to_ipn_handler(paypal_input)
+        ipn = self.get_ipn()
+        self.assertFalse(ipn.flag)
