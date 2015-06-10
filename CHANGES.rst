@@ -9,8 +9,17 @@ detailed information about all changes.
 
 Below is a summary:
 
+
+Version 0.2.4
+-------------
+
+* Work-arounds for bugs in the IPN Simulator
+* Other small fixes
+
+
 Version 0.2.3
 -------------
+
 * Fixed various deprecation warnings when running under Django 1.8
 
 
