@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from decimal import Decimal
 import warnings
 
 from django.conf import settings
@@ -175,11 +176,6 @@ class IPNTest(IPNTestBase):
     def test_payment_was_flagged(self):
         PayPalIPN._postback = lambda self: b"INVALID"
         self.assertGotSignal(payment_was_flagged, True, deprecated=True)
-
-    def test_ipn_missing_charset(self):
-        params = IPN_POST_PARAMS.copy()
-        del params['charset']
-        self.assertGotSignal(payment_was_flagged, True, params=params, deprecated=True)
 
     def test_refunded_ipn(self):
         update = {
@@ -363,3 +359,29 @@ class IPNPostbackTest(IPNTestBase):
     def test_postback(self):
         # Incorrect signature means we will always get failure
         self.assertFlagged({}, u'Invalid postback. (INVALID)')
+
+
+@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls',
+                   PAYPAL_RECEIVER_EMAIL='seller@paypalsandbox.com')
+class IPNSimulatorTests(TestCase):
+
+    # Some requests, as sent by the simulator.
+
+    # The simulator itself has bugs. For example, it doesn't send the 'charset'
+    # parameter, unlike in production. We could wait for PayPal to fix these
+    # bugs... ha ha, only kidding! If developers want to use the simulator, we
+    # need to deal with whatever it sends.
+
+    def get_ipn(self):
+        return PayPalIPN.objects.all().get()
+
+    def post_to_ipn_handler(self, post_data):
+        return self.client.post("/ipn/", post_data, content_type='application/x-www-form-urlencoded')
+
+    def test_valid_webaccept(self):
+        paypal_input = b'payment_type=instant&payment_date=23%3A04%3A06%20Feb%2002%2C%202009%20PDT&payment_status=Completed&address_status=confirmed&payer_status=verified&first_name=John&last_name=Smith&payer_email=buyer%40paypalsandbox.com&payer_id=TESTBUYERID01&address_name=John%20Smith&address_country=United%20States&address_country_code=US&address_zip=95131&address_state=CA&address_city=San%20Jose&address_street=123%20any%20street&business=seller%40paypalsandbox.com&receiver_email=seller%40paypalsandbox.com&receiver_id=seller%40paypalsandbox.com&residence_country=US&item_name=something&item_number=AK-1234&quantity=1&shipping=3.04&tax=2.02&mc_currency=USD&mc_fee=0.44&mc_gross=12.34&mc_gross1=12.34&txn_type=web_accept&txn_id=593976436&notify_version=2.1&custom=xyz123&invoice=abc1234&test_ipn=1&verify_sign=AFcWxV21C7fd0v3bYYYRCpSSRl31Awsh54ABFpebxm5s9x58YIW-AWIb'
+        response = self.post_to_ipn_handler(paypal_input)
+        self.assertEqual(response.status_code, 200)
+        ipn = self.get_ipn()
+        self.assertFalse(ipn.flag)
+        self.assertEqual(ipn.mc_gross, Decimal("12.34"))

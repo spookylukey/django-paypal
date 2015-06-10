@@ -1,22 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import logging
 from django import forms
+from django.conf import settings
 from django.utils.safestring import mark_safe
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
-                                  RECEIVER_EMAIL,
                                   IMAGE, SUBSCRIPTION_IMAGE, DONATION_IMAGE,
                                   SANDBOX_IMAGE, SUBSCRIPTION_SANDBOX_IMAGE, DONATION_SANDBOX_IMAGE)
-from django.conf import settings
+
+log = logging.getLogger(__name__)
 
 
 # 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
 # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
 # PayPal dates have been spotted in the wild with these formats, beware!
-PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST",
-                      "%H:%M:%S %b. %d, %Y PDT",
-                      "%H:%M:%S %b %d, %Y PST",
-                      "%H:%M:%S %b %d, %Y PDT",)
+PAYPAL_DATE_FORMATS = ["%H:%M:%S %b. %d, %Y PST",
+                       "%H:%M:%S %b. %d, %Y PDT",
+                       "%H:%M:%S %b %d, %Y PST",
+                       "%H:%M:%S %b %d, %Y PDT",
+                      ]
+
+
+class PayPalDateTimeField(forms.DateTimeField):
+    input_formats = PAYPAL_DATE_FORMATS
 
 
 class PayPalPaymentsForm(forms.Form):
@@ -55,7 +62,7 @@ class PayPalPaymentsForm(forms.Form):
     DONATE = 'donate'
 
     # Where the money goes.
-    business = forms.CharField(widget=ValueHiddenInput(), initial=RECEIVER_EMAIL)
+    business = forms.CharField(widget=ValueHiddenInput(), initial=settings.PAYPAL_RECEIVER_EMAIL)
 
     # Item information.
     amount = forms.IntegerField(widget=ValueHiddenInput())
@@ -235,8 +242,8 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
 class PayPalStandardBaseForm(forms.ModelForm):
     """Form used to receive and record PayPal IPN/PDT."""
     # PayPal dates have non-standard formats.
-    time_created = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    next_payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    subscr_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    subscr_effective = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
+    time_created = PayPalDateTimeField(required=False)
+    payment_date = PayPalDateTimeField(required=False)
+    next_payment_date = PayPalDateTimeField(required=False)
+    subscr_date = PayPalDateTimeField(required=False)
+    subscr_effective = PayPalDateTimeField(required=False)
