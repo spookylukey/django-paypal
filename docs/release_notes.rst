@@ -1,8 +1,8 @@
 Release notes
 =============
 
-Version 0.2.4
--------------
+Version 0.2.4/0.2.5
+-------------------
 
 This fixes a bug with handling of dates. If you want to fix historic data in
 your IPN tables, you need to apply a migration like the following::
@@ -49,7 +49,8 @@ your IPN tables, you need to apply a migration like the following::
             if posted_data_dict is None:
                 continue
 
-            for field in ['time_created', 'payment_date', 'next_payment_date', 'subscr_date', 'subscr_effective']:
+            for field in ['time_created', 'payment_date', 'next_payment_date', 'subscr_date', 'subscr_effective',
+                          'retry_at', 'case_creation_date', 'auction_closing_date']:
                 if field in posted_data_dict:
                     raw = posted_data_dict[field]
                     naive = parse_date(raw)
