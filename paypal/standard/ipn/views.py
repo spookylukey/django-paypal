@@ -48,8 +48,7 @@ def ipn(request, item_check_callable=None):
         flag = "Invalid form - invalid charset"
 
     if data is not None:
-        date_fields = ('time_created', 'payment_date', 'next_payment_date',
-                       'subscr_date', 'subscr_effective')
+        date_fields = [f.attname for f in PayPalIPN._meta.get_fields() if f.__class__.__name__ == 'DateTimeField']
         for date_field in date_fields:
             if data.get(date_field) == 'N/A':
                 del data[date_field]
