@@ -57,7 +57,7 @@ def ipn(request, item_check_callable=None):
             except Exception as e:
                 flag = "Exception while processing. (%s)" % e
         else:
-            flag = "Invalid form. (%s)" % form.errors
+            flag = "Invalid form. ({0})".format(", ".join(["{0}: {1}".format(k, ", ".join(v)) for k, v in form.errors.items()]))
 
     if ipn_obj is None:
         ipn_obj = PayPalIPN()
