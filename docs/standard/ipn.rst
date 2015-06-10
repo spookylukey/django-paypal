@@ -156,6 +156,21 @@ PayPal will not be able to post back to your view. You will need to use a tool
 like https://ngrok.com/ to make your machine publicly accessible, and ensure
 that you are sending PayPal your public URL, not ``localhost``.
 
+Simulator testing
+-----------------
+
+The PayPal IPN simulator at https://developer.paypal.com/developer/ipnSimulator
+has some unfortunate bugs:
+
+* it doesn't send the ``encoding`` parameter. django-paypal deals with this
+  using a guess.
+
+* the default 'payment_date' that is created for you is in the wrong format. You
+  need to change it to something like::
+
+    23:04:06 Feb 02, 2015 PDT
+
+
 See also
 --------
 

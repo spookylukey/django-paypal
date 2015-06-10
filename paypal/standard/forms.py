@@ -1,37 +1,54 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import logging
 from django import forms
+from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
-                                  RECEIVER_EMAIL,
                                   IMAGE, SUBSCRIPTION_IMAGE, DONATION_IMAGE,
                                   SANDBOX_IMAGE, SUBSCRIPTION_SANDBOX_IMAGE, DONATION_SANDBOX_IMAGE)
-from django.conf import settings
+
+log = logging.getLogger(__name__)
 
 
 # 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
 # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
 # PayPal dates have been spotted in the wild with these formats, beware!
-PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST",
-                      "%H:%M:%S %b. %d, %Y PDT",
-                      "%H:%M:%S %b %d, %Y PST",
-                      "%H:%M:%S %b %d, %Y PDT",)
+PAYPAL_DATE_FORMATS = ["%H:%M:%S %b. %d, %Y PST",
+                       "%H:%M:%S %b. %d, %Y PDT",
+                       "%H:%M:%S %b %d, %Y PST",
+                       "%H:%M:%S %b %d, %Y PDT",
+                      ]
+
+
+class PayPalDateTimeField(forms.DateTimeField):
+    input_formats = PAYPAL_DATE_FORMATS
+
+    def strptime(self, value, format):
+        dt = super(PayPalDateTimeField, self).strptime(value, format)
+        parts = format.split(" ")
+        if timezone.pytz and settings.USE_TZ:
+            if parts[-1] in ["PDT", "PST"]:
+                # PST/PDT is 'US/Pacific'
+                dt = timezone.make_aware(dt, timezone.pytz.timezone('US/Pacific'))
+        return dt
 
 
 class PayPalPaymentsForm(forms.Form):
     """
     Creates a PayPal Payments Standard "Buy It Now" button, configured for a
     selling a single item with no shipping.
-    
+
     For a full overview of all the fields you can set (there is a lot!) see:
     http://tinyurl.com/pps-integration
-    
+
     Usage:
     >>> f = PayPalPaymentsForm(initial={'item_name':'Widget 001', ...})
     >>> f.render()
     u'<form action="https://www.paypal.com/cgi-bin/webscr" method="post"> ...'
-    
+
     """
     CMD_CHOICES = (
         ("_xclick", "Buy now or Donations"),
@@ -55,7 +72,7 @@ class PayPalPaymentsForm(forms.Form):
     DONATE = 'donate'
 
     # Where the money goes.
-    business = forms.CharField(widget=ValueHiddenInput(), initial=RECEIVER_EMAIL)
+    business = forms.CharField(widget=ValueHiddenInput(), initial=settings.PAYPAL_RECEIVER_EMAIL)
 
     # Item information.
     amount = forms.IntegerField(widget=ValueHiddenInput())
@@ -69,7 +86,7 @@ class PayPalPaymentsForm(forms.Form):
     t1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 unit of Duration, default to Month
     a2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Price
     p2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Duration
-    t2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 unit of Duration, default to Month    
+    t2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 unit of Duration, default to Month
     a3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Price
     p3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Duration
     t3 = forms.CharField(widget=ValueHiddenInput())  # Subscription unit of Duration, default to Month
@@ -159,7 +176,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
     Based on example at:
     http://blog.mauveweb.co.uk/2007/10/10/paypal-with-django/
-    
+
     """
 
     def _encrypt(self):
@@ -213,7 +230,7 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
     """
     Creates a PayPal Encrypted Payments "Buy It Now" button with a Shared Secret.
     Shared secrets should only be used when your IPN endpoint is on HTTPS.
-    
+
     Adds a secret to the notify_url based on the contents of the form.
 
     """
@@ -235,11 +252,11 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
 class PayPalStandardBaseForm(forms.ModelForm):
     """Form used to receive and record PayPal IPN/PDT."""
     # PayPal dates have non-standard formats.
-    time_created = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    next_payment_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    subscr_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    subscr_effective = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    retry_at = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    case_creation_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
-    auction_closing_date = forms.DateTimeField(required=False, input_formats=PAYPAL_DATE_FORMAT)
+    time_created = PayPalDateTimeField(required=False)
+    payment_date = PayPalDateTimeField(required=False)
+    next_payment_date = PayPalDateTimeField(required=False)
+    subscr_date = PayPalDateTimeField(required=False)
+    subscr_effective = PayPalDateTimeField(required=False)
+    retry_at = PayPalDateTimeField(required=False)
+    case_creation_date = PayPalDateTimeField(required=False)
+    auction_closing_date = PayPalDateTimeField(required=False)

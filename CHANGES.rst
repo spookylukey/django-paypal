@@ -9,8 +9,23 @@ detailed information about all changes.
 
 Below is a summary:
 
+
+Version 0.2.4
+-------------
+
+* Fixed timezone parsing of PalPal data so that ``PayPalIPN.payment_date`` and others
+  are handled correctly (if you have ``USE_TZ = True``).
+
+  This does not include a migration to fix old data - see the release notes if
+  you need that.
+
+* Work-arounds for bugs in the IPN Simulator
+* Other small fixes
+
+
 Version 0.2.3
 -------------
+
 * Fixed various deprecation warnings when running under Django 1.8
 
 

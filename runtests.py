@@ -52,7 +52,8 @@ settings.configure(
                 ],
             },
         },
-    ]
+    ],
+    USE_TZ=True,
 )
 
 
