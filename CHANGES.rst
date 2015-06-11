@@ -9,6 +9,15 @@ detailed information about all changes.
 
 Below is a summary:
 
+Version 0.2.5
+-------------
+
+* Fixed some ``PayPalIPN`` DateTimeFields that were not being handled like the rest. Thanks
+  thiagogds for the patch.
+
+* Fixed ``PayPalNVP.timestamp`` field so that it receives timezone-aware datetimes
+  if you have ``USE_TZ = True``
+
 
 Version 0.2.4
 -------------
