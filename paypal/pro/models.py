@@ -142,3 +142,9 @@ class PayPalNVP(Model):
         # Create single payment:
         else:
             return wpp.doDirectPayment(params)
+
+    def __repr__(self):
+        return '<PayPalNVP id:{0}>'.format(self.id)
+
+    def __str__(self):
+        return "PayPalNVP: {0}".format(self.id)
