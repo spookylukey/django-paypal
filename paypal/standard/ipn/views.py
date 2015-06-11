@@ -48,7 +48,11 @@ def ipn(request, item_check_callable=None):
         flag = "Invalid form - invalid charset"
 
     if data is not None:
-        date_fields = [f.attname for f in PayPalIPN._meta.get_fields() if f.__class__.__name__ == 'DateTimeField']
+        if hasattr(PayPalIPN._meta, 'get_fields'):
+            date_fields = [f.attname for f in PayPalIPN._meta.get_fields() if f.__class__.__name__ == 'DateTimeField']
+        else:
+            date_fields = [f.attname for f, m in PayPalIPN._meta.get_fields_with_model() if f.__class__.__name__ == 'DateTimeField']
+
         for date_field in date_fields:
             if data.get(date_field) == 'N/A':
                 del data[date_field]

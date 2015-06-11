@@ -10,9 +10,9 @@ import requests
 from django.conf import settings
 from django.forms.models import fields_for_model
 from django.http import QueryDict
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
-
 from paypal.pro.signals import payment_was_successful, recurring_cancel, recurring_suspend, recurring_reactivate, payment_profile_created
 from paypal.pro.models import PayPalNVP
 from paypal.pro.exceptions import PayPalFailure
@@ -42,7 +42,12 @@ def paypal_time(time_obj=None):
 
 def paypaltime2datetime(s):
     """Convert a PayPal time string to a DateTime."""
-    return datetime.datetime(*(time.strptime(s, PayPalNVP.TIMESTAMP_FORMAT)[:6]))
+    naive = datetime.datetime.strptime(s, PayPalNVP.TIMESTAMP_FORMAT)
+    if not settings.USE_TZ:
+        return naive
+    else:
+        # TIMESTAMP_FORMAT is UTC
+        return timezone.make_aware(naive, timezone.UTC())
 
 
 class PayPalError(TypeError):
