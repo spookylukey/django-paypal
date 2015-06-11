@@ -81,3 +81,9 @@ class PayPalPDT(PayPalStandardBase):
                        flag_code=self.flag_code))
         pdt_form = PayPalPDTForm(qd, instance=self)
         pdt_form.save(commit=False)
+
+    def __repr__(self):
+        return '<PayPalPDT id:{0}>'.format(self.id)
+
+    def __str__(self):
+        return "PayPalPDT: {0}".format(self.id)

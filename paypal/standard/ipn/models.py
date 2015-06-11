@@ -66,3 +66,9 @@ class PayPalIPN(PayPalStandardBase):
                 subscription_eot.send(sender=self)
             elif self.is_subscription_modified():
                 subscription_modify.send(sender=self)
+
+    def __repr__(self):
+        return '<PayPalIPN id:{0}>'.format(self.id)
+
+    def __str__(self):
+        return "PayPalIPN: {0}".format(self.id)
