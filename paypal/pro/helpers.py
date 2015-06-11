@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import datetime
 import logging
@@ -32,7 +33,6 @@ SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-c
 log = logging.getLogger(__file__)
 
 
-
 def paypal_time(time_obj=None):
     """Returns a time suitable for PayPal time fields."""
     if time_obj is None:
@@ -51,7 +51,7 @@ def paypaltime2datetime(s):
 
 
 class PayPalError(TypeError):
-    """Error thrown when something be wrong."""
+    """Error thrown when something is wrong."""
 
 
 def express_endpoint():

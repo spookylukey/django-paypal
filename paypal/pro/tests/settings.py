@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'templates')

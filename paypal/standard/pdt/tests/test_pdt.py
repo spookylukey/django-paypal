@@ -2,6 +2,8 @@
 run this with ./manage.py test website
 see http://www.djangoproject.com/documentation/testing/ for details
 """
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import TestCase

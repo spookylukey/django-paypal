@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from paypal.standard.signals import DeprecatedSignal
 
 """

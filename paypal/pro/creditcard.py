@@ -6,6 +6,8 @@ Adapted from:
     - http://www.satchmoproject.com/trac/browser/satchmo/trunk/satchmo/apps/satchmo_utils/views.py
     - http://tinyurl.com/shoppify-credit-cards
 """
+from __future__ import unicode_literals
+
 import re
 
 
