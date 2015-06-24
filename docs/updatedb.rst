@@ -27,6 +27,8 @@ To update your database:
 
 * For Django >= 1.7, do::
 
+You need to uninstall South first (e.g. `pip uninstall South`).
+
   ./manage.py migrate
 
 
