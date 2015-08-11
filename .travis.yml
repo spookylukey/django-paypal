@@ -19,3 +19,4 @@ install:
 - pip install tox>=2.1
 script:
 - tox
+sudo: false
