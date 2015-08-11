@@ -1,3 +1,14 @@
-include setup.py README CONTRIBUTORS MANIFEST.in CHANGES.rst
-recursive-include paypal *.html
 global-exclude *~
+include setup.py
+include README
+include CONTRIBUTORS
+include MANIFEST.in
+include CHANGES.rst
+include LICENSE
+include tox.ini
+include *.py
+recursive-include docs *.rst
+recursive-include docs *.py
+recursive-include docs *.bat
+recursive-include docs Makefile
+recursive-include paypal *.html
