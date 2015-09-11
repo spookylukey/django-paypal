@@ -316,9 +316,8 @@ class PayPalWPP(object):
         response = self._request(pp_string)
         response_params = self._parse_response(response)
 
-        if getattr(settings, 'PAYPAL_DEBUG', settings.DEBUG):
-            log.debug('PayPal Request:\n%s\n', pprint.pformat(defaults))
-            log.debug('PayPal Response:\n%s\n', pprint.pformat(response_params))
+        log.debug('PayPal Request:\n%s\n', pprint.pformat(defaults))
+        log.debug('PayPal Response:\n%s\n', pprint.pformat(response_params))
 
         # Gather all NVP parameters to pass to a new instance.
         nvp_params = {}
