@@ -24,7 +24,6 @@ setup(
     install_requires=[
         'Django>=1.4',
         'six>=1.4.1',
-        'South>=1.0',
         'requests>=2.5.3',
     ],
     description=DESCRIPTION,
