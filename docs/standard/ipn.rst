@@ -46,7 +46,7 @@ Using PayPal Standard IPN
                "notify_url": "https://www.example.com" + reverse('paypal-ipn'),
                "return_url": "https://www.example.com/your-return-location/",
                "cancel_return": "https://www.example.com/your-cancel-location/",
-
+               "custom": "Upgrade all users!",  # Custom command to correlate to some function later (optional)
            }
 
            # Create the instance.
@@ -137,9 +137,11 @@ Using PayPal Standard IPN
    can use the ``ST_PP_*`` constants in ``paypal.standard.models`` to help.
 
 6. You will also need to implement the ``return_url`` and ``cancel_return`` views
-   to handle someone returning from PayPal. Note that these views need
-   ``@csrf_exempt`` applied to them, because PayPal will POST to them, so they
-   should be custom views that don't need to handle POSTs otherwise.
+   to handle someone returning from PayPal.
+   
+   Note that return_url view needs @csrf_exempt applied to it, because PayPal will POST to it, so it should be custom a view    that doesn't need to handle POSTs otherwise.
+
+   When using PayPal Standard with Subscriptions this is not necessary since PayPal will route the user back to your site via    GET.
 
    For ``return_url``, you need to cope with the possibility that the IPN has not
    yet been received and handled by the IPN listener you implemented (which can
