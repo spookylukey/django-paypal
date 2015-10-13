@@ -3,8 +3,6 @@
 import os.path
 from setuptools import setup, find_packages
 
-import paypal
-
 
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
@@ -15,7 +13,7 @@ DOCS_URL = 'https://django-paypal.readthedocs.org'
 
 setup(
     name='django-paypal',
-    version="0.2.5",
+    version="0.2.6",
     author='John Boxall',
     author_email='john@handimobility.ca',
     maintainer="Luke Plant",
