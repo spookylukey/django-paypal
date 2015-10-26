@@ -10,7 +10,7 @@ views.py:
 
     paypal_dict = {
        "cmd": "_xclick-subscriptions",
-       "business": "your_account@paypal",
+       "business": settings.PAYPAL_RECEIVER_EMAIL,
        "a3": "9.99",                      # monthly price
        "p3": 1,                           # duration of each unit (depends on unit)
        "t3": "M",                         # duration unit ("M for Month")
