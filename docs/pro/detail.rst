@@ -115,7 +115,7 @@ Website Payments Pro models and helpers
       in the ``.token`` attribute.
 
       This token can be converted into a URL to redirect to using the helper
-      function ``express_enpoint_from_token`` in this module.
+      function ``express_endpoint_for_token`` in this module.
 
       See the `SetExpressCheckout docs
       <https://developer.paypal.com/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/>`_
