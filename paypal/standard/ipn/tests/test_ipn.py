@@ -360,6 +360,7 @@ class IPNTest(IPNTestBase):
             "subscr_effective": b("23:04:06 Jan 02, 2009 PST"),
             "auction_closing_date": b("23:04:06 Jan 02, 2009 PST"),
             "retry_at": b("23:04:06 Jan 02, 2009 PST"),
+            # test parsing times in PST/PDT change period
             "case_creation_date": b("01:13:05 Nov 01, 2015 PST"),
             "time_created": b("01:13:05 Nov 01, 2015 PDT"),
         }
