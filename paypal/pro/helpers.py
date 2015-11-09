@@ -76,7 +76,7 @@ def express_endpoint_for_token(token, commit=False):
 class PayPalWPP(object):
     """
     Wrapper class for the PayPal Website Payments Pro.
-    
+
     Website Payments Pro Integration Guide:
     https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WPP_IntegrationGuide.pdf
 
@@ -259,7 +259,8 @@ class PayPalWPP(object):
 
         # TODO: This fail silently check should be using the error code, but its not easy to access
         if not nvp_obj.flag or (
-            fail_silently and nvp_obj.flag_info == 'Invalid profile status for cancel action; profile should be active or suspended'):
+            fail_silently and nvp_obj.flag_info == 'Invalid profile status for cancel action; profile should be active or suspended'
+        ):
             if params['action'] == 'Cancel':
                 recurring_cancel.send(sender=nvp_obj)
             elif params['action'] == 'Suspend':
@@ -355,4 +356,4 @@ class PayPalWPP(object):
     def _parse_response(self, response):
         """Turn the PayPal response into a dict"""
         q = QueryDict(response, encoding='UTF-8').dict()
-        return {k.lower(): v for k,v in q.items()}
+        return {k.lower(): v for k, v in q.items()}

@@ -16,7 +16,7 @@ valid_ipn_received = Signal()
 # Sent when a flagged IPN (e.g. duplicate, invalid) is received.
 invalid_ipn_received = Signal()
 
-## Deprecated signals:
+# XXX Deprecated signals:
 
 # Sent when a payment is successfully processed.
 payment_was_successful = DeprecatedSignal("payment_was_successful is deprecated, please migrate to valid_ipn_received instead")

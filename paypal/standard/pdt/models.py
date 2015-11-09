@@ -11,6 +11,7 @@ from six.moves.urllib.parse import unquote_plus
 from paypal.standard.models import PayPalStandardBase
 from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 
+
 # ### Todo: Move this logic to conf.py:
 # if paypal.standard.pdt is in installed apps
 # ... then check for this setting in conf.py

@@ -42,27 +42,28 @@ class PayPalStandardBase(Model):
     # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
-    PAYMENT_STATUS_CHOICES = [ST_PP_ACTIVE,
-                              ST_PP_CANCELLED,
-                              ST_PP_CANCELED_REVERSAL,
-                              ST_PP_CLEARED,
-                              ST_PP_COMPLETED,
-                              ST_PP_CREATED,
-                              ST_PP_DECLINED,
-                              ST_PP_DENIED,
-                              ST_PP_EXPIRED,
-                              ST_PP_FAILED,
-                              ST_PP_PAID,
-                              ST_PP_PENDING,
-                              ST_PP_PROCESSED,
-                              ST_PP_REFUNDED,
-                              ST_PP_REFUSED,
-                              ST_PP_REVERSED,
-                              ST_PP_REWARDED,
-                              ST_PP_UNCLAIMED,
-                              ST_PP_UNCLEARED,
-                              ST_PP_VOIDED,
-                             ]
+    PAYMENT_STATUS_CHOICES = [
+        ST_PP_ACTIVE,
+        ST_PP_CANCELLED,
+        ST_PP_CANCELED_REVERSAL,
+        ST_PP_CLEARED,
+        ST_PP_COMPLETED,
+        ST_PP_CREATED,
+        ST_PP_DECLINED,
+        ST_PP_DENIED,
+        ST_PP_EXPIRED,
+        ST_PP_FAILED,
+        ST_PP_PAID,
+        ST_PP_PENDING,
+        ST_PP_PROCESSED,
+        ST_PP_REFUNDED,
+        ST_PP_REFUSED,
+        ST_PP_REVERSED,
+        ST_PP_REWARDED,
+        ST_PP_UNCLAIMED,
+        ST_PP_UNCLEARED,
+        ST_PP_VOIDED,
+    ]
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
     # ADDRESS_STATUS_CHOICES = "confirmed unconfirmed".split()
     # PAYER_STATUS_CHOICES = "verified / unverified".split()
@@ -149,7 +150,7 @@ class PayPalStandardBase(Model):
     initial_payment_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     next_payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     outstanding_balance = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
-    payment_cycle = models.CharField(max_length=255, blank=True) #Monthly
+    payment_cycle = models.CharField(max_length=255, blank=True)  # Monthly
     period_type = models.CharField(max_length=255, blank=True)
     product_name = models.CharField(max_length=255, blank=True)
     product_type = models.CharField(max_length=255, blank=True)
@@ -179,7 +180,7 @@ class PayPalStandardBase(Model):
     username = models.CharField(max_length=64, blank=True)
 
     # Billing Agreement Variables
-    mp_id = models.CharField(max_length=128, blank=True, null=True) # B-0G433009BJ555711U
+    mp_id = models.CharField(max_length=128, blank=True, null=True)  # B-0G433009BJ555711U
 
     # Dispute Resolution Variables
     case_creation_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
@@ -223,7 +224,7 @@ class PayPalStandardBase(Model):
 
     class Meta:
         abstract = True
-        app_label = 'paypal_standard_base' # Keep Django 1.7 quiet
+        app_label = 'paypal_standard_base'  # Keep Django 1.7 quiet
 
     def __unicode__(self):
         if self.is_transaction():

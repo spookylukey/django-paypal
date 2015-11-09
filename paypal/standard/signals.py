@@ -13,4 +13,3 @@ class DeprecatedSignal(Signal):
         warnings.warn(
             self.deprecation_message, DeprecationWarning, stacklevel=2)
         return super(DeprecatedSignal, self).connect(*args, **kwargs)
-

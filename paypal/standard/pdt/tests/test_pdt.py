@@ -80,7 +80,7 @@ class PDTTest(TestCase):
         self.assertEqual(pdt_obj.flag, False)
         paypal_response = self.client.get("/pdt/", self.get_params)
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
-        self.assertEqual(len(PayPalPDT.objects.all()), 1) # we don't create a new pdt        
+        self.assertEqual(len(PayPalPDT.objects.all()), 1)  # we don't create a new pdt
         pdt_obj = PayPalPDT.objects.all()[0]
         self.assertEqual(pdt_obj.flag, False)
 
