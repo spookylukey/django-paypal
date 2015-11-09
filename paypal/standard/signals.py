@@ -1,6 +1,6 @@
-from django.dispatch import Signal
-
 import warnings
+
+from django.dispatch import Signal
 
 
 class DeprecatedSignal(Signal):

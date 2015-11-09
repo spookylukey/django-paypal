@@ -5,12 +5,11 @@ from __future__ import unicode_literals
 from calendar import monthrange
 from datetime import date
 
+import six
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from six.moves import range
-import six
-
 from paypal.pro.creditcard import verify_credit_card
+from six.moves import range
 
 
 class CreditCardField(forms.CharField):

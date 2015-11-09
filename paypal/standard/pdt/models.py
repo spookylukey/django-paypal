@@ -3,13 +3,12 @@
 from __future__ import unicode_literals
 
 import requests
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.http import QueryDict
-from six.moves.urllib.parse import unquote_plus
-
-from paypal.standard.models import PayPalStandardBase
 from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
+from paypal.standard.models import PayPalStandardBase
+from six.moves.urllib.parse import unquote_plus
 
 
 # ### Todo: Move this logic to conf.py:

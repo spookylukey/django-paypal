@@ -7,7 +7,6 @@ http://code.djangoproject.com/wiki/Signals#Helppost_saveseemstobeemittedtwicefor
 from __future__ import unicode_literals
 
 from django.dispatch import Signal
-
 from paypal.standard.signals import DeprecatedSignal
 
 # Sent when a validated, non-duplicated IPN is received.

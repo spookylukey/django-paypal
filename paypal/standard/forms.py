@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import logging
+
 from django import forms
 from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.utils import timezone
-from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
-from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
-                                  IMAGE, SUBSCRIPTION_IMAGE, DONATION_IMAGE,
-                                  SANDBOX_IMAGE, SUBSCRIPTION_SANDBOX_IMAGE, DONATION_SANDBOX_IMAGE)
+from django.utils.safestring import mark_safe
+from paypal.standard.conf import (DONATION_IMAGE, DONATION_SANDBOX_IMAGE,
+                                  IMAGE, POSTBACK_ENDPOINT, SANDBOX_IMAGE,
+                                  SANDBOX_POSTBACK_ENDPOINT,
+                                  SUBSCRIPTION_IMAGE,
+                                  SUBSCRIPTION_SANDBOX_IMAGE)
+from paypal.standard.widgets import ReservedValueHiddenInput, ValueHiddenInput
 
 log = logging.getLogger(__name__)
 
