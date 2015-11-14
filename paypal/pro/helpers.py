@@ -30,7 +30,7 @@ EXPRESS_ENDPOINT = "https://www.paypal.com/webscr?cmd=_express-checkout&%s"
 SANDBOX_EXPRESS_ENDPOINT = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout&%s"
 
 
-log = logging.getLogger(__file__)
+log = logging.getLogger('paypal.pro')
 
 
 def paypal_time(time_obj=None):
