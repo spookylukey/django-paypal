@@ -77,7 +77,7 @@ class PayPalStandardBase(Model):
     custom = models.CharField(max_length=255, blank=True)
     notify_version = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     parent_txn_id = models.CharField("Parent Transaction ID", max_length=19, blank=True)
-    receiver_email = models.EmailField(blank=True)
+    receiver_email = models.EmailField(max_length=254, blank=True)
     receiver_id = models.CharField(max_length=255, blank=True)  # 258DLEHY2BDK6
     residence_country = models.CharField(max_length=2, blank=True)
     test_ipn = models.BooleanField(default=False, blank=True)
