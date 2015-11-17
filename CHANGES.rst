@@ -9,6 +9,11 @@ detailed information about all changes.
 
 Below is a summary:
 
+Version 0.3.0
+-------------
+
+* Dropped support for Django 1.4 and 1.5
+
 Version 0.2.7
 -------------
 
