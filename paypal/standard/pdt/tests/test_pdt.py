@@ -8,10 +8,9 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import TestCase
 from django.test.utils import override_settings
-
 from paypal.standard.pdt.models import PayPalPDT
 
-from .settings import TEMPLATES, TEMPLATE_DIRS
+from .settings import TEMPLATE_DIRS, TEMPLATES
 
 
 class DummyPayPalPDT(object):
@@ -83,7 +82,7 @@ class PDTTest(TestCase):
         self.assertEqual(pdt_obj.flag, False)
         paypal_response = self.client.get("/pdt/", self.get_params)
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
-        self.assertEqual(len(PayPalPDT.objects.all()), 1) # we don't create a new pdt        
+        self.assertEqual(len(PayPalPDT.objects.all()), 1)  # we don't create a new pdt
         pdt_obj = PayPalPDT.objects.all()[0]
         self.assertEqual(pdt_obj.flag, False)
 

@@ -3,9 +3,9 @@
 from __future__ import unicode_literals
 
 from django import forms
-
-from paypal.pro.fields import CreditCardField, CreditCardExpiryField, CreditCardCVV2Field, CountryField
 from paypal.pro.exceptions import PayPalFailure
+from paypal.pro.fields import (CountryField, CreditCardCVV2Field,
+                               CreditCardExpiryField, CreditCardField)
 
 
 class PaymentForm(forms.Form):
@@ -36,10 +36,10 @@ class PaymentForm(forms.Form):
         try:
             # Create single payment:
             if 'billingperiod' not in params:
-                nvp_obj = wpp.doDirectPayment(params)
+                wpp.doDirectPayment(params)
             # Create recurring payment:
             else:
-                nvp_obj = wpp.createRecurringPaymentsProfile(params, direct=True)
+                wpp.createRecurringPaymentsProfile(params, direct=True)
         except PayPalFailure:
             return False
         return True

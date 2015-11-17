@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import django
-
 from paypal.standard.forms import PayPalStandardBaseForm
 from paypal.standard.pdt.models import PayPalPDT
 

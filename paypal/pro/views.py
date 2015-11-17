@@ -6,10 +6,9 @@ import warnings
 
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
-
-from paypal.pro.forms import PaymentForm, ConfirmForm
-from paypal.pro.helpers import PayPalWPP, express_endpoint_for_token
 from paypal.pro.exceptions import PayPalFailure
+from paypal.pro.forms import ConfirmForm, PaymentForm
+from paypal.pro.helpers import PayPalWPP, express_endpoint_for_token
 
 
 class PayPalPro(object):

@@ -5,12 +5,11 @@ from __future__ import unicode_literals
 import logging
 
 from django.http import HttpResponse, QueryDict
-from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from paypal.standard.ipn.forms import PayPalIPNForm
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.models import DEFAULT_ENCODING
-
 
 log = logging.getLogger(__name__)
 
@@ -49,9 +48,17 @@ def ipn(request, item_check_callable=None):
 
     if data is not None:
         if hasattr(PayPalIPN._meta, 'get_fields'):
-            date_fields = [f.attname for f in PayPalIPN._meta.get_fields() if f.__class__.__name__ == 'DateTimeField']
+            date_fields = [
+                f.attname
+                for f in PayPalIPN._meta.get_fields()
+                if f.__class__.__name__ == 'DateTimeField'
+            ]
         else:
-            date_fields = [f.attname for f, m in PayPalIPN._meta.get_fields_with_model() if f.__class__.__name__ == 'DateTimeField']
+            date_fields = [
+                f.attname
+                for f, m in PayPalIPN._meta.get_fields_with_model()
+                if f.__class__.__name__ == 'DateTimeField'
+            ]
 
         for date_field in date_fields:
             if data.get(date_field) == 'N/A':
@@ -65,7 +72,12 @@ def ipn(request, item_check_callable=None):
             except Exception as e:
                 flag = "Exception while processing. (%s)" % e
         else:
-            flag = "Invalid form. ({0})".format(", ".join(["{0}: {1}".format(k, ", ".join(v)) for k, v in form.errors.items()]))
+            flag = "Invalid form. ({0})".format(
+                ", ".join([
+                    "{0}: {1}".format(k, ", ".join(v))
+                    for k, v in form.errors.items()
+                ])
+            )
 
     if ipn_obj is None:
         ipn_obj = PayPalIPN()

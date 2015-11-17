@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import logging
+
 from django import forms
 from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.utils import timezone
-from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
-from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
-                                  IMAGE, SUBSCRIPTION_IMAGE, DONATION_IMAGE,
-                                  SANDBOX_IMAGE, SUBSCRIPTION_SANDBOX_IMAGE, DONATION_SANDBOX_IMAGE)
+from django.utils.safestring import mark_safe
+from paypal.standard.conf import (DONATION_IMAGE, DONATION_SANDBOX_IMAGE,
+                                  IMAGE, POSTBACK_ENDPOINT, SANDBOX_IMAGE,
+                                  SANDBOX_POSTBACK_ENDPOINT,
+                                  SUBSCRIPTION_IMAGE,
+                                  SUBSCRIPTION_SANDBOX_IMAGE)
+from paypal.standard.widgets import ReservedValueHiddenInput, ValueHiddenInput
 
 log = logging.getLogger(__name__)
 
@@ -16,11 +19,12 @@ log = logging.getLogger(__name__)
 # 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
 # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
 # PayPal dates have been spotted in the wild with these formats, beware!
-PAYPAL_DATE_FORMATS = ["%H:%M:%S %b. %d, %Y PST",
-                       "%H:%M:%S %b. %d, %Y PDT",
-                       "%H:%M:%S %b %d, %Y PST",
-                       "%H:%M:%S %b %d, %Y PDT",
-                      ]
+PAYPAL_DATE_FORMATS = [
+    "%H:%M:%S %b. %d, %Y PST",
+    "%H:%M:%S %b. %d, %Y PDT",
+    "%H:%M:%S %b %d, %Y PST",
+    "%H:%M:%S %b %d, %Y PDT",
+]
 
 
 class PayPalDateTimeField(forms.DateTimeField):
@@ -82,20 +86,20 @@ class PayPalPaymentsForm(forms.Form):
     quantity = forms.CharField(widget=ValueHiddenInput())
 
     # Subscription Related.
-    a1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 Price
-    p1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 Duration
-    t1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 unit of Duration, default to Month
-    a2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Price
-    p2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Duration
-    t2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 unit of Duration, default to Month
-    a3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Price
-    p3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Duration
-    t3 = forms.CharField(widget=ValueHiddenInput())  # Subscription unit of Duration, default to Month
-    src = forms.CharField(widget=ValueHiddenInput()) # Is billing recurring? default to yes
-    sra = forms.CharField(widget=ValueHiddenInput()) # Reattempt billing on failed cc transaction
+    a1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 Price
+    p1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 Duration
+    t1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 unit of Duration, default to Month
+    a2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 Price
+    p2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 Duration
+    t2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 unit of Duration, default to Month
+    a3 = forms.CharField(widget=ValueHiddenInput())   # Subscription Price
+    p3 = forms.CharField(widget=ValueHiddenInput())   # Subscription Duration
+    t3 = forms.CharField(widget=ValueHiddenInput())   # Subscription unit of Duration, default to Month
+    src = forms.CharField(widget=ValueHiddenInput())  # Is billing recurring? default to yes
+    sra = forms.CharField(widget=ValueHiddenInput())  # Reattempt billing on failed cc transaction
     no_note = forms.CharField(widget=ValueHiddenInput())
     # Can be either 1 or 2. 1 = modify or allow new subscription creation, 2 = modify only
-    modify = forms.IntegerField(widget=ValueHiddenInput()) # Are we modifying an existing subscription?
+    modify = forms.IntegerField(widget=ValueHiddenInput())  # Are we modifying an existing subscription?
 
     # Localization / PayPal Setup
     lc = forms.CharField(widget=ValueHiddenInput())
@@ -135,13 +139,11 @@ class PayPalPaymentsForm(forms.Form):
         else:
             return POSTBACK_ENDPOINT
 
-
     def render(self):
         return mark_safe(u"""<form action="%s" method="post">
     %s
     <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
 </form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
-
 
     def sandbox(self):
         "Deprecated.  Use self.render() instead."

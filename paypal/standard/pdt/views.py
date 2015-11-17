@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
-from paypal.standard.pdt.models import PayPalPDT
 from paypal.standard.pdt.forms import PayPalPDTForm
+from paypal.standard.pdt.models import PayPalPDT
 
 
 @require_GET

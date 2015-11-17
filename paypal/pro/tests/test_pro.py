@@ -2,22 +2,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from decimal import Decimal
 import warnings
+from decimal import Decimal
 
 import mock
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-
-from paypal.pro.fields import CreditCardField
-from paypal.pro.helpers import PayPalWPP, PayPalError, VERSION
 from paypal.pro.exceptions import PayPalFailure
-from paypal.pro.views import PayPalPro
+from paypal.pro.fields import CreditCardField
+from paypal.pro.helpers import VERSION, PayPalError, PayPalWPP
 from paypal.pro.signals import payment_was_successful
+from paypal.pro.views import PayPalPro
 
-from .settings import TEMPLATES, TEMPLATE_DIRS
+from .settings import TEMPLATE_DIRS, TEMPLATES
 
 RF = RequestFactory()
 REQUEST = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
@@ -57,10 +56,10 @@ def ppp_wrapper(request, handler=None):
     if handler is None:
         handler = lambda nvp: nvp  # NOP
     ppp = PayPalPro(
-        item=item,                            # what you're selling
-        payment_template="payment.html",      # template name for payment
-        confirm_template="confirmation.html", # template name for confirmation
-        success_url="/success/",              # redirect location after success
+        item=item,                             # what you're selling
+        payment_template="payment.html",       # template name for payment
+        confirm_template="confirmation.html",  # template name for confirmation
+        success_url="/success/",               # redirect location after success
         nvp_handler=handler
         )
 

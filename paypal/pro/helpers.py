@@ -14,9 +14,11 @@ from django.http import QueryDict
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
-from paypal.pro.signals import payment_was_successful, recurring_cancel, recurring_suspend, recurring_reactivate, payment_profile_created
-from paypal.pro.models import PayPalNVP
 from paypal.pro.exceptions import PayPalFailure
+from paypal.pro.models import PayPalNVP
+from paypal.pro.signals import (payment_profile_created,
+                                payment_was_successful, recurring_cancel,
+                                recurring_reactivate, recurring_suspend)
 
 USER = settings.PAYPAL_WPP_USER
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
@@ -76,7 +78,7 @@ def express_endpoint_for_token(token, commit=False):
 class PayPalWPP(object):
     """
     Wrapper class for the PayPal Website Payments Pro.
-    
+
     Website Payments Pro Integration Guide:
     https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_WPP_IntegrationGuide.pdf
 
@@ -259,7 +261,8 @@ class PayPalWPP(object):
 
         # TODO: This fail silently check should be using the error code, but its not easy to access
         if not nvp_obj.flag or (
-            fail_silently and nvp_obj.flag_info == 'Invalid profile status for cancel action; profile should be active or suspended'):
+            fail_silently and nvp_obj.flag_info == 'Invalid profile status for cancel action; profile should be active or suspended'
+        ):
             if params['action'] == 'Cancel':
                 recurring_cancel.send(sender=nvp_obj)
             elif params['action'] == 'Suspend':
@@ -355,4 +358,4 @@ class PayPalWPP(object):
     def _parse_response(self, response):
         """Turn the PayPal response into a dict"""
         q = QueryDict(response, encoding='UTF-8').dict()
-        return {k.lower(): v for k,v in q.items()}
+        return {k.lower(): v for k, v in q.items()}

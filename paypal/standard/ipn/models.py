@@ -3,11 +3,20 @@
 from __future__ import unicode_literals
 
 import requests
-from six import b
-
-
+from paypal.standard.ipn.signals import (invalid_ipn_received,
+                                         payment_was_flagged,
+                                         payment_was_refunded,
+                                         payment_was_reversed,
+                                         payment_was_successful,
+                                         recurring_cancel, recurring_create,
+                                         recurring_failed, recurring_payment,
+                                         recurring_skipped,
+                                         subscription_cancel, subscription_eot,
+                                         subscription_modify,
+                                         subscription_signup,
+                                         valid_ipn_received)
 from paypal.standard.models import PayPalStandardBase
-from paypal.standard.ipn.signals import valid_ipn_received, invalid_ipn_received, payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful, recurring_create, recurring_payment, recurring_cancel, recurring_skipped, recurring_failed, subscription_cancel, subscription_signup, subscription_eot, subscription_modify
+from six import b
 
 
 class PayPalIPN(PayPalStandardBase):
@@ -56,7 +65,7 @@ class PayPalIPN(PayPalStandardBase):
                 recurring_skipped.send(sender=self)
             elif self.is_recurring_failed():
                 recurring_failed.send(sender=self)
-       # Subscription signals:
+        # Subscription signals:
         else:
             if self.is_subscription_cancellation():
                 subscription_cancel.send(sender=self)
