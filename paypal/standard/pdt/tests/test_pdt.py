@@ -63,6 +63,9 @@ class PDTTest(TestCase):
         pdt_obj._verify_postback()
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
         self.assertEqual(pdt_obj.txn_id, '1ED550410S3402306')
+        # Issue #121: Ensure for doesn't blank non-PayPal-supplied fields
+        self.assertEqual(pdt_obj.ipaddress, '127.0.0.1')
+        self.assertEqual(pdt_obj.response, paypal_response)
 
     def test_pdt(self):
         self.assertEqual(len(PayPalPDT.objects.all()), 0)
