@@ -17,3 +17,21 @@ See https://django-paypal.readthedocs.org/ for documentation.
 django-paypal supports Python 2.7, 3.3 and 3.4, and Django from version 1.4 to 1.8.
 
 Please read the docs if you are upgrading from Django 1.7
+
+
+Contributing to django-paypal
+=============================
+
+If you want to contribute (yay!), please create a fork and start a branch off
+'master' for your changes. Submit a PR on GitHub to request that it is merged.
+
+All bug fixes and new features will require tests to accompany them, unless it
+is very difficult to write the test (e.g. non deterministic behaviour). The
+tests should fail without the fix/feature.
+
+Please add to CHANGES.rst for any significant bug fixes or new features. This
+file becomes part of the PyPI description for the package.
+
+New features need documentation adding in docs/
+
+See docs/tests.rst for info about running the test suite.
