@@ -12,7 +12,12 @@ Below is a summary:
 Version 0.3.0
 -------------
 
-* Dropped support for Django 1.4 and 1.5
+* Dropped support for Django 1.4 and 1.5.
+* Fixed crasher with AmbiguousTimeError.
+* Better logging for paypal.pro.
+* Fixed Django 1.7/1.8 compat for EmailField.
+* Added missing migration for PDT model.
+
 
 Version 0.2.7
 -------------
