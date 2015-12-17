@@ -17,6 +17,7 @@ Version 0.3.0
 * Better logging for paypal.pro.
 * Fixed Django 1.7/1.8 compat for EmailField.
 * Added missing migration for PDT model.
+* Added missing South migrations
 
 
 Version 0.2.7
