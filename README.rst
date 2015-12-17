@@ -35,3 +35,10 @@ file becomes part of the PyPI description for the package.
 New features need documentation adding in docs/
 
 See docs/tests.rst for info about running the test suite.
+
+If you make changes to the models, please create migrations for both Django 1.7+
+and South e.g.::
+
+    ./manage.py makemigrations ipn
+
+    ./manage.py schemamigration --auto ipn
