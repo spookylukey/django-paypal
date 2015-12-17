@@ -38,7 +38,9 @@ DEFAULT_ENCODING = 'windows-1252'  # PayPal seems to normally use this.
 
 
 class PayPalStandardBase(Model):
-    """Meta class for common variables shared by IPN and PDT: http://tinyurl.com/cuq6sj"""
+    """Meta class for common variables shared by IPN and PDT"""
+    # See https://developer.paypal.com/docs/classic/ipn/integration-guide/IPNandPDTVariables/
+
     # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
