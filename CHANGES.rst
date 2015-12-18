@@ -9,6 +9,12 @@ detailed information about all changes.
 
 Below is a summary:
 
+Version 0.3.1
+-------------
+* Removed PAYPAL_RECEIVER_EMAIL from settings to allow multiple receiver emails
+  in a single app. Now validation of email must be done once received a
+  'valid tranasaction' signal.
+
 Version 0.3.0
 -------------
 

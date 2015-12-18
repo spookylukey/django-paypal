@@ -18,7 +18,7 @@ class DummyPayPalPDT(object):
     def __init__(self, update_context_dict={}):
         self.context_dict = {'st': 'SUCCESS', 'custom': 'cb736658-3aad-4694-956f-d0aeade80194',
                              'txn_id': '1ED550410S3402306', 'mc_gross': '225.00',
-                             'business': settings.PAYPAL_RECEIVER_EMAIL, 'error': 'Error code: 1234'}
+                             'business': 'test@example.com', 'error': 'Error code: 1234'}
 
         self.context_dict.update(update_context_dict)
         self.response = ''

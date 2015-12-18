@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from warnings import warn
+
 from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
@@ -327,8 +329,13 @@ class PayPalStandardBase(Model):
                     self.set_flag("Invalid payment_status. (%s)" % self.payment_status)
                 if duplicate_txn_id(self):
                     self.set_flag("Duplicate txn_id. (%s)" % self.txn_id)
-                if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
-                    self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)
+                if hasattr(settings, 'PAYPAL_RECEIVER_EMAIL'):
+                    warn("""Use of PAYPAL_RECEIVER_EMAIL in settings has been Deprecated. 
+                            Check of valid email must be done when receiving the 
+                            valid_ipn_received / valid_pdt_received signal""",
+                          DeprecationWarning)
+                    if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
+                        self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)
                 if callable(item_check_callable):
                     flag, reason = item_check_callable(self)
                     if flag:

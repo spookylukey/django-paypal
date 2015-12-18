@@ -13,7 +13,6 @@ settings.configure(
                {'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': 'test.db',
                 }},
-    PAYPAL_RECEIVER_EMAIL='',
     PAYPAL_IDENTITY_TOKEN='',
     INSTALLED_APPS=[
         'django.contrib.auth',

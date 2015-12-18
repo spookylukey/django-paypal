@@ -73,7 +73,7 @@ class PayPalPaymentsForm(forms.Form):
     DONATE = 'donate'
 
     # Where the money goes.
-    business = forms.CharField(widget=ValueHiddenInput(), initial=settings.PAYPAL_RECEIVER_EMAIL)
+    business = forms.CharField(widget=ValueHiddenInput())
 
     # Item information.
     amount = forms.IntegerField(widget=ValueHiddenInput())

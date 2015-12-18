@@ -5,9 +5,6 @@ class PayPalSettingsError(Exception):
     """Raised when settings be bad."""
 
 
-RECEIVER_EMAIL = settings.PAYPAL_RECEIVER_EMAIL
-
-
 # API Endpoints.
 POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"

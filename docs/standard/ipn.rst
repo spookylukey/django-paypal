@@ -1,8 +1,7 @@
 Using PayPal Standard IPN
 =========================
 
-1. Edit ``settings.py`` and add ``paypal.standard.ipn`` to your ``INSTALLED_APPS``
-   and ``PAYPAL_RECEIVER_EMAIL``:
+1. Edit ``settings.py`` and add ``paypal.standard.ipn`` to your ``INSTALLED_APPS``:
 
    settings.py:
 
@@ -16,17 +15,25 @@ Using PayPal Standard IPN
            #...
        ]
 
-       #...
-       PAYPAL_RECEIVER_EMAIL = "yourpaypalemail@example.com"
 
    For installations on which you want to use the sandbox,
-   set PAYPAL_TEST to True.  Ensure PAYPAL_RECEIVER_EMAIL is set to
-   your sandbox account email too.
+   set PAYPAL_TEST to True.  
+
+   .. code-block:: python
+       PAYPAL_TEST = True
+
+
 
 2. :doc:`/updatedb`
 
 3. Create an instance of the ``PayPalPaymentsForm`` in the view where you would
-   like to collect money. Call ``render`` on the instance in your template to
+   like to collect money. 
+  
+   You must fill a dictionary with the information required to complete the 
+   payment, and pass it through the ``initial`` parameter when creating the
+   ``PayPalPaymentsForm``.
+
+   Call ``render`` on the instance in your template to
    write out the HTML.
 
    views.py:
@@ -39,7 +46,7 @@ Using PayPal Standard IPN
 
            # What you want the button to do.
            paypal_dict = {
-               "business": settings.PAYPAL_RECEIVER_EMAIL,
+               "business": "receiver_email@example.com",
                "amount": "10000000.00",
                "item_name": "name of the item",
                "invoice": "unique-invoice-id",
