@@ -3,7 +3,7 @@
 import logging
 from django import forms
 from django.conf import settings
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils import timezone
 from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
 from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
@@ -135,13 +135,11 @@ class PayPalPaymentsForm(forms.Form):
         else:
             return POSTBACK_ENDPOINT
 
-
     def render(self):
-        return mark_safe(u"""<form action="%s" method="post">
-    %s
-    <input type="image" src="%s" border="0" name="submit" alt="Buy it Now" />
-</form>""" % (self.get_endpoint(), self.as_p(), self.get_image()))
-
+        return format_html(u"""<form action="{0}" method="post">
+    {1}
+    <input type="image" src="{2}" border="0" name="submit" alt="Buy it Now" />
+</form>""", self.get_endpoint(), self.as_p(), self.get_image())
 
     def sandbox(self):
         "Deprecated.  Use self.render() instead."
