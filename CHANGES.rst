@@ -19,6 +19,7 @@ Version 0.3.0
 * Added missing migration for PDT model.
 * Added missing South migrations
 * Fixed max_length of IPN/PDT custom and transaction_subject fields
+* Fixed issue #105 - IPN failure when running under non-English locale
 
 
 Version 0.2.7

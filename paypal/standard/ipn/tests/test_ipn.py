@@ -1,23 +1,28 @@
 from __future__ import unicode_literals
 
+import locale
+import unittest
+import warnings
 from datetime import datetime
 from decimal import Decimal
-import warnings
 
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 from six import b, text_type
-from six.moves.urllib.parse import urlencode
 
-from paypal.standard.models import ST_PP_CANCELLED
 from paypal.standard.ipn.models import PayPalIPN
-from paypal.standard.ipn.signals import (payment_was_successful,
-                                         payment_was_flagged, payment_was_refunded, payment_was_reversed,
-                                         recurring_skipped, recurring_failed,
-                                         recurring_create, recurring_payment, recurring_cancel,
-                                         valid_ipn_received, invalid_ipn_received)
+from paypal.standard.ipn.signals import (invalid_ipn_received,
+                                         payment_was_flagged,
+                                         payment_was_refunded,
+                                         payment_was_reversed,
+                                         payment_was_successful,
+                                         recurring_cancel, recurring_create,
+                                         recurring_failed, recurring_payment,
+                                         recurring_skipped, valid_ipn_received)
+from paypal.standard.models import ST_PP_CANCELLED
+from six.moves.urllib.parse import urlencode
 
 # Parameters are all bytestrings, so we can construct a bytestring
 # request the same way that Paypal does.
@@ -175,6 +180,9 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         ipn_obj = self.assertGotSignal(valid_ipn_received, False)
         # Check some encoding issues:
         self.assertEqual(ipn_obj.first_name, u"J\u00f6rg")
+        # Check date parsing
+        self.assertEqual(ipn_obj.payment_date,
+                         datetime(2009, 2, 3, 7, 4, 6, tzinfo=timezone.utc))
 
     def test_invalid_ipn_received(self):
         PayPalIPN._postback = lambda self: b"INVALID"
@@ -378,6 +386,28 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
         response = self.paypal_post(params)
         self.assertFalse(PayPalIPN.objects.get().flag)
+
+
+@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
+class IPNLocaleTest(IPNUtilsMixin, MockedPostbackMixin, TestCase):
+    def setUp(self):
+        super(IPNLocaleTest, self).setUp()
+        self.old_locale = locale.getlocale(locale.LC_TIME)
+        try:
+            locale.setlocale(locale.LC_TIME, ('fr_FR', 'UTF-8'))
+        except Exception:
+            raise unittest.SkipTest("fr_FR locale not available for testing")
+
+    def tearDown(self):
+        locale.setlocale(locale.LC_TIME, self.old_locale)
+        super(IPNLocaleTest, self).tearDown()
+
+    def test_valid_ipn_received(self):
+        ipn_obj = self.assertGotSignal(valid_ipn_received, False)
+        self.assertEqual(ipn_obj.last_name, u"User")
+        # Check date parsing
+        self.assertEqual(ipn_obj.payment_date,
+                         datetime(2009, 2, 3, 7, 4, 6, tzinfo=timezone.utc))
 
 
 @override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')

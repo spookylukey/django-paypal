@@ -1,39 +1,66 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import logging
+from datetime import datetime
+
 from django import forms
 from django.conf import settings
-from django.utils.html import format_html
 from django.utils import timezone
-from paypal.standard.widgets import ValueHiddenInput, ReservedValueHiddenInput
-from paypal.standard.conf import (POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT,
-                                  IMAGE, SUBSCRIPTION_IMAGE, DONATION_IMAGE,
-                                  SANDBOX_IMAGE, SUBSCRIPTION_SANDBOX_IMAGE, DONATION_SANDBOX_IMAGE)
+from django.utils.html import format_html
+
+from paypal.standard.conf import (DONATION_IMAGE, DONATION_SANDBOX_IMAGE,
+                                  IMAGE, POSTBACK_ENDPOINT, SANDBOX_IMAGE,
+                                  SANDBOX_POSTBACK_ENDPOINT,
+                                  SUBSCRIPTION_IMAGE,
+                                  SUBSCRIPTION_SANDBOX_IMAGE)
+from paypal.standard.widgets import ReservedValueHiddenInput, ValueHiddenInput
 
 log = logging.getLogger(__name__)
 
 
-# 20:18:05 Jan 30, 2009 PST - PST timezone support is not included out of the box.
-# PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
+# PayPal date format e.g.:
+#   20:18:05 Jan 30, 2009 PST
+#
 # PayPal dates have been spotted in the wild with these formats, beware!
-PAYPAL_DATE_FORMATS = ["%H:%M:%S %b. %d, %Y PST",
-                       "%H:%M:%S %b. %d, %Y PDT",
-                       "%H:%M:%S %b %d, %Y PST",
-                       "%H:%M:%S %b %d, %Y PDT",
-                      ]
+#
+# %H:%M:%S %b. %d, %Y PST
+# %H:%M:%S %b. %d, %Y PDT
+# %H:%M:%S %b %d, %Y PST
+# %H:%M:%S %b %d, %Y PDT
+#
+# To avoid problems with different locales, we don't rely on datetime.strptime,
+# which is locale dependent, but do custom parsing in PayPalDateTimeField
+
+MONTHS = [
+    'Jan', 'Feb', 'Mar', 'Apr',
+    'May', 'Jun', 'Jul', 'Aug',
+    'Sep', 'Oct', 'Nov', 'Dec',
+]
 
 
 class PayPalDateTimeField(forms.DateTimeField):
-    input_formats = PAYPAL_DATE_FORMATS
 
-    def strptime(self, value, format):
-        dt = super(PayPalDateTimeField, self).strptime(value, format)
-        parts = format.split(" ")
-        if timezone.pytz and settings.USE_TZ:
-            if parts[-1] in ["PDT", "PST"]:
-                # PST/PDT is 'US/Pacific'
-                dt = timezone.pytz.timezone('US/Pacific').localize(
-                    dt, is_dst=parts[-1] == 'PDT')
+    def to_python(self, value):
+        if value in self.empty_values:
+            return None
+
+        if isinstance(value, datetime):
+            return value
+
+        value = value.strip()
+
+        time_part, month_part, day_part, year_part, zone_part = value.split(" ")
+        month_part = month_part.strip(".")
+        day_part = day_part.strip(",")
+        month = MONTHS.index(month_part) + 1
+        day = int(day_part)
+        year = int(year_part)
+        hour, minute, second = map(int, time_part.split(":"))
+        dt = datetime(year, month, day, hour, minute, second)
+        if zone_part in ["PDT", "PST"]:
+            # PST/PDT is 'US/Pacific'
+            dt = timezone.pytz.timezone('US/Pacific').localize(
+                dt, is_dst=zone_part == 'PDT')
         return dt
 
 
