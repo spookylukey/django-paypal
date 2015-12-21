@@ -59,9 +59,9 @@ IPN_POST_PARAMS = {
 }
 
 
-@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
-class IPNTestBase(TestCase):
+class ResetIPNSignalsMixin(object):
     def setUp(self):
+        super(ResetIPNSignalsMixin, self).setUp()
         self.valid_ipn_received_receivers = valid_ipn_received.receivers
         self.invalid_ipn_received_receivers = invalid_ipn_received.receivers
         # Deprecated:
@@ -101,7 +101,10 @@ class IPNTestBase(TestCase):
         recurring_create.receivers = self.recurring_create_receivers
         recurring_payment.receivers = self.recurring_payment_receivers
         recurring_cancel.receivers = self.recurring_cancel_receivers
+        super(ResetIPNSignalsMixin, self).tearDown()
 
+
+class IPNUtilsMixin(ResetIPNSignalsMixin):
     def paypal_post(self, params):
         """
         Does an HTTP POST the way that PayPal does, using the params given.
@@ -153,15 +156,20 @@ class IPNTestBase(TestCase):
         return ipn_obj
 
 
-class IPNTest(IPNTestBase):
-
+class MockedPostbackMixin(object):
     def setUp(self):
+        super(MockedPostbackMixin, self).setUp()
         # Monkey patch over PayPalIPN to make it get a VERFIED response.
         self.old_postback = PayPalIPN._postback
         PayPalIPN._postback = lambda self: b"VERIFIED"
 
     def tearDown(self):
         PayPalIPN._postback = self.old_postback
+        super(MockedPostbackMixin, self).tearDown()
+
+
+@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
+class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
     def test_valid_ipn_received(self):
         ipn_obj = self.assertGotSignal(valid_ipn_received, False)
@@ -372,7 +380,8 @@ class IPNTest(IPNTestBase):
         self.assertFalse(PayPalIPN.objects.get().flag)
 
 
-class IPNPostbackTest(IPNTestBase):
+@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
+class IPNPostbackTest(IPNUtilsMixin, TestCase):
     """
     Tests an actual postback to PayPal server.
     """
