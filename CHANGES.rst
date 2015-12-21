@@ -18,6 +18,7 @@ Version 0.3.0
 * Fixed Django 1.7/1.8 compat for EmailField.
 * Added missing migration for PDT model.
 * Added missing South migrations
+* Fixed max_length of IPN/PDT custom and transaction_subject fields
 
 
 Version 0.2.7

@@ -76,7 +76,7 @@ class PayPalStandardBase(Model):
     # Transaction and Notification-Related Variables
     business = models.CharField(max_length=127, blank=True, help_text="Email where the money was sent.")
     charset = models.CharField(max_length=255, blank=True)
-    custom = models.CharField(max_length=255, blank=True)
+    custom = models.CharField(max_length=256, blank=True)
     notify_version = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     parent_txn_id = models.CharField("Parent Transaction ID", max_length=19, blank=True)
     receiver_email = models.EmailField(max_length=254, blank=True)
@@ -192,7 +192,10 @@ class PayPalStandardBase(Model):
     receipt_id = models.CharField(max_length=255, blank=True)  # 1335-7816-2936-1451
     currency_code = models.CharField(max_length=32, default="USD", blank=True)
     handling_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
-    transaction_subject = models.CharField(max_length=255, blank=True)
+
+    # This undocumented variable apparently contains the same as the 'custom'
+    # field - http://stackoverflow.com/questions/8464442/set-transaction-subject-paypal-ipn
+    transaction_subject = models.CharField(max_length=256, blank=True)
 
     # @@@ Mass Pay Variables (Not Implemented, needs a separate model, for each transaction x)
     # fraud_managment_pending_filters_x = models.CharField(max_length=255, blank=True)
