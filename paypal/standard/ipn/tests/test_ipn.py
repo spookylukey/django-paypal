@@ -391,12 +391,14 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 @override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
 class IPNLocaleTest(IPNUtilsMixin, MockedPostbackMixin, TestCase):
     def setUp(self):
-        super(IPNLocaleTest, self).setUp()
         self.old_locale = locale.getlocale(locale.LC_TIME)
         try:
             locale.setlocale(locale.LC_TIME, ('fr_FR', 'UTF-8'))
         except Exception:
             raise unittest.SkipTest("fr_FR locale not available for testing")
+        # Put super call at the end, so that it isn't called if we skip the test
+        # (since tearDown is not called in that case).
+        super(IPNLocaleTest, self).setUp()
 
     def tearDown(self):
         locale.setlocale(locale.LC_TIME, self.old_locale)
