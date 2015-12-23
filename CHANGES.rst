@@ -20,8 +20,8 @@ Version 0.3.0
 * Removed ``PAYPAL_RECEIVER_EMAIL`` from settings to allow multiple receiver emails
   in a single app. Now validation of email must be done once received a
   ``valid_ipn_received`` signal. Also when creating a ``PayPalPaymentsForm``
-  you must provide the ``business`` keyword parameter (because it no longer
-  defaults to ``PAYPAL_RECEIVER_EMAIL``.
+  you must provide the ``business`` field in the ``initial`` parameter
+  (because it no longer defaults to ``PAYPAL_RECEIVER_EMAIL``).
   *IMPORTANT*: checking the ``receiver_email`` on the ``valid_ipn_received``
   signal listener is very important to make sure that we are receiving
   the payment in the expected PayPal account. Take into account that the
