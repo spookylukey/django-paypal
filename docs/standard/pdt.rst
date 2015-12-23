@@ -66,4 +66,10 @@ To use PDT:
         def your_pdt_return_url_view(request):
             pdt_obj, failed = process_pdt(request, item_check_callable=None)
             context = {"failed": failed, "pdt_obj": pdt_obj}
-            return render(request, 'my_template', context)
+            if not failed:
+                # IMPORTANT! :
+                # We should still check that the receiver_emails is the expected
+                if pdt_obj.receiver_email != 'my_account_email@example.com':
+                    # Do whatever action you expect         
+                    return render(request, 'my_valid_payment_template', context)
+            return render(request, 'my_non_valid_payment_template', context)
