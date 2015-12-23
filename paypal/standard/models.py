@@ -332,7 +332,7 @@ class PayPalStandardBase(Model):
                 if hasattr(settings, 'PAYPAL_RECEIVER_EMAIL'):
                     warn("""Use of PAYPAL_RECEIVER_EMAIL in settings has been Deprecated. 
                             Check of valid email must be done when receiving the 
-                            valid_ipn_received / valid_pdt_received signal""",
+                            valid_ipn_received signal""",
                           DeprecationWarning)
                     if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
                         self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)

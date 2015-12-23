@@ -9,12 +9,6 @@ detailed information about all changes.
 
 Below is a summary:
 
-Version 0.3.1
--------------
-* Removed PAYPAL_RECEIVER_EMAIL from settings to allow multiple receiver emails
-  in a single app. Now validation of email must be done once received a
-  'valid tranasaction' signal.
-
 Version 0.3.0
 -------------
 
@@ -23,7 +17,17 @@ Version 0.3.0
 * Better logging for paypal.pro.
 * Fixed Django 1.7/1.8 compat for EmailField.
 * Added missing migration for PDT model.
-
+* Removed ``PAYPAL_RECEIVER_EMAIL`` from settings to allow multiple receiver emails
+  in a single app. Now validation of email must be done once received a
+  ``valid_ipn_received`` signal. Also when creating a ``PayPalPaymentsForm``
+  you must provide the ``business`` keyword parameter (because it no longer
+  defaults to ``PAYPAL_RECEIVER_EMAIL``.
+  *IMPORTANT*: checking the ``receiver_email`` on the ``valid_ipn_received``
+  signal listener is very important to make sure that we are receiving
+  the payment in the expected PayPal account. Take into account that the
+  user can tamper the form fields before posting them to PayPal.
+* The use of the ``pdt`` view for PDT payments is deprecated. Now you should
+  provide your own view and use the ``process_pdt`` helper function.
 
 Version 0.2.7
 -------------

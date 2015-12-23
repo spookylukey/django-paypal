@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import logging
+from warnings import warn
 from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -120,10 +121,20 @@ class PayPalPaymentsForm(forms.Form):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
         if 'initial' in kwargs:
+            kwargs['initial'] = self._fix_deprecated_paypal_receiver_email(kwargs['initial'])
             # Dynamically create, so we can support everything PayPal does.
             for k, v in kwargs['initial'].items():
                 if k not in self.base_fields:
                     self.fields[k] = forms.CharField(label=k, widget=ValueHiddenInput(), initial=v)
+
+    def _fix_deprecated_paypal_receiver_email(self, initial_args):
+        if 'business' not in initial_args:
+            if hasattr(settings, 'PAYPAL_RECEIVER_EMAIL'):
+                warn("""The use of the settings.PAYPAL_RECEIVER_EMAIL is Deprecated.
+                        The keyword business argument must be given to PayPalPaymentsForm
+                        on creation""", DeprecationWarning)
+                initial_args['business'] = settings.PAYPAL_RECEIVER_EMAIL
+        return initial_args
 
     def test_mode(self):
         return getattr(settings, 'PAYPAL_TEST', True)
