@@ -1,5 +1,6 @@
 language: python
 # See tox.ini for env list
+python: 3.5  # this is needed to fool travis to have python3.5 as well
 env:
 - TOXENV=py27-django16
 - TOXENV=py27-django17
@@ -8,11 +9,11 @@ env:
 - TOXENV=py33-django16
 - TOXENV=py33-django17
 - TOXENV=py33-django18
-- TOXENV=py33-django19
 - TOXENV=py34-django16
 - TOXENV=py34-django17
 - TOXENV=py34-django18
 - TOXENV=py34-django19
+- TOXENV=py35-django19
 - TOXENV=checkmanifest
 install:
 - pip install tox>=2.1
