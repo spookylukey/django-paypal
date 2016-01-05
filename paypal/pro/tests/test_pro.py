@@ -13,14 +13,11 @@ from django.test.utils import override_settings
 
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.fields import CreditCardField
-from paypal.pro.helpers import VERSION
-from paypal.pro.helpers import PayPalError
-from paypal.pro.helpers import PayPalWPP
+from paypal.pro.helpers import VERSION, PayPalError, PayPalWPP
 from paypal.pro.signals import payment_was_successful
 from paypal.pro.views import PayPalPro
 
-from .settings import TEMPLATE_DIRS
-from .settings import TEMPLATES
+from .settings import TEMPLATE_DIRS, TEMPLATES
 
 RF = RequestFactory()
 REQUEST = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")

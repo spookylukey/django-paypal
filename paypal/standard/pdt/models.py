@@ -8,8 +8,7 @@ from django.db import models
 from django.http import QueryDict
 from six.moves.urllib.parse import unquote_plus
 
-from paypal.standard.conf import POSTBACK_ENDPOINT
-from paypal.standard.conf import SANDBOX_POSTBACK_ENDPOINT
+from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 from paypal.standard.models import PayPalStandardBase
 
 

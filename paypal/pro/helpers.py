@@ -17,11 +17,9 @@ from django.utils.http import urlencode
 
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.models import PayPalNVP
-from paypal.pro.signals import payment_profile_created
-from paypal.pro.signals import payment_was_successful
-from paypal.pro.signals import recurring_cancel
-from paypal.pro.signals import recurring_reactivate
-from paypal.pro.signals import recurring_suspend
+from paypal.pro.signals import (
+    payment_profile_created, payment_was_successful, recurring_cancel, recurring_reactivate, recurring_suspend
+)
 
 USER = settings.PAYPAL_WPP_USER
 PASSWORD = settings.PAYPAL_WPP_PASSWORD

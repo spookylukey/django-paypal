@@ -5,21 +5,11 @@ from __future__ import unicode_literals
 import requests
 from six import b
 
-from paypal.standard.ipn.signals import invalid_ipn_received
-from paypal.standard.ipn.signals import payment_was_flagged
-from paypal.standard.ipn.signals import payment_was_refunded
-from paypal.standard.ipn.signals import payment_was_reversed
-from paypal.standard.ipn.signals import payment_was_successful
-from paypal.standard.ipn.signals import recurring_cancel
-from paypal.standard.ipn.signals import recurring_create
-from paypal.standard.ipn.signals import recurring_failed
-from paypal.standard.ipn.signals import recurring_payment
-from paypal.standard.ipn.signals import recurring_skipped
-from paypal.standard.ipn.signals import subscription_cancel
-from paypal.standard.ipn.signals import subscription_eot
-from paypal.standard.ipn.signals import subscription_modify
-from paypal.standard.ipn.signals import subscription_signup
-from paypal.standard.ipn.signals import valid_ipn_received
+from paypal.standard.ipn.signals import (
+    invalid_ipn_received, payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful,
+    recurring_cancel, recurring_create, recurring_failed, recurring_payment, recurring_skipped, subscription_cancel,
+    subscription_eot, subscription_modify, subscription_signup, valid_ipn_received
+)
 from paypal.standard.models import PayPalStandardBase
 
 

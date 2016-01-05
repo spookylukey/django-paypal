@@ -4,8 +4,7 @@ from __future__ import unicode_literals
 
 import logging
 
-from django.http import HttpResponse
-from django.http import QueryDict
+from django.http import HttpResponse, QueryDict
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
