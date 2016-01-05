@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django import forms
+from django.utils.encoding import force_text
+from django.utils.safestring import mark_safe
+
 try:
     from django.forms.utils import flatatt # Django 1.7 and later
 except ImportError:
     from django.forms.util import flatatt # earlier
 
-from django.utils.safestring import mark_safe
-from django.utils.encoding import force_text
 
 
 class ValueHiddenInput(forms.HiddenInput):

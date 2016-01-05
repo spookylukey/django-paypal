@@ -10,7 +10,6 @@ from __future__ import unicode_literals
 
 import re
 
-
 # Well known card regular expressions.
 CARDS = {
     'Visa': re.compile(r"^4\d{12}(\d{3})?$"),

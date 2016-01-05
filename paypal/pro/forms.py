@@ -4,8 +4,11 @@ from __future__ import unicode_literals
 
 from django import forms
 
-from paypal.pro.fields import CreditCardField, CreditCardExpiryField, CreditCardCVV2Field, CountryField
 from paypal.pro.exceptions import PayPalFailure
+from paypal.pro.fields import CountryField
+from paypal.pro.fields import CreditCardCVV2Field
+from paypal.pro.fields import CreditCardExpiryField
+from paypal.pro.fields import CreditCardField
 
 
 class PaymentForm(forms.Form):

@@ -2,11 +2,12 @@
 from __future__ import unicode_literals
 
 import sys
+import warnings
 
 import django
 from django.conf import settings
+from django.core.management import execute_from_command_line
 
-import warnings
 warnings.simplefilter("always", PendingDeprecationWarning)
 warnings.simplefilter("always", DeprecationWarning)
 
@@ -59,7 +60,6 @@ settings.configure(
 )
 
 
-from django.core.management import execute_from_command_line
 argv = [sys.argv[0], "test"]
 
 if len(sys.argv) == 1:

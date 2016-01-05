@@ -1,6 +1,6 @@
-from django.dispatch import Signal
-
 import warnings
+
+from django.dispatch import Signal
 
 
 class DeprecatedSignal(Signal):
@@ -13,4 +13,3 @@ class DeprecatedSignal(Signal):
         warnings.warn(
             self.deprecation_message, DeprecationWarning, stacklevel=2)
         return super(DeprecatedSignal, self).connect(*args, **kwargs)
-

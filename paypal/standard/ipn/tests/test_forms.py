@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from paypal.standard.forms import PayPalPaymentsForm
 
+
 class PaymentsFormTest(TestCase):
 
     def test_form_render(self):

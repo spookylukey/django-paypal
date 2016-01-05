@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import os.path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages
+from setuptools import setup
 
 
 def read(*rnames):
