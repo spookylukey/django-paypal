@@ -5,12 +5,11 @@ Please always check the `database upgrading docs
 <http://django-paypal.readthedocs.org/en/stable/updatedb.html>`_ when upgrading,
 and see the `release_notes.rst
 <https://django-paypal.readthedocs.org/en/stable/release_notes.html>`_ for
-detailed information about all changes.
+notes that are too long to fit here.
 
-Below is a summary:
 
-Version 0.3.0
--------------
+Version 0.3.0 (in development)
+------------------------------
 
 * Dropped support for Django 1.4 and 1.5.
 * Fixed crasher with AmbiguousTimeError.
@@ -18,18 +17,20 @@ Version 0.3.0
 * Fixed Django 1.7/1.8 compat for EmailField.
 * Added missing migration for PDT model.
 * Added missing South migrations
-* Fixed max_length of IPN/PDT custom and transaction_subject fields
+* Fixed max_length of IPN/PDT ``custom`` and ``transaction_subject`` fields
 * Fixed issue #105 - IPN failure when running under non-English locale
 
-* Removed ``PAYPAL_RECEIVER_EMAIL`` from settings to allow multiple receiver emails
-  in a single app. Now validation of email must be done once received a
-  ``valid_ipn_received`` signal. Also when creating a ``PayPalPaymentsForm``
-  you must provide the ``business`` field in the ``initial`` parameter
-  (because it no longer defaults to ``PAYPAL_RECEIVER_EMAIL``).
-  *IMPORTANT*: checking the ``receiver_email`` on the ``valid_ipn_received``
-  signal listener is very important to make sure that we are receiving
-  the payment in the expected PayPal account. Take into account that the
-  user can tamper the form fields before posting them to PayPal.
+* *IMPORTANT:* Deprecated the ``PAYPAL_RECEIVER_EMAIL`` setting to allow
+  multiple receiver emails in a single app. This has several consequences for
+  your code, which must be fixed before upgrading to 0.4.x, when this setting
+  will be dropped entirely:
+
+  * When creating a ``PayPalPaymentsForm`` you must provide the ``business``
+    field in the ``initial`` parameter.
+
+  * Validation of ``receiver_email`` must be done in your ``valid_ipn_received``
+    signal handler and your PDT processing view. Take into account the fact that
+    the user can tamper with the form fields before posting them to PayPal.
 
 * The use of the ``pdt`` view for PDT payments is deprecated. Now you should
   provide your own view and use the ``process_pdt`` helper function.
