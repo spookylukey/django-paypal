@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import sys
 import warnings
 
-import django
 from django.conf import settings
 from django.core.management import execute_from_command_line
 
@@ -63,10 +62,7 @@ argv = [sys.argv[0], "test"]
 
 if len(sys.argv) == 1:
     # Nothing following 'runtests.py':
-    if django.VERSION < (1, 6):
-        argv.extend(["pro", "ipn", "pdt"])
-    else:
-        argv.extend(["paypal.pro.tests", "paypal.standard.ipn.tests", "paypal.standard.pdt.tests"])
+    argv.extend(["paypal.pro.tests", "paypal.standard.ipn.tests", "paypal.standard.pdt.tests"])
 else:
     # Allow tests to be specified:
     argv.extend(sys.argv[1:])
