@@ -29,7 +29,7 @@ class DummyPayPalWPP(PayPalWPP):
 #     """Dummy class for testing PayPalWPP."""
 #     responses = {
 #         # @@@ Need some reals data here.
-#         "DoDirectPayment": """ack=Success&timestamp=2009-03-12T23%3A52%3A33Z&l_severitycode0=Error&l_shortmessage0=Security+error&l_longmessage0=Security+header+is+not+valid&version=54.0&build=854529&l_errorcode0=&correlationid=""",
+#         "DoDirectPayment": """ack=Success&timestamp=2009-03-12T23%3A52%3A33Z&l_severitycode0=Error&l_shortmessage0=Security+error&l_longmessage0=Security+header+is+not+valid&version=54.0&build=854529&l_errorcode0=&correlationid=""",  # noqa
 #     }
 #
 #     def _request(self, data):
