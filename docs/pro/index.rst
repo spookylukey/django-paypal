@@ -5,7 +5,6 @@ Using PayPal Payments Pro (WPP)
 .. toctree::
    :maxdepth: 2
 
-   index
    detail
 
 

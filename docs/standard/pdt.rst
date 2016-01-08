@@ -31,13 +31,13 @@ To use PDT:
        PAYPAL_IDENTITY_TOKEN = "xxx"
 
    For installations on which you want to use the sandbox,
-   set PAYPAL_TEST to True.  While testing, ensure that when you create 
+   set PAYPAL_TEST to True.  While testing, ensure that when you create
    the PayPalPaymentsForm your receiver email (`business` parameter) is set to
    your sandbox account email too.
 
 2. :doc:`/updatedb`
 
-3. Create a view that uses `PayPalPaymentsForm` just like in :doc:`ipn`. 
+3. Create a view that uses `PayPalPaymentsForm` just like in :doc:`ipn`.
 
 4. After someone uses this button to buy something PayPal will return the user
    to your site at your ``return_url`` with some extra GET parameters.
@@ -46,7 +46,7 @@ To use PDT:
    calls ``paypal.standard.pdt.views.process_pdt``. This function returns
    a tuple containing ``(PDT object, flag)``, where the ``flag`` is True
    if verification failed.
-   
+
    Add the following to your `urls.py`:
 
    .. code-block:: python
@@ -57,19 +57,23 @@ To use PDT:
            url(r'^your_return_url/', your_pdt_return_url_view, name="pdt_return_url"),
            ...
        ]
-  
 
-    And then create a view that uses the `process_pdt` helper function: 
 
-    .. code-block:: python  
+    And then create a view that uses the ``process_pdt`` helper function:
+
+    .. code-block:: python
+
         @require_GET
         def your_pdt_return_url_view(request):
             pdt_obj, failed = process_pdt(request, item_check_callable=None)
             context = {"failed": failed, "pdt_obj": pdt_obj}
             if not failed:
                 # IMPORTANT! :
-                # We should still check that the receiver_emails is the expected
+                # We should still check that the receiver_email is the expected one
                 if pdt_obj.receiver_email != 'my_account_email@example.com':
-                    # Do whatever action you expect         
+                    # Do whatever action you expect
                     return render(request, 'my_valid_payment_template', context)
             return render(request, 'my_non_valid_payment_template', context)
+
+   See the :doc:`variables` documentation for information about attributes on
+   the PDT object that you can use.

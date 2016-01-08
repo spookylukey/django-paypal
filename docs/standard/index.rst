@@ -6,5 +6,6 @@ PayPal Payments Standard
 
    ipn
    pdt
+   variables
    subscriptions
    encrypted_buttons

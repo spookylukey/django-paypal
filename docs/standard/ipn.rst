@@ -61,9 +61,9 @@ Using PayPal Standard IPN
            context = {"form": form}
            return render(request, "payment.html", context)
 
+
    For a full list of variables that can be used in ``paypal_dict``, see
    `PayPal HTML variables documentation <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_.
-
 
    payment.html:
 
@@ -98,10 +98,10 @@ Using PayPal Standard IPN
 
      This indicates a correct, non-duplicate IPN message from PayPal. The
      handler will receive a :class:`paypal.standard.ipn.models.PayPalIPN` object
-     as the sender. You will need to check the ``payment_status`` attribute,
-     and *specially the ``receiver_email``* to make sure that the account
-     receiving the payment is the expected one, as well as
-     other attributes to know what action to take.
+     as the sender. You will need to check the ``payment_status`` attribute, and
+     the ``receiver_email`` to make sure that the account receiving the payment
+     is the expected one, as well as other attributes to know what action to
+     take.
 
    * ``invalid_ipn_received``
 
@@ -144,13 +144,8 @@ Using PayPal Standard IPN
 
        valid_ipn_received.connect(show_me_the_money)
 
-   The data variables that are returned on the IPN object are documented here:
-
-   https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
-
-   You need to pay particular attention to ``payment_status`` (`docs
-   <https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/#id091EB04C0HS__id0913D0E0UQU>`_). Use
-   can use the ``ST_PP_*`` constants in ``paypal.standard.models`` to help.
+   See the :doc:`variables` documentation for information about attributes on
+   the IPN object that you can use.
 
 6. You will also need to implement the ``return_url`` and ``cancel_return`` views
    to handle someone returning from PayPal.

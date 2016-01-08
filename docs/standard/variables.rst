@@ -1,0 +1,20 @@
+
+IPN/PDT variables
+=================
+
+The data variables that are returned on the IPN object are documented here:
+
+https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
+
+The IPN/PDT objects are Django models with the same attributes as above,
+converted to appropriate Python types e.g. ``Decimal`` for money values.
+
+Where a variable has multiple values represented with *x* in the above
+documentation, the corresponding fields do not exist on the model objects.
+However, you can still access the data using the ``posted_data_dict`` attribute,
+which returns a dictionary of all data sent by PayPal.
+
+When processing these objects for handling payments, you need to pay particular
+attention to ``payment_status`` (`docs
+<https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/#id091EB04C0HS__id0913D0E0UQU>`_).
+You can use the ``ST_PP_*`` constants in ``paypal.standard.models`` to help.
