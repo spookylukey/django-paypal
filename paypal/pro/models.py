@@ -4,10 +4,10 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models
+from django.forms.models import model_to_dict
 from django.http import QueryDict
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
-from django.forms.models import model_to_dict
 
 try:
     from idmapper.models import SharedMemoryModel as Model

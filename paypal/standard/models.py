@@ -6,8 +6,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
 
-from paypal.standard.helpers import duplicate_txn_id, check_secret
 from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
+from paypal.standard.helpers import check_secret, duplicate_txn_id
 
 ST_PP_ACTIVE = 'Active'
 ST_PP_CANCELLED = 'Cancelled'

@@ -28,6 +28,8 @@ Contributing to django-paypal
 If you want to contribute (yay!), please create a fork and start a branch off
 'master' for your changes. Submit a PR on GitHub to request that it is merged.
 
+**isort** keeps imports in order. Run **tox -e isort-check** to check your imports, and **isort <PATHPATH>** to fix them.
+
 All bug fixes and new features will require tests to accompany them, unless it
 is very difficult to write the test (e.g. non deterministic behaviour). The
 tests should fail without the fix/feature.

@@ -14,9 +14,12 @@ from django.http import QueryDict
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
-from paypal.pro.signals import payment_was_successful, recurring_cancel, recurring_suspend, recurring_reactivate, payment_profile_created
-from paypal.pro.models import PayPalNVP
+
 from paypal.pro.exceptions import PayPalFailure
+from paypal.pro.models import PayPalNVP
+from paypal.pro.signals import (
+    payment_profile_created, payment_was_successful, recurring_cancel, recurring_reactivate, recurring_suspend
+)
 
 USER = settings.PAYPAL_WPP_USER
 PASSWORD = settings.PAYPAL_WPP_PASSWORD

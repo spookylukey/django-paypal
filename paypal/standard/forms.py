@@ -9,11 +9,10 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.html import format_html
 
-from paypal.standard.conf import (DONATION_IMAGE, DONATION_SANDBOX_IMAGE,
-                                  IMAGE, POSTBACK_ENDPOINT, SANDBOX_IMAGE,
-                                  SANDBOX_POSTBACK_ENDPOINT,
-                                  SUBSCRIPTION_IMAGE,
-                                  SUBSCRIPTION_SANDBOX_IMAGE)
+from paypal.standard.conf import (
+    DONATION_IMAGE, DONATION_SANDBOX_IMAGE, IMAGE, POSTBACK_ENDPOINT, SANDBOX_IMAGE, SANDBOX_POSTBACK_ENDPOINT,
+    SUBSCRIPTION_IMAGE, SUBSCRIPTION_SANDBOX_IMAGE
+)
 from paypal.standard.widgets import ReservedValueHiddenInput, ValueHiddenInput
 
 log = logging.getLogger(__name__)

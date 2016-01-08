@@ -11,18 +11,14 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 from six import b, text_type
+from six.moves.urllib.parse import urlencode
 
 from paypal.standard.ipn.models import PayPalIPN
-from paypal.standard.ipn.signals import (invalid_ipn_received,
-                                         payment_was_flagged,
-                                         payment_was_refunded,
-                                         payment_was_reversed,
-                                         payment_was_successful,
-                                         recurring_cancel, recurring_create,
-                                         recurring_failed, recurring_payment,
-                                         recurring_skipped, valid_ipn_received)
+from paypal.standard.ipn.signals import (
+    invalid_ipn_received, payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful,
+    recurring_cancel, recurring_create, recurring_failed, recurring_payment, recurring_skipped, valid_ipn_received
+)
 from paypal.standard.models import ST_PP_CANCELLED
-from six.moves.urllib.parse import urlencode
 
 # Parameters are all bytestrings, so we can construct a bytestring
 # request the same way that Paypal does.

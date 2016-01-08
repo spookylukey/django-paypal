@@ -11,7 +11,7 @@ from django.test.utils import override_settings
 
 from paypal.standard.pdt.models import PayPalPDT
 
-from .settings import TEMPLATES, TEMPLATE_DIRS
+from .settings import TEMPLATE_DIRS, TEMPLATES
 
 
 class DummyPayPalPDT(object):

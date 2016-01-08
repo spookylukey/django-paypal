@@ -5,6 +5,7 @@ from django.test.utils import override_settings
 
 from paypal.standard.forms import PayPalPaymentsForm
 
+
 class PaymentsFormTest(TestCase):
 
     def test_form_render(self):

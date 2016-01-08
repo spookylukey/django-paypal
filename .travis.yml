@@ -15,6 +15,7 @@ env:
 - TOXENV=py34-django19
 - TOXENV=py35-django19
 - TOXENV=checkmanifest
+- TOXENV=isort-check
 install:
 - pip install tox>=2.1
 script:
