@@ -19,6 +19,8 @@ Version 0.3.0 (in development)
 * Added missing South migrations
 * Fixed max_length of IPN/PDT ``custom`` and ``transaction_subject`` fields
 * Fixed issue #105 - IPN failure when running under non-English locale
+* Added missing fields ``option_selection1`` and ``option_selection2`` to
+  IPN/PDT
 
 * *IMPORTANT:* Deprecated the ``PAYPAL_RECEIVER_EMAIL`` setting to allow
   multiple receiver emails in a single app. This has several consequences for

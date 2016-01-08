@@ -124,6 +124,8 @@ class PayPalStandardBase(Model):
     num_cart_items = models.IntegerField(blank=True, default=0, null=True)
     option_name1 = models.CharField(max_length=64, blank=True)
     option_name2 = models.CharField(max_length=64, blank=True)
+    option_selection1 = models.CharField(max_length=200, blank=True)
+    option_selection2 = models.CharField(max_length=200, blank=True)
     payer_status = models.CharField(max_length=255, blank=True)
     payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     payment_gross = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
