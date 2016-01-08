@@ -6,7 +6,6 @@ import warnings
 from datetime import datetime
 from decimal import Decimal
 
-from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
@@ -383,7 +382,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         params = IPN_POST_PARAMS.copy()
         params.update(update)
 
-        response = self.paypal_post(params)
+        self.paypal_post(params)
         self.assertFalse(PayPalIPN.objects.get().flag)
 
 
@@ -438,7 +437,17 @@ class IPNSimulatorTests(TestCase):
         return self.client.post("/ipn/", post_data, content_type='application/x-www-form-urlencoded')
 
     def test_valid_webaccept(self):
-        paypal_input = b'payment_type=instant&payment_date=23%3A04%3A06%20Feb%2002%2C%202009%20PDT&payment_status=Completed&address_status=confirmed&payer_status=verified&first_name=John&last_name=Smith&payer_email=buyer%40paypalsandbox.com&payer_id=TESTBUYERID01&address_name=John%20Smith&address_country=United%20States&address_country_code=US&address_zip=95131&address_state=CA&address_city=San%20Jose&address_street=123%20any%20street&business=seller%40paypalsandbox.com&receiver_email=seller%40paypalsandbox.com&receiver_id=seller%40paypalsandbox.com&residence_country=US&item_name=something&item_number=AK-1234&quantity=1&shipping=3.04&tax=2.02&mc_currency=USD&mc_fee=0.44&mc_gross=12.34&mc_gross1=12.34&txn_type=web_accept&txn_id=593976436&notify_version=2.1&custom=xyz123&invoice=abc1234&test_ipn=1&verify_sign=AFcWxV21C7fd0v3bYYYRCpSSRl31Awsh54ABFpebxm5s9x58YIW-AWIb'
+        paypal_input = b'payment_type=instant&payment_date=23%3A04%3A06%20Feb%2002%2C%202009%20PDT&' \
+                       b'payment_status=Completed&address_status=confirmed&payer_status=verified&' \
+                       b'first_name=John&last_name=Smith&payer_email=buyer%40paypalsandbox.com&' \
+                       b'payer_id=TESTBUYERID01&address_name=John%20Smith&address_country=United%20States&' \
+                       b'address_country_code=US&address_zip=95131&address_state=CA&address_city=San%20Jose&' \
+                       b'address_street=123%20any%20street&business=seller%40paypalsandbox.com&' \
+                       b'receiver_email=seller%40paypalsandbox.com&receiver_id=seller%40paypalsandbox.com&' \
+                       b'residence_country=US&item_name=something&item_number=AK-1234&quantity=1&shipping=3.04&' \
+                       b'tax=2.02&mc_currency=USD&mc_fee=0.44&mc_gross=12.34&mc_gross1=12.34&txn_type=web_accept&' \
+                       b'txn_id=593976436&notify_version=2.1&custom=xyz123&invoice=abc1234&test_ipn=1&' \
+                       b'verify_sign=AFcWxV21C7fd0v3bYYYRCpSSRl31Awsh54ABFpebxm5s9x58YIW-AWIb'
         response = self.post_to_ipn_handler(paypal_input)
         self.assertEqual(response.status_code, 200)
         ipn = self.get_ipn()
@@ -448,7 +457,17 @@ class IPNSimulatorTests(TestCase):
         self.assertEqual(ipn.payment_date, datetime(2009, 2, 3, 7, 4, 6, tzinfo=timezone.UTC()))
 
     def test_declined(self):
-        paypal_input = b'payment_type=instant&payment_date=23%3A04%3A06%20Feb%2002%2C%202009%20PDT&payment_status=Declined&address_status=confirmed&payer_status=verified&first_name=John&last_name=Smith&payer_email=buyer%40paypalsandbox.com&payer_id=TESTBUYERID01&address_name=John%20Smith&address_country=United%20States&address_country_code=US&address_zip=95131&address_state=CA&address_city=San%20Jose&address_street=123%20any%20street&business=seller%40paypalsandbox.com&receiver_email=seller%40paypalsandbox.com&receiver_id=seller%40paypalsandbox.com&residence_country=US&item_name=something&item_number=AK-1234&quantity=1&shipping=3.04&tax=2.02&mc_currency=USD&mc_fee=0.44&mc_gross=131.22&mc_gross1=131.22&txn_type=web_accept&txn_id=153826001&notify_version=2.1&custom=xyz123&invoice=abc1234&test_ipn=1&verify_sign=AiPC9BjkCyDFQXbSkoZcgqH3hpacAIG977yabdROlR9d0bf98jevF2-i'
+        paypal_input = b'payment_type=instant&payment_date=23%3A04%3A06%20Feb%2002%2C%202009%20PDT&' \
+                       b'payment_status=Declined&address_status=confirmed&payer_status=verified&' \
+                       b'first_name=John&last_name=Smith&payer_email=buyer%40paypalsandbox.com&' \
+                       b'payer_id=TESTBUYERID01&address_name=John%20Smith&address_country=United%20States&' \
+                       b'address_country_code=US&address_zip=95131&address_state=CA&address_city=San%20Jose&' \
+                       b'address_street=123%20any%20street&business=seller%40paypalsandbox.com&' \
+                       b'receiver_email=seller%40paypalsandbox.com&receiver_id=seller%40paypalsandbox.com&' \
+                       b'residence_country=US&item_name=something&item_number=AK-1234&quantity=1&shipping=3.04&' \
+                       b'tax=2.02&mc_currency=USD&mc_fee=0.44&mc_gross=131.22&mc_gross1=131.22&txn_type=web_accept&' \
+                       b'txn_id=153826001&notify_version=2.1&custom=xyz123&invoice=abc1234&test_ipn=1&' \
+                       b'verify_sign=AiPC9BjkCyDFQXbSkoZcgqH3hpacAIG977yabdROlR9d0bf98jevF2-i'
         self.post_to_ipn_handler(paypal_input)
         ipn = self.get_ipn()
         self.assertFalse(ipn.flag)

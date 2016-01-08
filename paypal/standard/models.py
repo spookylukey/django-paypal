@@ -45,7 +45,8 @@ class PayPalStandardBase(Model):
 
     # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
-    # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired Failed Pending Processed Refunded Reversed Voided".split()
+    # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired " \
+    #                          "Failed Pending Processed Refunded Reversed Voided".split()
     PAYMENT_STATUS_CHOICES = [ST_PP_ACTIVE,
                               ST_PP_CANCELLED,
                               ST_PP_CANCELED_REVERSAL,
@@ -66,7 +67,7 @@ class PayPalStandardBase(Model):
                               ST_PP_UNCLAIMED,
                               ST_PP_UNCLEARED,
                               ST_PP_VOIDED,
-                             ]
+                              ]
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
     # ADDRESS_STATUS_CHOICES = "confirmed unconfirmed".split()
     # PAYER_STATUS_CHOICES = "verified / unverified".split()
@@ -155,7 +156,7 @@ class PayPalStandardBase(Model):
     initial_payment_amount = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
     next_payment_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
     outstanding_balance = models.DecimalField(max_digits=64, decimal_places=2, default=0, blank=True, null=True)
-    payment_cycle = models.CharField(max_length=255, blank=True) #Monthly
+    payment_cycle = models.CharField(max_length=255, blank=True)  # Monthly
     period_type = models.CharField(max_length=255, blank=True)
     product_name = models.CharField(max_length=255, blank=True)
     product_type = models.CharField(max_length=255, blank=True)
@@ -185,7 +186,7 @@ class PayPalStandardBase(Model):
     username = models.CharField(max_length=64, blank=True)
 
     # Billing Agreement Variables
-    mp_id = models.CharField(max_length=128, blank=True, null=True) # B-0G433009BJ555711U
+    mp_id = models.CharField(max_length=128, blank=True, null=True)  # B-0G433009BJ555711U
 
     # Dispute Resolution Variables
     case_creation_date = models.DateTimeField(blank=True, null=True, help_text="HH:MM:SS DD Mmm YY, YYYY PST")
@@ -232,7 +233,7 @@ class PayPalStandardBase(Model):
 
     class Meta:
         abstract = True
-        app_label = 'paypal_standard_base' # Keep Django 1.7 quiet
+        app_label = 'paypal_standard_base'  # Keep Django 1.7 quiet
 
     def __unicode__(self):
         if self.is_transaction():
@@ -337,10 +338,10 @@ class PayPalStandardBase(Model):
                 if duplicate_txn_id(self):
                     self.set_flag("Duplicate txn_id. (%s)" % self.txn_id)
                 if hasattr(settings, 'PAYPAL_RECEIVER_EMAIL'):
-                    warn("""Use of PAYPAL_RECEIVER_EMAIL in settings has been Deprecated. 
-                            Check of valid email must be done when receiving the 
-                            valid_ipn_received signal""",
-                          DeprecationWarning)
+                    warn("Use of PAYPAL_RECEIVER_EMAIL in settings has been Deprecated.\n"
+                         "Check of valid email must be done when receiving the\n"
+                         "valid_ipn_received signal",
+                         DeprecationWarning)
                     if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
                         self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)
                 if callable(item_check_callable):

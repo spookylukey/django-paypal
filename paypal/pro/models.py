@@ -52,7 +52,7 @@ class PayPalNVP(Model):
     timestamp = models.DateTimeField(blank=True, null=True)
     profileid = models.CharField(max_length=32, blank=True)  # I-E596DFUSD882
     profilereference = models.CharField(max_length=128, blank=True)  # PROFILEREFERENCE
-    correlationid = models.CharField(max_length=32, blank=True) # 25b380cda7a21
+    correlationid = models.CharField(max_length=32, blank=True)  # 25b380cda7a21
     token = models.CharField(max_length=64, blank=True)
     payerid = models.CharField(max_length=64, blank=True)
 
@@ -107,7 +107,7 @@ class PayPalNVP(Model):
         self.query = urlencode(query_data)
         self.response = urlencode(paypal_response)
 
-        # Was there a flag on the play?        
+        # Was there a flag on the play?
         ack = paypal_response.get('ack', False)
         if ack != "Success":
             if ack == "SuccessWithWarning":
@@ -128,7 +128,7 @@ class PayPalNVP(Model):
 
         wpp = PayPalWPP(request)
 
-        # Change the model information into a dict that PayPal can understand.        
+        # Change the model information into a dict that PayPal can understand.
         params = model_to_dict(self, exclude=self.ADMIN_FIELDS)
         params['acct'] = self.acct
         params['creditcardtype'] = self.creditcardtype
