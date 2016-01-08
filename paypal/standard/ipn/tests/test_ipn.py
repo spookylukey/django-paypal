@@ -27,12 +27,14 @@ from six.moves.urllib.parse import urlencode
 # Parameters are all bytestrings, so we can construct a bytestring
 # request the same way that Paypal does.
 
+TEST_RECEIVER_EMAIL = b"seller@paypalsandbox.com"
+
 CHARSET = "windows-1252"
 IPN_POST_PARAMS = {
     "protection_eligibility": b"Ineligible",
     "last_name": b"User",
     "txn_id": b"51403485VH153354B",
-    "receiver_email": b(settings.PAYPAL_RECEIVER_EMAIL),
+    "receiver_email": TEST_RECEIVER_EMAIL,
     "payment_status": b"Completed",
     "payment_gross": b"10.00",
     "tax": b"0.00",
@@ -223,6 +225,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
         self.assertGotSignal(payment_was_reversed, False, params, deprecated=True)
 
+    @override_settings(PAYPAL_RECEIVER_EMAIL=TEST_RECEIVER_EMAIL)
     def test_incorrect_receiver_email(self):
         update = {"receiver_email": "incorrect_email@someotherbusiness.com"}
         flag_info = "Invalid receiver_email. (incorrect_email@someotherbusiness.com)"
@@ -422,8 +425,7 @@ class IPNPostbackTest(IPNUtilsMixin, TestCase):
         self.assertFlagged({}, u'Invalid postback. (INVALID)')
 
 
-@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls',
-                   PAYPAL_RECEIVER_EMAIL='seller@paypalsandbox.com')
+@override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
 class IPNSimulatorTests(TestCase):
 
     # Some requests, as sent by the simulator.

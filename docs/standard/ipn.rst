@@ -1,8 +1,7 @@
 Using PayPal Standard IPN
 =========================
 
-1. Edit ``settings.py`` and add ``paypal.standard.ipn`` to your ``INSTALLED_APPS``
-   and ``PAYPAL_RECEIVER_EMAIL``:
+1. Edit ``settings.py`` and add ``paypal.standard.ipn`` to your ``INSTALLED_APPS``:
 
    settings.py:
 
@@ -16,17 +15,25 @@ Using PayPal Standard IPN
            #...
        ]
 
-       #...
-       PAYPAL_RECEIVER_EMAIL = "yourpaypalemail@example.com"
 
    For installations on which you want to use the sandbox,
-   set PAYPAL_TEST to True.  Ensure PAYPAL_RECEIVER_EMAIL is set to
-   your sandbox account email too.
+   set PAYPAL_TEST to True.
+
+   .. code-block:: python
+       PAYPAL_TEST = True
+
+
 
 2. :doc:`/updatedb`
 
 3. Create an instance of the ``PayPalPaymentsForm`` in the view where you would
-   like to collect money. Call ``render`` on the instance in your template to
+   like to collect money.
+
+   You must fill a dictionary with the information required to complete the
+   payment, and pass it through the ``initial`` parameter when creating the
+   ``PayPalPaymentsForm``.
+
+   Call ``render`` on the instance in your template to
    write out the HTML.
 
    views.py:
@@ -39,7 +46,7 @@ Using PayPal Standard IPN
 
            # What you want the button to do.
            paypal_dict = {
-               "business": settings.PAYPAL_RECEIVER_EMAIL,
+               "business": "receiver_email@example.com",
                "amount": "10000000.00",
                "item_name": "name of the item",
                "invoice": "unique-invoice-id",
@@ -91,7 +98,9 @@ Using PayPal Standard IPN
 
      This indicates a correct, non-duplicate IPN message from PayPal. The
      handler will receive a :class:`paypal.standard.ipn.models.PayPalIPN` object
-     as the sender. You will need to check the ``payment_status`` attribute and
+     as the sender. You will need to check the ``payment_status`` attribute,
+     and *specially the ``receiver_email``* to make sure that the account
+     receiving the payment is the expected one, as well as
      other attributes to know what action to take.
 
    * ``invalid_ipn_received``
@@ -120,6 +129,13 @@ Using PayPal Standard IPN
        def show_me_the_money(sender, **kwargs):
            ipn_obj = sender
            if ipn_obj.payment_status == ST_PP_COMPLETED:
+               # WARNING !
+               # Check that the receiver email is the same we previously
+               # set on the business field request. (The user could tamper
+               # with those fields on payment form before send it to PayPal)
+               if ipn_obj.receiver_email != "receiver_email@example.com":
+                   # Not a valid payment
+                   return
                # Undertake some action depending upon `ipn_obj`.
                if ipn_obj.custom == "Upgrade all users!":
                    Users.objects.update(paid=True)
@@ -138,7 +154,7 @@ Using PayPal Standard IPN
 
 6. You will also need to implement the ``return_url`` and ``cancel_return`` views
    to handle someone returning from PayPal.
-   
+
    Note that return_url view needs @csrf_exempt applied to it, because PayPal will POST to it, so it should be custom a view    that doesn't need to handle POSTs otherwise.
 
    When using PayPal Standard with Subscriptions this is not necessary since PayPal will route the user back to your site via    GET.

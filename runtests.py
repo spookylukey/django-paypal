@@ -13,7 +13,6 @@ warnings.simplefilter("always", DeprecationWarning)
 settings.configure(
     ROOT_URLCONF='',
     DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
-    PAYPAL_RECEIVER_EMAIL='test@example.com',
     PAYPAL_TEST=True,
     # Please dont make me create another test account and remove this from here :)
     PAYPAL_WPP_USER='dcrame_1278645792_biz_api1.gmail.com',
