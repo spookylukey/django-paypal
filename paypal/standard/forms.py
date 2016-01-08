@@ -110,20 +110,20 @@ class PayPalPaymentsForm(forms.Form):
     quantity = forms.CharField(widget=ValueHiddenInput())
 
     # Subscription Related.
-    a1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 Price
-    p1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 Duration
-    t1 = forms.CharField(widget=ValueHiddenInput())  # Trial 1 unit of Duration, default to Month
-    a2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Price
-    p2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 Duration
-    t2 = forms.CharField(widget=ValueHiddenInput())  # Trial 2 unit of Duration, default to Month
-    a3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Price
-    p3 = forms.CharField(widget=ValueHiddenInput())  # Subscription Duration
-    t3 = forms.CharField(widget=ValueHiddenInput())  # Subscription unit of Duration, default to Month
-    src = forms.CharField(widget=ValueHiddenInput()) # Is billing recurring? default to yes
-    sra = forms.CharField(widget=ValueHiddenInput()) # Reattempt billing on failed cc transaction
+    a1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 Price
+    p1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 Duration
+    t1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 unit of Duration, default to Month
+    a2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 Price
+    p2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 Duration
+    t2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 unit of Duration, default to Month
+    a3 = forms.CharField(widget=ValueHiddenInput())   # Subscription Price
+    p3 = forms.CharField(widget=ValueHiddenInput())   # Subscription Duration
+    t3 = forms.CharField(widget=ValueHiddenInput())   # Subscription unit of Duration, default to Month
+    src = forms.CharField(widget=ValueHiddenInput())  # Is billing recurring? default to yes
+    sra = forms.CharField(widget=ValueHiddenInput())  # Reattempt billing on failed cc transaction
     no_note = forms.CharField(widget=ValueHiddenInput())
     # Can be either 1 or 2. 1 = modify or allow new subscription creation, 2 = modify only
-    modify = forms.IntegerField(widget=ValueHiddenInput()) # Are we modifying an existing subscription?
+    modify = forms.IntegerField(widget=ValueHiddenInput())  # Are we modifying an existing subscription?
 
     # Localization / PayPal Setup
     lc = forms.CharField(widget=ValueHiddenInput())

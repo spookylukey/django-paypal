@@ -57,10 +57,10 @@ def ppp_wrapper(request, handler=None):
     if handler is None:
         handler = lambda nvp: nvp  # NOP
     ppp = PayPalPro(
-        item=item,                            # what you're selling
-        payment_template="payment.html",      # template name for payment
-        confirm_template="confirmation.html", # template name for confirmation
-        success_url="/success/",              # redirect location after success
+        item=item,                             # what you're selling
+        payment_template="payment.html",       # template name for payment
+        confirm_template="confirmation.html",  # template name for confirmation
+        success_url="/success/",               # redirect location after success
         nvp_handler=handler
         )
 

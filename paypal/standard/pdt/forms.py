@@ -12,4 +12,5 @@ class PayPalPDTForm(PayPalStandardBaseForm):
     class Meta:
         model = PayPalPDT
         if django.VERSION >= (1, 6):
-            exclude = ('ipaddress', 'flag', 'flag_code', 'flag_info', 'query', 'response', 'created_at', 'updated', 'form_view',)
+            exclude = ('ipaddress', 'flag', 'flag_code', 'flag_info', 'query',
+                       'response', 'created_at', 'updated', 'form_view',)
