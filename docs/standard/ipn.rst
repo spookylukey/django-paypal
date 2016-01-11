@@ -85,7 +85,7 @@ Using PayPal Standard IPN
        from django.conf.urls import url, include
 
        urlpatterns = [
-           url(r'^something/paypal/', include('paypal.standard.ipn.urls')),
+           url(r'^paypal/', include('paypal.standard.ipn.urls')),
        ]
 
 5. Whenever an IPN is processed a signal will be sent with the result of the

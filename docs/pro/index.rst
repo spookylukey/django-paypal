@@ -108,7 +108,7 @@ to use through the provided ``PayPalPro`` class.
        urlpatterns = [
            ...
            url(r'^payment-url/$', views.buy_my_item),
-           url(r'^some/obscure/name/', include('paypal.standard.ipn.urls')),
+           url(r'^paypal/', include('paypal.standard.ipn.urls')),
        ]
 
 7. Profit.
