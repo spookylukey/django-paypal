@@ -9,7 +9,7 @@ from paypal.standard.forms import PayPalPaymentsForm
 class PaymentsFormTest(TestCase):
 
     def test_form_render(self):
-        f = PayPalPaymentsForm(initial={'business':'me@mybusiness.com',
+        f = PayPalPaymentsForm(initial={'business': 'me@mybusiness.com',
                                         'amount': '10.50',
                                         'shipping': '2.00',
                                         })

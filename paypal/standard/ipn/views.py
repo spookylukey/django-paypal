@@ -51,7 +51,8 @@ def ipn(request, item_check_callable=None):
         if hasattr(PayPalIPN._meta, 'get_fields'):
             date_fields = [f.attname for f in PayPalIPN._meta.get_fields() if f.__class__.__name__ == 'DateTimeField']
         else:
-            date_fields = [f.attname for f, m in PayPalIPN._meta.get_fields_with_model() if f.__class__.__name__ == 'DateTimeField']
+            date_fields = [f.attname for f, m in PayPalIPN._meta.get_fields_with_model()
+                           if f.__class__.__name__ == 'DateTimeField']
 
         for date_field in date_fields:
             if data.get(date_field) == 'N/A':
@@ -65,7 +66,8 @@ def ipn(request, item_check_callable=None):
             except Exception as e:
                 flag = "Exception while processing. (%s)" % e
         else:
-            flag = "Invalid form. ({0})".format(", ".join(["{0}: {1}".format(k, ", ".join(v)) for k, v in form.errors.items()]))
+            formatted_form_errors = ["{0}: {1}".format(k, ", ".join(v)) for k, v in form.errors.items()]
+            flag = "Invalid form. ({0})".format(", ".join(formatted_form_errors))
 
     if ipn_obj is None:
         ipn_obj = PayPalIPN()
