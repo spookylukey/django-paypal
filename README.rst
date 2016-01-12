@@ -34,8 +34,7 @@ All bug fixes and new features will require tests to accompany them, unless it
 is very difficult to write the test (e.g. non deterministic behaviour). The
 tests should fail without the fix/feature.
 
-Please add to CHANGES.rst for any significant bug fixes or new features. This
-file becomes part of the PyPI description for the package.
+Please add to docs/release_notes.rst for any significant bug fixes or new features.
 
 New features need documentation adding in docs/
 

@@ -25,11 +25,9 @@ To update your database:
       ./manage.py migrate
 
 
-* For Django >= 1.7, do::
+* For Django >= 1.7::
 
-You need to uninstall South first (e.g. `pip uninstall South`).
-
-  ./manage.py migrate
+    ./manage.py migrate
 
 
 Upgrading from very old versions
@@ -50,7 +48,7 @@ It will probably look something like::
 
 depending on what apps you have installed.
 
-Please also see upgrade notes in the CHANGES file: https://github.com/spookylukey/django-paypal/blob/master/CHANGES.rst
+Please also see :doc:`release_notes`.
 
 Upgrading to Django 1.7
 -----------------------
