@@ -4,7 +4,7 @@ Using PayPal Standard PDT
 Paypal Payment Data Transfer (PDT) allows you to display transaction details to
 a customer immediately on return to your site unlike PayPal IPN which may take
 some seconds. `You will need to enable PDT in your PayPal account to use it
-<https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/howto_html_paymentdatatransfer>`_.
+<https://developer.paypal.com/webapps/developer/docs/classic/products/payment-data-transfer/>`_.
 
 However, PDT also has the disadvantage that you only get one chance to handle
 the notification - if there is a connection error for your user, the
