@@ -144,7 +144,7 @@ class PayPalPaymentsForm(forms.Form):
     no_shipping = forms.ChoiceField(widget=forms.HiddenInput(), choices=SHIPPING_CHOICES,
                                     initial=SHIPPING_CHOICES[0][0])
 
-    def __init__(self, button_type="buy", *args, **kwargs):
+    def __init__(self, button_type="buy", sandbox=None, *args, **kwargs):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
         if 'initial' in kwargs:
@@ -153,7 +153,9 @@ class PayPalPaymentsForm(forms.Form):
             for k, v in kwargs['initial'].items():
                 if k not in self.base_fields:
                     self.fields[k] = forms.CharField(label=k, widget=ValueHiddenInput(), initial=v)
-
+        # Allow test mode to be set per-form, rather than require it to be global
+        self.sandbox = sandbox if sandbox != None else getattr(settings, 'PAYPAL_TEST', True)
+ 
     def _fix_deprecated_paypal_receiver_email(self, initial_args):
         if 'business' not in initial_args:
             if hasattr(settings, 'PAYPAL_RECEIVER_EMAIL'):
@@ -164,7 +166,7 @@ class PayPalPaymentsForm(forms.Form):
         return initial_args
 
     def test_mode(self):
-        return getattr(settings, 'PAYPAL_TEST', True)
+        return self.sandbox
 
     def get_endpoint(self):
         "Returns the endpoint url for the form."
