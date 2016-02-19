@@ -288,8 +288,9 @@ class PayPalWPPTest(TestCase):
     def test_doReferenceTransaction_valid(self, mock_request_object):
         reference_id = 'B-1234'
         amount = Decimal('10.50')
-        mock_request_object.return_value = 'ack=Success&paymentstatus=Completed&amt=%s&version=%s&billingagreementid=%s' % \
-            (amount, VERSION, reference_id)
+        mock_request_object.return_value = (
+            'ack=Success&paymentstatus=Completed&amt=%s&version=%s&billingagreementid=%s' %
+            (amount, VERSION, reference_id))
         wpp = PayPalWPP(REQUEST)
         nvp = wpp.doReferenceTransaction({'referenceid': reference_id,
                                           'amt': amount})
