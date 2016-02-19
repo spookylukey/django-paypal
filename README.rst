@@ -46,3 +46,7 @@ and South e.g.::
     ./manage.py makemigrations ipn
 
     ./manage.py schemamigration --auto ipn
+
+Contributors of any kind are expected to act with politeness to all other
+contributors, in pull requests, issue trackers etc., and harassing behaviour
+will not be tolerated.
