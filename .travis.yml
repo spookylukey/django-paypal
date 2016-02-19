@@ -17,8 +17,11 @@ env:
 - TOXENV=checkmanifest
 - TOXENV=isort-check
 - TOXENV=flake8-check
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libffi-dev openssl-dev python-dev libssl-dev
 install:
 - pip install tox>=2.1
 script:
 - tox
-sudo: false
+sudo: true
