@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from warnings import warn
 
 from django.conf import settings
@@ -40,7 +42,7 @@ DEFAULT_ENCODING = 'windows-1252'  # PayPal seems to normally use this.
 
 
 class PayPalStandardBase(Model):
-    """Meta class for common variables shared by IPN and PDT"""
+    """Base class for common variables shared by IPN and PDT"""
     # See https://developer.paypal.com/docs/classic/ipn/integration-guide/IPNandPDTVariables/
 
     # @@@ Might want to add all these one distant day.
