@@ -3,8 +3,8 @@
 ===============
 
 
-Version 0.3.0 (in development)
-------------------------------
+Version 0.3
+-----------
 
 * Dropped support for Django 1.4 and 1.5.
 * Fixed crasher with AmbiguousTimeError.
