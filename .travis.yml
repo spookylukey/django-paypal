@@ -19,7 +19,7 @@ env:
 - TOXENV=flake8-check
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y libffi-dev openssl-dev python-dev libssl-dev
+  - sudo apt-get install -y libffi-dev python-dev libssl-dev
 install:
 - pip install tox>=2.1
 script:
