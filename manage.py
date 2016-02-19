@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.management import execute_from_command_line
 
 settings.configure(
-    ROOT_URLCONF='',
+    ROOT_URLCONF='paypal.standard.ipn.tests.test_urls',  # So Django 1.9 doesn't die
     DATABASES={'default':
                {'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': 'test.db',
