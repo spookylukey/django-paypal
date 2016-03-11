@@ -385,6 +385,76 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         self.paypal_post(params)
         self.assertFalse(PayPalIPN.objects.get().flag)
 
+    def test_paypal_date_invalid_format(self):
+        params = IPN_POST_PARAMS.copy()
+        params.update({"time_created": b("2015-10-25 01:21:32")})
+        self.paypal_post(params)
+        self.assertTrue(PayPalIPN.objects.latest('id').flag)
+        self.assertEqual(
+            PayPalIPN.objects.latest('id').flag_info,
+            'Invalid form. (time_created: Invalid date format '
+            '2015-10-25 01:21:32: need more than 2 values to unpack)'
+        )
+
+        # day not int convertible
+        params = IPN_POST_PARAMS.copy()
+        params.update({"payment_date": b("01:21:32 Jan 25th 2015 PDT")})
+        self.paypal_post(params)
+        self.assertTrue(PayPalIPN.objects.latest('id').flag)
+        self.assertEqual(
+            PayPalIPN.objects.latest('id').flag_info,
+            "Invalid form. (payment_date: Invalid date format "
+            "01:21:32 Jan 25th 2015 PDT: invalid literal for int() with "
+            "base 10: '25th')"
+        )
+
+        # month not in Mmm format
+        params = IPN_POST_PARAMS.copy()
+        params.update({"next_payment_date": b("01:21:32 01 25 2015 PDT")})
+        self.paypal_post(params)
+        self.assertTrue(PayPalIPN.objects.latest('id').flag)
+        self.assertIn(
+            PayPalIPN.objects.latest('id').flag_info,
+            ["Invalid form. (next_payment_date: Invalid date format "
+             "01:21:32 01 25 2015 PDT: u'01' is not in list)",
+             "Invalid form. (next_payment_date: Invalid date format "
+             "01:21:32 01 25 2015 PDT: '01' is not in list)"]
+        )
+
+        # month not in Mmm format
+        params = IPN_POST_PARAMS.copy()
+        params.update({"retry_at": b("01:21:32 January 25 2015 PDT")})
+        self.paypal_post(params)
+        self.assertTrue(PayPalIPN.objects.latest('id').flag)
+        self.assertIn(
+            PayPalIPN.objects.latest('id').flag_info,
+            ["Invalid form. (retry_at: Invalid date format "
+             "01:21:32 January 25 2015 PDT: u'January' is not in list)",
+             "Invalid form. (retry_at: Invalid date format "
+             "01:21:32 January 25 2015 PDT: 'January' is not in list)"]
+        )
+
+        # no seconds in time part
+        params = IPN_POST_PARAMS.copy()
+        params.update({"subscr_date": b("01:28 Jan 25 2015 PDT")})
+        self.paypal_post(params)
+        self.assertTrue(PayPalIPN.objects.latest('id').flag)
+        self.assertEqual(
+            PayPalIPN.objects.latest('id').flag_info,
+            "Invalid form. (subscr_date: Invalid date format "
+            "01:28 Jan 25 2015 PDT: need more than 2 values to unpack)"
+        )
+
+        # string not valid datetime
+        params = IPN_POST_PARAMS.copy()
+        params.update({"case_creation_date": b("01:21:32 Jan 49 2015 PDT")})
+        self.paypal_post(params)
+        self.assertTrue(PayPalIPN.objects.latest('id').flag)
+        self.assertEqual(
+            PayPalIPN.objects.latest('id').flag_info,
+            "Invalid form. (case_creation_date: Invalid date format "
+            "01:21:32 Jan 49 2015 PDT: day is out of range for month)"
+        )
 
 @override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
 class IPNLocaleTest(IPNUtilsMixin, MockedPostbackMixin, TestCase):

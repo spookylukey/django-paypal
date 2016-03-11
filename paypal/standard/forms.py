@@ -6,9 +6,11 @@ from warnings import warn
 
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from paypal.standard.conf import (
     DONATION_IMAGE, DONATION_SANDBOX_IMAGE, IMAGE, POSTBACK_ENDPOINT, SANDBOX_IMAGE, SANDBOX_POSTBACK_ENDPOINT,
@@ -50,14 +52,22 @@ class PayPalDateTimeField(forms.DateTimeField):
 
         value = value.strip()
 
-        time_part, month_part, day_part, year_part, zone_part = value.split(" ")
-        month_part = month_part.strip(".")
-        day_part = day_part.strip(",")
-        month = MONTHS.index(month_part) + 1
-        day = int(day_part)
-        year = int(year_part)
-        hour, minute, second = map(int, time_part.split(":"))
-        dt = datetime(year, month, day, hour, minute, second)
+        try:
+            time_part, month_part, day_part, year_part, zone_part = value.split(" ")
+            month_part = month_part.strip(".")
+            day_part = day_part.strip(",")
+            month = MONTHS.index(month_part) + 1
+            day = int(day_part)
+            year = int(year_part)
+            hour, minute, second = map(int, time_part.split(":"))
+            dt = datetime(year, month, day, hour, minute, second)
+        except ValueError as e:
+            raise ValidationError(
+                _("Invalid date format %(value)s: %(e)s"),
+                  params={'value': value, 'e': e},
+                code="invalid_date"
+            )
+
         if zone_part in ["PDT", "PST"]:
             # PST/PDT is 'US/Pacific'
             dt = timezone.pytz.timezone('US/Pacific').localize(
