@@ -53,7 +53,7 @@ class PayPalDateTimeField(forms.DateTimeField):
         value = value.strip()
 
         try:
-            time_part, month_part, day_part, year_part, zone_part = value.split(" ")
+            time_part, month_part, day_part, year_part, zone_part = value.split()
             month_part = month_part.strip(".")
             day_part = day_part.strip(",")
             month = MONTHS.index(month_part) + 1
