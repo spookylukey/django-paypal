@@ -42,10 +42,19 @@ class PaymentsFormTest(TestCase):
         data = {'payment_date': "2015-10-25 01:21:32"}
         form = PayPalIPNForm(data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(
+        self.assertIn(
             form.errors,
-            {
-                'payment_date': ['Invalid date format 2015-10-25 01:21:32: '
-                                 'need more than 2 values to unpack']
-            }
+            [
+                {
+                    'payment_date': ['Invalid date format '
+                                     '2015-10-25 01:21:32: '
+                                     'need more than 2 values to unpack']
+                },
+                {
+                    'payment_date': ['Invalid date format '
+                                     '2015-10-25 01:21:32: '
+                                     'not enough values to unpack '
+                                     '(expected 5, got 2)']
+                }
+            ]
         )

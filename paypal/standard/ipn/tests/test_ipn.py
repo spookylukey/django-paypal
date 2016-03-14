@@ -390,10 +390,14 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         params.update({"time_created": b("2015-10-25 01:21:32")})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
-        self.assertEqual(
+        self.assertIn(
             PayPalIPN.objects.latest('id').flag_info,
-            'Invalid form. (time_created: Invalid date format '
-            '2015-10-25 01:21:32: need more than 2 values to unpack)'
+            ['Invalid form. (time_created: Invalid date format '
+             '2015-10-25 01:21:32: need more than 2 values to unpack)',
+             'Invalid form. (time_created: Invalid date format '
+             '2015-10-25 01:21:32: not enough values to unpack '
+             '(expected 5, got 2))'
+             ]
         )
 
         # day not int convertible
@@ -439,10 +443,13 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         params.update({"subscr_date": b("01:28 Jan 25 2015 PDT")})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
-        self.assertEqual(
+        self.assertIn(
             PayPalIPN.objects.latest('id').flag_info,
-            "Invalid form. (subscr_date: Invalid date format "
-            "01:28 Jan 25 2015 PDT: need more than 2 values to unpack)"
+            ["Invalid form. (subscr_date: Invalid date format "
+             "01:28 Jan 25 2015 PDT: need more than 2 values to unpack)",
+             "Invalid form. (subscr_date: Invalid date format "
+             "01:28 Jan 25 2015 PDT: not enough values to unpack "
+             "(expected 3, got 2))"]
         )
 
         # string not valid datetime
@@ -455,6 +462,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
             "Invalid form. (case_creation_date: Invalid date format "
             "01:21:32 Jan 49 2015 PDT: day is out of range for month)"
         )
+
 
 @override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
 class IPNLocaleTest(IPNUtilsMixin, MockedPostbackMixin, TestCase):
