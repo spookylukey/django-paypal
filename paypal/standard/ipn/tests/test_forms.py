@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from paypal.standard.forms import PayPalPaymentsForm
+from paypal.standard.ipn.forms import PayPalIPNForm
 
 
 class PaymentsFormTest(TestCase):
@@ -36,3 +37,24 @@ class PaymentsFormTest(TestCase):
         self.assertIn('''value="2.00"''', rendered)
         self.assertIn('''value="10.50"''', rendered)
         self.assertIn('''buynowCC''', rendered)
+
+    def test_invalid_date_format(self):
+        data = {'payment_date': "2015-10-25 01:21:32"}
+        form = PayPalIPNForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            form.errors,
+            [
+                {
+                    'payment_date': ['Invalid date format '
+                                     '2015-10-25 01:21:32: '
+                                     'need more than 2 values to unpack']
+                },
+                {
+                    'payment_date': ['Invalid date format '
+                                     '2015-10-25 01:21:32: '
+                                     'not enough values to unpack '
+                                     '(expected 5, got 2)']
+                }
+            ]
+        )
