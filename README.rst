@@ -21,6 +21,23 @@ django-paypal supports:
 
 Please read the docs if you are upgrading from Django 1.7
 
+Project status
+==============
+
+This project is *active* but in *maintenance mode*. The maintainers see their
+primary responsibilities as:
+
+* fixing any critical data loss or security bugs.
+* keeping the project up-to-date with new versions of Django (or other
+  dependencies).
+* merging well written patches from the community, and doing so promptly.
+
+Large scale development work and feature additions are not planned by the
+maintainers.
+
+Please bear this in mind if filing an issue. If you discover a bug, unless it is
+a critical data loss or security bug, the maintainers are unlikely to work for
+free to fix it.
 
 Contributing to django-paypal
 =============================
@@ -28,7 +45,25 @@ Contributing to django-paypal
 If you want to contribute (yay!), please create a fork and start a branch off
 'master' for your changes. Submit a PR on GitHub to request that it is merged.
 
-**isort** keeps imports in order. Run **tox -e isort-check** to check your imports, and **isort <PATHPATH>** to fix them.
+In creating a pull request, it will help to remember that this project is in
+maintenance mode. This means the maintainers merge patches, but not ones that
+make more work for them in future, or do not benefit the other users of the
+project - for example, code that is not covered by automated tests, or large
+backwards incompatible changes that aren't necessary.
+
+Remember that a new feature that is neither documented nor covered by tests is
+not actually a contribution to the project, but only benefits the person who
+“contributed” it, and so won't be accepted.
+
+That said, if you do have large changes that you want to contribute, including
+large new features (such as implementing newer PayPal payment methods), they
+will be gladly accepted if they are implemented well.
+
+In more detail, please see the following guidelines and hints:
+
+**isort** keeps imports in order. Run **tox -e isort-check** to check your
+imports, and **isort <PATHPATH>** to fix them. Use **# isort:skip** to
+get imports to be ignored by isort.
 
 All bug fixes and new features will require tests to accompany them, unless it
 is very difficult to write the test (e.g. non deterministic behaviour). The
