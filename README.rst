@@ -37,7 +37,8 @@ maintainers.
 
 Please bear this in mind if filing an issue. If you discover a bug, unless it is
 a critical data loss or security bug, the maintainers are unlikely to work for
-free to fix it.
+free to fix it, and a new feature will only be added by the maintainers if they
+need it themselves.
 
 Contributing to django-paypal
 =============================
@@ -81,6 +82,10 @@ and South e.g.::
     ./manage.py makemigrations ipn
 
     ./manage.py schemamigration --auto ipn
+
+If a pull request doesn't meet these requirements, and is not updated for 6
+months after feedback is given to the author, it will be assumed they have lost
+interest and the PR will be closed.
 
 Contributors of any kind are expected to act with politeness to all other
 contributors, in pull requests, issue trackers etc., and harassing behaviour
