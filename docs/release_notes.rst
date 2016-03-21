@@ -2,6 +2,10 @@
  Release notes
 ===============
 
+Version 0.3.1 (under development)
+---------------------------------
+
+* Better handling of unknown datetime formats, thanks rebwok, PR #137
 
 Version 0.3
 -----------
