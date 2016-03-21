@@ -16,7 +16,7 @@ See https://django-paypal.readthedocs.org/ for documentation.
 
 django-paypal supports:
 
-* Django 1.6 to 1.8 on Python 2.7, 3.3 and 3.4. from version 1.6 to 1.9.
+* Django 1.6 to 1.8 on Python 2.7, 3.3 and 3.4.
 * Django 1.9 on Python 2.7, 3.4 and 3.5.
 
 Please read the docs if you are upgrading from Django 1.7
