@@ -29,3 +29,6 @@ views.py:
    # Output the button.
    form.render()
 
+
+See `PayPal Subscribe button docs
+<https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/subscribe_buttons/>`_.
