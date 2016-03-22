@@ -2,6 +2,9 @@
  Release notes
 ===============
 
+Version 0.3.2 (under development)
+---------------------------------
+
 Version 0.3.1
 -------------
 
