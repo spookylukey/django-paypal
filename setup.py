@@ -24,6 +24,7 @@ setup(
         'Django>=1.6',
         'six>=1.4.1',
         'requests>=2.5.3',
+        'pytz>=2015.4',
     ],
     description=DESCRIPTION,
     long_description="%s\n\nHome page: %s\n\nDocs: %s\n" % (DESCRIPTION, URL, DOCS_URL),

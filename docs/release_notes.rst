@@ -6,6 +6,7 @@ Version 0.3.1 (under development)
 ---------------------------------
 
 * Better handling of unknown datetime formats, thanks rebwok, PR #137
+* Added pytz dependency
 
 Version 0.3
 -----------
