@@ -2,8 +2,8 @@
  Release notes
 ===============
 
-Version 0.3.1 (under development)
----------------------------------
+Version 0.3.1
+-------------
 
 * Better handling of unknown datetime formats, thanks rebwok, PR #137
 * Added pytz dependency
