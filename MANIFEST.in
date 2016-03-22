@@ -4,6 +4,7 @@ include README
 include CONTRIBUTORS
 include MANIFEST.in
 include LICENSE
+include RELEASE.rst
 include tox.ini
 include *.py
 recursive-include docs *.rst
