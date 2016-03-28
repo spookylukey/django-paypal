@@ -5,8 +5,8 @@ Django PayPal
     :target: https://travis-ci.org/spookylukey/django-paypal
     :alt: Build Status
 
-.. image:: https://pypip.in/v/django-paypal/badge.png
-    :target: https://pypi.python.org/pypi/django-paypal
+.. image:: https://badge.fury.io/py/django-paypal.svg
+    :target: https://badge.fury.io/py/django-paypal
     :alt: Latest PyPI version
 
 Django PayPal is a pluggable application that integrates with PayPal Payments
