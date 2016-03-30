@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 @require_POST
 @csrf_exempt
-def ipn(request, item_check_callable=None):
+def ipn(request):
     """
     PayPal IPN endpoint (notify_url).
     Used by both PayPal Payments Pro and Payments Standard to confirm transactions.
@@ -83,7 +83,7 @@ def ipn(request, item_check_callable=None):
         if request.is_secure() and 'secret' in request.GET:
             ipn_obj.verify_secret(form, request.GET['secret'])
         else:
-            ipn_obj.verify(item_check_callable)
+            ipn_obj.verify()
 
     ipn_obj.save()
     ipn_obj.send_signals()

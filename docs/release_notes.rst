@@ -9,6 +9,10 @@ Version 0.3.2 (under development)
   of a PayPal server error.
 * Added 're-verify' admin action for IPNs.
 * Other IPN admin improvements.
+* *IMPORTANT:* Removed the undocumented and untested ``item_check_callable``
+  parameter from several IPN and PDT processing functions. You should
+  implement checks in signal handlers like ``valid_ipn_received`` or
+  other calling code.
 
 Version 0.3.1
 -------------

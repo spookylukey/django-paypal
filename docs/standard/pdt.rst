@@ -65,7 +65,7 @@ To use PDT:
 
         @require_GET
         def your_pdt_return_url_view(request):
-            pdt_obj, failed = process_pdt(request, item_check_callable=None)
+            pdt_obj, failed = process_pdt(request)
             context = {"failed": failed, "pdt_obj": pdt_obj}
             if not failed:
                 # IMPORTANT! :

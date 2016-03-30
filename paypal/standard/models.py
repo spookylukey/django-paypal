@@ -325,16 +325,10 @@ class PayPalStandardBase(Model):
         self.flag_info = ""
         self.flag_code = ""
 
-    def verify(self, item_check_callable=None):
+    def verify(self):
         """
         Verifies an IPN and a PDT.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
-
-        Provide a callable that takes an instance of this class as a parameter and returns
-        a tuple (False, None) if the item is valid. Should return (True, "reason") if the
-        item isn't valid. Strange but backward compatible :) This function should check
-        that `mc_gross`, `mc_currency` `item_name` and `item_number` are all correct.
-
         """
         self.response = self._postback().decode('ascii')
         self.clear_flag()
@@ -352,10 +346,6 @@ class PayPalStandardBase(Model):
                          DeprecationWarning)
                     if self.receiver_email != settings.PAYPAL_RECEIVER_EMAIL:
                         self.set_flag("Invalid receiver_email. (%s)" % self.receiver_email)
-                if callable(item_check_callable):
-                    flag, reason = item_check_callable(self)
-                    if flag:
-                        self.set_flag(reason)
             else:
                 # @@@ Run a different series of checks on recurring payments.
                 pass
