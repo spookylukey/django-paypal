@@ -2,7 +2,18 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 
+from django.contrib import messages
+
 from paypal.standard.ipn.models import PayPalIPN
+
+
+def reverify_flagged(modeladmin, request, queryset):
+    q = queryset.filter(flag=True)
+    for ipn in q:
+        ipn.verify()
+        ipn.send_signals()
+    messages.info(request, "{0} IPN object(s) re-verified".format(len(q)))
+reverify_flagged.short_description = "Re-verify selected flagged IPNs"
 
 
 class PayPalIPNAdmin(admin.ModelAdmin):
@@ -66,5 +77,6 @@ class PayPalIPNAdmin(admin.ModelAdmin):
     ]
     search_fields = ["txn_id", "recurring_payment_id"]
 
+    actions = [reverify_flagged]
 
 admin.site.register(PayPalIPN, PayPalIPNAdmin)

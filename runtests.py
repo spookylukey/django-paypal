@@ -21,6 +21,8 @@ settings.configure(
     PAYPAL_IDENTITY_TOKEN='xxx',
     INSTALLED_APPS=[
         'django.contrib.auth',
+        'django.contrib.admin',
+        'django.contrib.sessions',
         'django.contrib.contenttypes',
         'paypal.pro',
         'paypal.standard',
@@ -34,7 +36,14 @@ settings.configure(
             'KEY_PREFIX': 'paypal_tests_',
         }
     },
-    MIDDLEWARE_CLASSES=[],
+    MIDDLEWARE_CLASSES=[
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.middleware.csrf.CsrfViewMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    ],
     TEMPLATES=[  # Django 1.8 and later
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
