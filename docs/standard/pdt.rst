@@ -68,10 +68,18 @@ To use PDT:
             pdt_obj, failed = process_pdt(request)
             context = {"failed": failed, "pdt_obj": pdt_obj}
             if not failed:
-                # IMPORTANT! :
-                # We should still check that the receiver_email is the expected one
-                if pdt_obj.receiver_email != 'my_account_email@example.com':
-                    # Do whatever action you expect
+
+                # WARNING!
+                # Check that the receiver email is the same we previously
+                # set on the business field request. (The user could tamper
+                # with those fields on payment form before send it to PayPal)
+
+                if pdt_obj.receiver_email == "receiver_email@example.com":
+
+                    # ALSO: for the same reason, you need to check the amount
+                    # received etc. are all what you expect.
+
+                    # Do whatever action is needed, then:
                     return render(request, 'my_valid_payment_template', context)
             return render(request, 'my_non_valid_payment_template', context)
 

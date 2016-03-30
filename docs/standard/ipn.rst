@@ -136,6 +136,10 @@ Using PayPal Standard IPN
                if ipn_obj.receiver_email != "receiver_email@example.com":
                    # Not a valid payment
                    return
+
+               # ALSO: for the same reason, you need to check the amount
+               # received etc. are all what you expect.
+
                # Undertake some action depending upon `ipn_obj`.
                if ipn_obj.custom == "Upgrade all users!":
                    Users.objects.update(paid=True)
