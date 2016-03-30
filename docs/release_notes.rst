@@ -8,6 +8,7 @@ Version 0.3.2 (under development)
 * Fixed ``verify`` method of IPN/PDT so that it can be re-run in the case
   of a PayPal server error.
 * Added 're-verify' admin action for IPNs.
+* Other IPN admin improvements.
 
 Version 0.3.1
 -------------

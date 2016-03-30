@@ -17,6 +17,11 @@ reverify_flagged.short_description = "Re-verify selected flagged IPNs"
 
 
 class PayPalIPNAdmin(admin.ModelAdmin):
+    list_filter = [
+        'payment_status',
+        'flag',
+        'txn_type',
+    ]
     date_hierarchy = 'payment_date'
     fieldsets = (
         (None, {
