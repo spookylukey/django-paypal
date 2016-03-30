@@ -13,6 +13,8 @@ Version 0.3.2 (under development)
   parameter from several IPN and PDT processing functions. You should
   implement checks in signal handlers like ``valid_ipn_received`` or
   other calling code.
+* Fixed issue #119 - flagged IPNs not excluded from duplicate checking.
+* Fixed issue #126 - documented need to check amount received.
 
 Version 0.3.1
 -------------
