@@ -2,8 +2,8 @@
  Release notes
 ===============
 
-Version 0.3.2 (under development)
----------------------------------
+Version 0.3.2
+-------------
 
 * Fixed ``verify`` method of IPN/PDT so that it can be re-run in the case
   of a PayPal server error.
