@@ -24,6 +24,7 @@ def duplicate_txn_id(ipn_obj):
     similars = (ipn_obj._default_manager
                 .filter(txn_id=ipn_obj.txn_id)
                 .exclude(id=ipn_obj.id)
+                .exclude(flag=True)
                 .order_by('-created_at')[:1])
 
     if len(similars) > 0:

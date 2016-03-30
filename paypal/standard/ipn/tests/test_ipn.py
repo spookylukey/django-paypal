@@ -259,6 +259,16 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         self.assertEqual(ipn_obj.flag, True)
         self.assertEqual(ipn_obj.flag_info, "Duplicate txn_id. (51403485VH153354B)")
 
+    def test_duplicate_txn_id_with_first_flagged(self):
+        PayPalIPN._postback = lambda self: b"Internal Server Error"
+        self.paypal_post(IPN_POST_PARAMS)
+        PayPalIPN._postback = lambda self: b"VERIFIED"
+        self.paypal_post(IPN_POST_PARAMS)
+        self.assertEqual(len(PayPalIPN.objects.all()), 2)
+        ipn_objs = PayPalIPN.objects.order_by('created_at', 'pk')
+        self.assertEqual(ipn_objs[0].flag, True)
+        self.assertEqual(ipn_objs[1].flag, False)
+
     def test_recurring_payment_skipped_ipn(self):
         update = {
             "recurring_payment_id": "BN5JZ2V7MLEV4",
