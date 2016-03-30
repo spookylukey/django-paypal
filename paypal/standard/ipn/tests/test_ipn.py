@@ -185,6 +185,17 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         PayPalIPN._postback = lambda self: b"INVALID"
         self.assertGotSignal(invalid_ipn_received, True)
 
+    def test_reverify_ipn(self):
+        PayPalIPN._postback = lambda self: b"Internal Server Error"
+        self.paypal_post(IPN_POST_PARAMS)
+        ipn_obj = PayPalIPN.objects.all()[0]
+        self.assertEqual(ipn_obj.flag, True)
+        PayPalIPN._postback = lambda self: b"VERIFIED"
+        ipn_obj.verify()
+        self.assertEqual(ipn_obj.flag, False)
+        self.assertEqual(ipn_obj.flag_info, "")
+        self.assertEqual(ipn_obj.flag_code, "")
+
     def test_payment_was_successful(self):
         self.assertGotSignal(payment_was_successful, False, deprecated=True)
 

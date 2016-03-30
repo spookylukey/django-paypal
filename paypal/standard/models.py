@@ -320,6 +320,11 @@ class PayPalStandardBase(Model):
         if code is not None:
             self.flag_code = code
 
+    def clear_flag(self):
+        self.flag = False
+        self.flag_info = ""
+        self.flag_code = ""
+
     def verify(self, item_check_callable=None):
         """
         Verifies an IPN and a PDT.
@@ -332,6 +337,7 @@ class PayPalStandardBase(Model):
 
         """
         self.response = self._postback().decode('ascii')
+        self.clear_flag()
         self._verify_postback()
         if not self.flag:
             if self.is_transaction():
