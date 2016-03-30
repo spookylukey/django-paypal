@@ -13,7 +13,9 @@ django-paypal is not as well supported as IPN.
 
 To use PDT:
 
-1. Edit `settings.py` and add  `paypal.standard.pdt` to your `INSTALLED_APPS`. Also set `PAYPAL_IDENTITY_TOKEN` - you can find the correct value of this setting from the PayPal website:
+1. Edit ``settings.py`` and add ``paypal.standard.pdt`` to your
+   ``INSTALLED_APPS``. Also set ``PAYPAL_IDENTITY_TOKEN`` - you can find the
+   correct value of this setting from the PayPal website:
 
    settings.py:
 
@@ -37,7 +39,7 @@ To use PDT:
 
 2. :doc:`/updatedb`
 
-3. Create a view that uses `PayPalPaymentsForm` just like in :doc:`ipn`.
+3. Create a view that uses ``PayPalPaymentsForm`` just like in :doc:`ipn`.
 
 4. After someone uses this button to buy something PayPal will return the user
    to your site at your ``return_url`` with some extra GET parameters.

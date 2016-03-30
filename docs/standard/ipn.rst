@@ -154,9 +154,12 @@ Using PayPal Standard IPN
 6. You will also need to implement the ``return_url`` and ``cancel_return`` views
    to handle someone returning from PayPal.
 
-   Note that return_url view needs @csrf_exempt applied to it, because PayPal will POST to it, so it should be custom a view    that doesn't need to handle POSTs otherwise.
+   Note that return_url view needs ``@csrf_exempt`` applied to it, because
+   PayPal will POST to it, so it should be custom a view that doesn't need to
+   handle POSTs otherwise.
 
-   When using PayPal Standard with Subscriptions this is not necessary since PayPal will route the user back to your site via    GET.
+   When using PayPal Standard with Subscriptions this is not necessary since
+   PayPal will route the user back to your site via GET.
 
    For ``return_url``, you need to cope with the possibility that the IPN has not
    yet been received and handled by the IPN listener you implemented (which can
