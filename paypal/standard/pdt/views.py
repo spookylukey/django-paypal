@@ -28,7 +28,9 @@ def pdt(request, template="pdt/pdt.html", context=None):
 
 def process_pdt(request):
     """
-    Payment data transfer implementation: http://tinyurl.com/c9jjmw
+    Payment data transfer implementation:
+    https://developer.paypal.com/webapps/developer/docs/classic/products/payment-data-transfer/
+
     This function returns a tuple of (pdt_obj, failed)
     pdt_obj is an object of type PayPalPDT
     failed is a flag that is True if the input data didn't pass basic validation.
