@@ -61,29 +61,29 @@ To use PDT:
        ]
 
 
-    And then create a view that uses the ``process_pdt`` helper function:
+   And then create a view that uses the ``process_pdt`` helper function:
 
-    .. code-block:: python
+   .. code-block:: python
 
-        @require_GET
-        def your_pdt_return_url_view(request):
-            pdt_obj, failed = process_pdt(request)
-            context = {"failed": failed, "pdt_obj": pdt_obj}
-            if not failed:
+       @require_GET
+       def your_pdt_return_url_view(request):
+           pdt_obj, failed = process_pdt(request)
+           context = {"failed": failed, "pdt_obj": pdt_obj}
+           if not failed:
 
-                # WARNING!
-                # Check that the receiver email is the same we previously
-                # set on the business field request. (The user could tamper
-                # with those fields on payment form before send it to PayPal)
+               # WARNING!
+               # Check that the receiver email is the same we previously
+               # set on the business field request. (The user could tamper
+               # with those fields on payment form before send it to PayPal)
 
-                if pdt_obj.receiver_email == "receiver_email@example.com":
+               if pdt_obj.receiver_email == "receiver_email@example.com":
 
-                    # ALSO: for the same reason, you need to check the amount
-                    # received etc. are all what you expect.
+                   # ALSO: for the same reason, you need to check the amount
+                   # received etc. are all what you expect.
 
-                    # Do whatever action is needed, then:
-                    return render(request, 'my_valid_payment_template', context)
-            return render(request, 'my_non_valid_payment_template', context)
+                   # Do whatever action is needed, then:
+                   return render(request, 'my_valid_payment_template', context)
+           return render(request, 'my_non_valid_payment_template', context)
 
    See the :doc:`variables` documentation for information about attributes on
    the PDT object that you can use.
