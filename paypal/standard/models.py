@@ -240,6 +240,8 @@ class PayPalStandardBase(Model):
     def __unicode__(self):
         if self.is_transaction():
             return self.format % ("Transaction", self.txn_id)
+        elif self.subscr_id:
+            return self.format % ("Subscription", self.subscr_id)
         else:
             return self.format % ("Recurring", self.recurring_payment_id)
 
