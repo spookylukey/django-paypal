@@ -10,7 +10,7 @@ POSTBACK_ENDPOINT = "https://www.paypal.com/cgi-bin/webscr"
 SANDBOX_POSTBACK_ENDPOINT = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
 # Images
-IMAGE = getattr(settings, "PAYPAL_IMAGE", "http://images.paypal.com/images/x-click-but01.gif")
+IMAGE = getattr(settings, "PAYPAL_IMAGE", "https://images.paypal.com/images/x-click-but01.gif")
 SUBSCRIPTION_IMAGE = getattr(settings, "PAYPAL_SUBSCRIPTION_IMAGE",
                              "https://www.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif")
 DONATION_IMAGE = getattr(settings, "PAYPAL_DONATION_IMAGE", "https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif")
