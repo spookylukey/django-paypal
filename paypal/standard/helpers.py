@@ -21,7 +21,7 @@ def duplicate_txn_id(ipn_obj):
     """
 
     # get latest similar transaction(s)
-    similars = (ipn_obj._default_manager
+    similars = (ipn_obj.__class__._default_manager
                 .filter(txn_id=ipn_obj.txn_id)
                 .exclude(id=ipn_obj.id)
                 .exclude(flag=True)

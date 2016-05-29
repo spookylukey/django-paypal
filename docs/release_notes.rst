@@ -2,6 +2,11 @@
  Release notes
 ===============
 
+Version 0.3.3 (under development)
+---------------------------------
+
+* Fixed issue #147 - compatibility issue with Django 1.10 (alpha)
+
 Version 0.3.2
 -------------
 
