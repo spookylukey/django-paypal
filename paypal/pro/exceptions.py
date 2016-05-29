@@ -7,4 +7,4 @@ class PayPalFailure(Exception):
         self.nvp = nvp
 
     def __str__(self):
-        return '{0}, nvp={1}'.format(self.message, repr(self.nvp))
+        return '{0}, nvp={1}'.format(self.args[0], repr(self.nvp))
