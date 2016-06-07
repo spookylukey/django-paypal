@@ -3,7 +3,7 @@ Using PayPal Standard IPN
 
 1. Edit ``settings.py`` and add ``paypal.standard.ipn`` to your ``INSTALLED_APPS``:
 
-   settings.py:
+   ``settings.py``:
 
    .. code-block:: python
 
@@ -20,6 +20,7 @@ Using PayPal Standard IPN
    set PAYPAL_TEST to True.
 
    .. code-block:: python
+
        PAYPAL_TEST = True
 
 
@@ -36,10 +37,12 @@ Using PayPal Standard IPN
    Call ``render`` on the instance in your template to
    write out the HTML.
 
-   views.py:
+   ``views.py``:
 
    .. code-block:: python
 
+       from django.core.urlresolvers import reverse
+       from django.shortcuts import render
        from paypal.standard.forms import PayPalPaymentsForm
 
        def view_that_asks_for_money(request):
@@ -65,7 +68,7 @@ Using PayPal Standard IPN
    For a full list of variables that can be used in ``paypal_dict``, see
    `PayPal HTML variables documentation <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_.
 
-   payment.html:
+   ``payment.html``:
 
    .. code-block:: html
 
@@ -196,4 +199,3 @@ See also
 
 * :doc:`subscriptions`
 * :doc:`encrypted_buttons`
-
