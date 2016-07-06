@@ -14,6 +14,10 @@ from paypal.standard.models import DEFAULT_ENCODING
 
 log = logging.getLogger(__name__)
 
+CONTENT_TYPE_ERROR = ("Invalid Content-Type - PayPal is only expected to use "
+                      "application/x-www-form-urlencoded. If using django's "
+                      "test Client, set `content_type` explicitly")
+
 
 @require_POST
 @csrf_exempt
@@ -30,6 +34,12 @@ def ipn(request):
     #       of if checks just to determine if flag is set.
     flag = None
     ipn_obj = None
+
+    # Avoid the RawPostDataException. See original issue for details:
+    # https://github.com/spookylukey/django-paypal/issues/79
+    if not request.META.get('CONTENT_TYPE', '').startswith(
+            'application/x-www-form-urlencoded'):
+        raise AssertionError(CONTENT_TYPE_ERROR)
 
     # Clean up the data as PayPal sends some weird values such as "N/A"
     # Also, need to cope with custom encoding, which is stored in the body (!).

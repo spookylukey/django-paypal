@@ -17,6 +17,7 @@ from paypal.standard.ipn.signals import (
     invalid_ipn_received, payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful,
     recurring_cancel, recurring_create, recurring_failed, recurring_payment, recurring_skipped, valid_ipn_received
 )
+from paypal.standard.ipn.views import CONTENT_TYPE_ERROR
 from paypal.standard.models import ST_PP_CANCELLED
 
 # Parameters are all bytestrings, so we can construct a bytestring
@@ -483,6 +484,13 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
             "Invalid form. (case_creation_date: Invalid date format "
             "01:21:32 Jan 49 2015 PDT: day is out of range for month)"
         )
+
+    def test_content_type_validation(self):
+        with self.assertRaises(AssertionError) as assert_context:
+            self.client.post("/ipn/", {}, content_type='application/json')
+        self.assertEqual(assert_context.exception.message,
+                         CONTENT_TYPE_ERROR)
+        self.assertFalse(PayPalIPN.objects.exists())
 
 
 @override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
