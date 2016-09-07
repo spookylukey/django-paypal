@@ -75,7 +75,9 @@ Using PayPal Standard IPN
        ...
        <h1>Show me the money!</h1>
        <!-- writes out the form tag automatically -->
-       {{ form.render }}
+       <form method="post" action="{{ form.get_endpoint }}">
+         {{ form.render }}
+       </form>
 
 
 4. When someone uses this button to buy something PayPal makes a HTTP POST to
