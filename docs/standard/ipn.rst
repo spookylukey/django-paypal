@@ -34,8 +34,11 @@ Using PayPal Standard IPN
    payment, and pass it through the ``initial`` parameter when creating the
    ``PayPalPaymentsForm``.
 
-   Call ``render`` on the instance in your template to
-   write out the HTML.
+   Please note: **This form is not used like a normal Django form** that posts
+   back to a Django view. Rather it is a GET form that has a single button
+   which sends all the data to PayPal. You simply need to call ``render``
+   on the instance in your template to write out the HTML, which includes
+   the ``<form>`` tag with the correct endpoint.
 
    ``views.py``:
 
