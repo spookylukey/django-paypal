@@ -105,7 +105,7 @@ Using PayPal Standard IPN
      This indicates a correct, non-duplicate IPN message from PayPal. The
      handler will receive a :class:`paypal.standard.ipn.models.PayPalIPN` object
      as the sender. You will need to check the ``payment_status`` attribute, and
-     the ``receiver_email`` to make sure that the account receiving the payment
+     the ``business`` to make sure that the account receiving the payment
      is the expected one, as well as other attributes to know what action to
      take.
 
