@@ -276,6 +276,12 @@ class PayPalStandardBase(Model):
     def is_subscription(self):
         return len(self.subscr_id) > 0
 
+    def is_subscription_payment(self):
+        return self.txn_type == "subscr_payment"
+
+    def is_subscription_failed(self):
+        return self.txn_type == "subscr_failed"
+
     def is_subscription_cancellation(self):
         return self.txn_type == "subscr_cancel"
 
