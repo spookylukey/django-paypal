@@ -6,6 +6,7 @@ import warnings
 from decimal import Decimal
 
 import mock
+from vcr import VCR
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -21,6 +22,9 @@ from .settings import TEMPLATE_DIRS, TEMPLATES
 
 RF = RequestFactory()
 REQUEST = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
+
+
+vcr = VCR(path_transformer=VCR.ensure_suffix('.yaml'))
 
 
 class DummyPayPalWPP(PayPalWPP):
@@ -71,15 +75,18 @@ def ppp_wrapper(request, handler=None):
                    TEMPLATES=TEMPLATES)
 class PayPalProTest(TestCase):
 
+    @vcr.use_cassette()
     def test_get(self):
         response = ppp_wrapper(RF.get('/'))
         self.assertContains(response, 'Show me the money')
         self.assertEqual(response.status_code, 200)
 
+    @vcr.use_cassette()
     def test_get_redirect(self):
         response = ppp_wrapper(RF.get('/', {'express': '1'}))
         self.assertEqual(response.status_code, 302)
 
+    @vcr.use_cassette()
     def test_validate_confirm_form_error(self):
         response = ppp_wrapper(RF.post('/',
                                        {'token': '123',
@@ -88,6 +95,7 @@ class PayPalProTest(TestCase):
         self.assertEqual(response.context_data.get('errors', ''),
                          PayPalPro.errors['processing'])
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, 'doExpressCheckoutPayment', autospec=True)
     def test_validate_confirm_form_ok(self, doExpressCheckoutPayment):
         nvp = {'mock': True}
@@ -129,10 +137,12 @@ class PayPalWPPTest(TestCase):
         }
         self.wpp = DummyPayPalWPP(REQUEST)
 
+    @vcr.use_cassette()
     def test_doDirectPayment_missing_params(self):
         data = {'firstname': 'Chewbacca'}
         self.assertRaises(PayPalError, self.wpp.doDirectPayment, data)
 
+    @vcr.use_cassette()
     def test_doDirectPayment_valid(self):
         data = {
             'firstname': 'Brave',
@@ -150,6 +160,7 @@ class PayPalWPPTest(TestCase):
         data.update(self.item)
         self.assertTrue(self.wpp.doDirectPayment(data))
 
+    @vcr.use_cassette()
     def test_doDirectPayment_invalid(self):
         data = {
             'firstname': 'Epic',
@@ -167,6 +178,7 @@ class PayPalWPPTest(TestCase):
         data.update(self.item)
         self.assertRaises(PayPalFailure, self.wpp.doDirectPayment, data)
 
+    @vcr.use_cassette()
     def test_doDirectPayment_valid_with_signal(self):
         data = {
             'firstname': 'Brave',
@@ -194,12 +206,12 @@ class PayPalWPPTest(TestCase):
         self.assertTrue(self.wpp.doDirectPayment(data))
         self.assertTrue(self.got_signal)
 
+    @vcr.use_cassette()
     def test_setExpressCheckout(self):
-        # We'll have to stub out tests for doExpressCheckoutPayment and friends
-        # because they're behind paypal's doors.
         nvp_obj = self.wpp.setExpressCheckout(self.ec_item)
         self.assertEqual(nvp_obj.ack, "Success")
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_setExpressCheckout_deprecation(self, mock_request_object):
         mock_request_object.return_value = 'ack=Success&token=EC-XXXX&version=%s'
@@ -218,6 +230,7 @@ class PayPalWPPTest(TestCase):
                           call_args[0][1])
             self.assertEqual(nvp_obj.ack, "Success")
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_doExpressCheckoutPayment(self, mock_request_object):
         ec_token = 'EC-1234567890'
@@ -236,6 +249,7 @@ class PayPalWPPTest(TestCase):
                       call_args[0][1])
         self.assertIn('PAYERID=%s' % payerid, call_args[0][1])
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_doExpressCheckoutPayment_invalid(self, mock_request_object):
         ec_token = 'EC-1234567890'
@@ -247,6 +261,7 @@ class PayPalWPPTest(TestCase):
         with self.assertRaises(PayPalFailure):
             wpp.doExpressCheckoutPayment(item)
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_doExpressCheckoutPayment_deprecation(self, mock_request_object):
         mock_request_object.return_value = 'ack=Success&token=EC-XXXX&version=%s'
@@ -269,6 +284,7 @@ class PayPalWPPTest(TestCase):
                           call_args[0][1])
             self.assertEqual(nvp_obj.ack, "Success")
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_createBillingAgreement(self, mock_request_object):
         mock_request_object.return_value = 'ack=Success&billingagreementid=B-XXXXX&version=%s' % VERSION
@@ -284,6 +300,7 @@ class PayPalWPPTest(TestCase):
         with self.assertRaises(PayPalFailure):
             nvp = wpp.createBillingAgreement({'token': 'dummy token'})
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_doReferenceTransaction_valid(self, mock_request_object):
         reference_id = 'B-1234'
@@ -302,6 +319,7 @@ class PayPalWPPTest(TestCase):
         self.assertEqual(nvp.method, 'DoReferenceTransaction')
         self.assertEqual(nvp.ack, 'Success')
 
+    @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
     def test_doReferenceTransaction_invalid(self, mock_request_object):
         reference_id = 'B-1234'
