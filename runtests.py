@@ -15,9 +15,9 @@ settings.configure(
     DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
     PAYPAL_TEST=True,
     # Please dont make me create another test account and remove this from here :)
-    PAYPAL_WPP_USER='dcrame_1278645792_biz_api1.gmail.com',
-    PAYPAL_WPP_PASSWORD='1278645801',
-    PAYPAL_WPP_SIGNATURE='A4k1.O6xTyld5TiKeVmCuOgqzLRuAKuTtSG.7BD3R9E8SBa-J0pbUeYp',
+    PAYPAL_WPP_USER='django.paypal.seller_api1.gmail.com',
+    PAYPAL_WPP_PASSWORD='D5LBCTEKUUJR8EKL',
+    PAYPAL_WPP_SIGNATURE='AFcWxV21C7fd0v3bYYYRCpSSRl31A6nHqN3IBok0TF-H8I-C8C6u41Do',
     PAYPAL_IDENTITY_TOKEN='xxx',
     INSTALLED_APPS=[
         'django.contrib.auth',

@@ -142,9 +142,9 @@ class PayPalWPPTest(TestCase):
             'state': 'CA',
             'countrycode': 'US',
             'zip': '95131',
-            'expdate': '012019',
-            'cvv2': '037',
-            'acct': '4797503429879309',
+            'acct': '4032039938039650',
+            'expdate': '112021',
+            'cvv2': '',
             'creditcardtype': 'visa',
             'ipaddress': '10.0.1.199', }
         data.update(self.item)
@@ -176,9 +176,9 @@ class PayPalWPPTest(TestCase):
             'state': 'CA',
             'countrycode': 'US',
             'zip': '95131',
-            'expdate': '012019',
-            'cvv2': '037',
-            'acct': '4797503429879309',
+            'acct': '4032039938039650',
+            'expdate': '112021',
+            'cvv2': '',
             'creditcardtype': 'visa',
             'ipaddress': '10.0.1.199', }
         data.update(self.item)
