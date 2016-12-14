@@ -9,7 +9,7 @@ from decimal import Decimal
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
-from six import b, text_type
+from six import text_type
 from six.moves.urllib.parse import urlencode
 
 from paypal.standard.ipn.models import PayPalIPN
@@ -42,7 +42,7 @@ IPN_POST_PARAMS = {
     "payment_date": b"23:04:06 Feb 02, 2009 PST",
     "first_name": b"J\xF6rg",
     "item_name": b"",
-    "charset": b(CHARSET),
+    "charset": CHARSET.encode('ascii'),
     "custom": b"website_id=13&user_id=21",
     "notify_version": b"2.6",
     "transaction_subject": b"",
@@ -391,14 +391,14 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
     def test_paypal_date_format(self):
         update = {
-            "next_payment_date": b("23:04:06 Feb 02, 2009 PST"),
-            "subscr_date": b("23:04:06 Jan 02, 2009 PST"),
-            "subscr_effective": b("23:04:06 Jan 02, 2009 PST"),
-            "auction_closing_date": b("23:04:06 Jan 02, 2009 PST"),
-            "retry_at": b("23:04:06 Jan 02, 2009 PST"),
+            "next_payment_date": b"23:04:06 Feb 02, 2009 PST",
+            "subscr_date": b"23:04:06 Jan 02, 2009 PST",
+            "subscr_effective": b"23:04:06 Jan 02, 2009 PST",
+            "auction_closing_date": b"23:04:06 Jan 02, 2009 PST",
+            "retry_at": b"23:04:06 Jan 02, 2009 PST",
             # test parsing times in PST/PDT change period
-            "case_creation_date": b("01:13:05 Nov 01, 2015 PST"),
-            "time_created": b("01:13:05 Nov 01, 2015 PDT"),
+            "case_creation_date": b"01:13:05 Nov 01, 2015 PST",
+            "time_created": b"01:13:05 Nov 01, 2015 PDT",
         }
 
         params = IPN_POST_PARAMS.copy()
@@ -409,7 +409,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
     def test_paypal_date_invalid_format(self):
         params = IPN_POST_PARAMS.copy()
-        params.update({"time_created": b("2015-10-25 01:21:32")})
+        params.update({"time_created": b"2015-10-25 01:21:32"})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
         self.assertIn(
@@ -424,7 +424,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
         # day not int convertible
         params = IPN_POST_PARAMS.copy()
-        params.update({"payment_date": b("01:21:32 Jan 25th 2015 PDT")})
+        params.update({"payment_date": b"01:21:32 Jan 25th 2015 PDT"})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
         self.assertEqual(
@@ -436,7 +436,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
         # month not in Mmm format
         params = IPN_POST_PARAMS.copy()
-        params.update({"next_payment_date": b("01:21:32 01 25 2015 PDT")})
+        params.update({"next_payment_date": b"01:21:32 01 25 2015 PDT"})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
         self.assertIn(
@@ -449,7 +449,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
         # month not in Mmm format
         params = IPN_POST_PARAMS.copy()
-        params.update({"retry_at": b("01:21:32 January 25 2015 PDT")})
+        params.update({"retry_at": b"01:21:32 January 25 2015 PDT"})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
         self.assertIn(
@@ -462,7 +462,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
         # no seconds in time part
         params = IPN_POST_PARAMS.copy()
-        params.update({"subscr_date": b("01:28 Jan 25 2015 PDT")})
+        params.update({"subscr_date": b"01:28 Jan 25 2015 PDT"})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
         self.assertIn(
@@ -476,7 +476,7 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
 
         # string not valid datetime
         params = IPN_POST_PARAMS.copy()
-        params.update({"case_creation_date": b("01:21:32 Jan 49 2015 PDT")})
+        params.update({"case_creation_date": b"01:21:32 Jan 49 2015 PDT"})
         self.paypal_post(params)
         self.assertTrue(PayPalIPN.objects.latest('id').flag)
         self.assertEqual(
