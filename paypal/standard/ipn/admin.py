@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.contrib import admin
-
-from django.contrib import messages
+from django.contrib import admin, messages
 
 from paypal.standard.ipn.models import PayPalIPN
 

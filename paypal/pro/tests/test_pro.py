@@ -6,11 +6,11 @@ import warnings
 from decimal import Decimal
 
 import mock
-from vcr import VCR
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+from vcr import VCR
 
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.fields import CreditCardField
