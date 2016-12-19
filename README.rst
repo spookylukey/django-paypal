@@ -40,25 +40,24 @@ a critical data loss or security bug, the maintainers are unlikely to work for
 free to fix it, and a new feature will only be added by the maintainers if they
 need it themselves.
 
+That said, if you do have large changes that you want to contribute, including
+large new features (such as implementing newer PayPal payment methods), they
+will be gladly accepted if they are implemented well.
+
 Contributing to django-paypal
 =============================
 
 If you want to contribute (yay!), please create a fork and start a branch off
 'master' for your changes. Submit a PR on GitHub to request that it is merged.
 
-In creating a pull request, it will help to remember that this project is in
-maintenance mode. This means the maintainers merge patches, but not ones that
-make more work for them in future, or do not benefit the other users of the
-project - for example, code that is not covered by automated tests, or large
-backwards incompatible changes that aren't necessary.
+Since this project is in maintenance mode, the maintainers will merge patches,
+but not ones that make more work for them in future, or do not benefit the other
+users of the project - for example, code that is not covered by automated tests,
+or large backwards incompatible changes that aren't necessary.
 
 Remember that a new feature that is neither documented nor covered by tests is
 not actually a contribution to the project, but only benefits the person who
 “contributed” it, and so won't be accepted.
-
-That said, if you do have large changes that you want to contribute, including
-large new features (such as implementing newer PayPal payment methods), they
-will be gladly accepted if they are implemented well.
 
 In more detail, please see the following guidelines and hints:
 
