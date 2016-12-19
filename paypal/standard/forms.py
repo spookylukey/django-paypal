@@ -227,12 +227,20 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
     """
 
+    def __init__(self, cert=PAYPAL_PRIVATE_CERT, pub_cert=PAYPAL_PUBLIC_CERT,
+            paypal_cert=PAYPAL_CERT, cert_id=PAYPAL_CERT_ID, *args, **kwargs):
+        super(PayPalEncryptedPaymentsForm, self).__init__(*args, **kwargs)
+        self.cert = cert
+        self.pub_cert = pub_cert
+        self.paypal_cert = paypal_cert
+        self.cert_id = cert_id
+
     def _encrypt(self):
         """Use your key thing to encrypt things."""
         from M2Crypto import BIO, SMIME, X509
 
         # Iterate through the fields and pull out the ones that have a value.
-        plaintext = 'cert_id=%s\n' % PAYPAL_CERT_ID
+        plaintext = 'cert_id=%s\n' % self.cert_id
         for name, field in self.fields.items():
             value = None
             if name in self.initial:
@@ -248,9 +256,9 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
         # Begin crypto weirdness.
         s = SMIME.SMIME()
-        s.load_key_bio(BIO.openfile(PAYPAL_PRIVATE_CERT), BIO.openfile(PAYPAL_PUBLIC_CERT))
+        s.load_key_bio(BIO.openfile(self.cert), BIO.openfile(self.pub_cert))
         p7 = s.sign(BIO.MemoryBuffer(plaintext), flags=SMIME.PKCS7_BINARY)
-        x509 = X509.load_cert_bio(BIO.openfile(PAYPAL_CERT))
+        x509 = X509.load_cert_bio(BIO.openfile(self.paypal_cert))
         sk = X509.X509_Stack()
         sk.push(x509)
         s.set_x509_stack(sk)
