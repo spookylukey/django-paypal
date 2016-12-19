@@ -12,7 +12,7 @@ from paypal.standard.ipn.forms import PayPalIPNForm
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.models import DEFAULT_ENCODING
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 CONTENT_TYPE_ERROR = ("Invalid Content-Type - PayPal is only expected to use "
                       "application/x-www-form-urlencoded. If using django's "
@@ -40,6 +40,8 @@ def ipn(request):
     if not request.META.get('CONTENT_TYPE', '').startswith(
             'application/x-www-form-urlencoded'):
         raise AssertionError(CONTENT_TYPE_ERROR)
+
+    logger.debug("PayPal incoming POST data: %s", request.body)
 
     # Clean up the data as PayPal sends some weird values such as "N/A"
     # Also, need to cope with custom encoding, which is stored in the body (!).
@@ -100,6 +102,6 @@ def ipn(request):
 
     if encoding_missing:
         # Wait until we have an ID to log warning
-        log.warning("No charset passed with PayPalIPN: %s. Guessing %s", ipn_obj.id, encoding)
+        logger.warning("No charset passed with PayPalIPN: %s. Guessing %s", ipn_obj.id, encoding)
 
     return HttpResponse("OKAY")
