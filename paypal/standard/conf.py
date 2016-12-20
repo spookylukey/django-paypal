@@ -20,3 +20,9 @@ SUBSCRIPTION_SANDBOX_IMAGE = getattr(settings, "PAYPAL_SUBSCRIPTION_SANDBOX_IMAG
                                      "https://www.sandbox.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif")
 DONATION_SANDBOX_IMAGE = getattr(settings, "PAYPAL_DONATION_SANDBOX_IMAGE",
                                  "https://www.sandbox.paypal.com/en_US/i/btn/btn_donateCC_LG.gif")
+
+# Paypal Encrypt Certificate
+PAYPAL_PRIVATE_CERT = getattr(settings, 'PAYPAL_PRIVATE_CERT', None)
+PAYPAL_PUBLIC_CERT = getattr(settings, 'PAYPAL_PUBLIC_CERT', None)
+PAYPAL_CERT = getattr(settings, 'PAYPAL_CERT', None)
+PAYPAL_CERT_ID = getattr(settings, 'PAYPAL_CERT_ID', None)

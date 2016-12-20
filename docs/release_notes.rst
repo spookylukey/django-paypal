@@ -5,6 +5,7 @@
 Version 0.3.4 (under development)
 ---------------------------------
 
+* Use multi certificates with PaypalEncryptedPaymentsForm
 
 Version 0.3.3
 -------------
