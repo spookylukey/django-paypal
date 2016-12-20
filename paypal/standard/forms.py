@@ -227,11 +227,11 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
     """
 
-    def __init__(self, cert=PAYPAL_PRIVATE_CERT, pub_cert=PAYPAL_PUBLIC_CERT,
+    def __init__(self, private_cert=PAYPAL_PRIVATE_CERT, public_cert=PAYPAL_PUBLIC_CERT,
             paypal_cert=PAYPAL_CERT, cert_id=PAYPAL_CERT_ID, *args, **kwargs):
         super(PayPalEncryptedPaymentsForm, self).__init__(*args, **kwargs)
-        self.cert = cert
-        self.pub_cert = pub_cert
+        self.private_cert = private_cert
+        self.public_cert = public_cert
         self.paypal_cert = paypal_cert
         self.cert_id = cert_id
 
@@ -256,7 +256,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
         # Begin crypto weirdness.
         s = SMIME.SMIME()
-        s.load_key_bio(BIO.openfile(self.cert), BIO.openfile(self.pub_cert))
+        s.load_key_bio(BIO.openfile(self.private_cert), BIO.openfile(self.public_cert))
         p7 = s.sign(BIO.MemoryBuffer(plaintext), flags=SMIME.PKCS7_BINARY)
         x509 = X509.load_cert_bio(BIO.openfile(self.paypal_cert))
         sk = X509.X509_Stack()
