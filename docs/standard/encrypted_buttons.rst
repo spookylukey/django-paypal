@@ -52,6 +52,27 @@ it. Thanks to `Jon Atkinson <http://jonatkinson.co.uk/>`_ for the
            # Works just like before!
            form.render()
 
+9. To use others certificates, add them directly in creation form.
+
+   In views.py:
+
+   .. code-block:: python
+
+       from paypal.standard.forms import PayPalEncryptedPaymentsForm
+
+       def view_that_asks_for_money(request):
+           ...
+           # Paypal Certificate Information
+           paypal_private_cert = '/path/to/another/paypal.pem'
+           paypal_public_cert = '/path/to/another/pubpaypal.pem'
+           paypal_cert = '/path/to/another/paypal_cert.pem'
+           paypal_cert_id = 'another-paypal-id'
+           # Create the instance.
+           form = PayPalPaymentsForm(initial=paypal_dict, 
+                cert=paypal_private_cert, pub_cert=paypal_public_cert, 
+                paypal_cert=paypal_cert, cert_id=paypal_cert_id)
+           ...
+
 
 Using PayPal Payments Standard with Encrypted Buttons and Shared Secrets
 ------------------------------------------------------------------------
