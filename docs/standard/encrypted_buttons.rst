@@ -1,9 +1,9 @@
 Using PayPal Standard with Encrypted Buttons
 ============================================
 
-Use this method to encrypt your button so sneaky gits don't try to hack
-it. Thanks to `Jon Atkinson <http://jonatkinson.co.uk/>`_ for the
-`tutorial <http://jonatkinson.co.uk/paypal-encrypted-buttons-django/>`_.
+Use this method to encrypt your button so values in the form can't be tampered
+with. Thanks to `Jon Atkinson <http://jonatkinson.co.uk/>`_ for the `tutorial
+<http://jonatkinson.co.uk/paypal-encrypted-buttons-django/>`_.
 
 1. Encrypted buttons require the `M2Crypto` library::
 
