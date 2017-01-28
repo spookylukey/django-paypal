@@ -5,6 +5,7 @@ import argparse
 import sys
 import warnings
 
+import django
 from django.conf import settings
 from django.core.management import execute_from_command_line
 
@@ -21,8 +22,7 @@ known_args, remaining_args = parser.parse_known_args()
 remaining_options = [a for a in remaining_args if a.startswith('-')]
 test_args = [a for a in remaining_args if not a.startswith('-')]
 
-
-settings.configure(
+settings_dict = dict(
     ROOT_URLCONF='',
     DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
     PAYPAL_TEST=True,
@@ -48,14 +48,6 @@ settings.configure(
             'KEY_PREFIX': 'paypal_tests_',
         }
     },
-    MIDDLEWARE_CLASSES=[
-        "django.contrib.sessions.middleware.SessionMiddleware",
-        "django.middleware.common.CommonMiddleware",
-        "django.middleware.csrf.CsrfViewMiddleware",
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        "django.contrib.messages.middleware.MessageMiddleware",
-        "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    ],
     MIDDLEWARE=[
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
@@ -85,6 +77,12 @@ settings.configure(
     ],
     USE_TZ=not known_args.use_tz_false,
 )
+
+if django.VERSION < (1, 10):
+    settings_dict['MIDDLEWARE_CLASSES'] = settings_dict.pop('MIDDLEWARE')
+
+
+settings.configure(**settings_dict)
 
 
 if len(test_args) == 0:
