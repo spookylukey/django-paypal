@@ -6,6 +6,7 @@ import warnings
 from datetime import datetime
 from decimal import Decimal
 
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
@@ -180,7 +181,8 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         self.assertEqual(ipn_obj.first_name, u"J\u00f6rg")
         # Check date parsing
         self.assertEqual(ipn_obj.payment_date,
-                         datetime(2009, 2, 3, 7, 4, 6, tzinfo=timezone.utc))
+                         datetime(2009, 2, 3, 7, 4, 6,
+                                  tzinfo=timezone.utc if settings.USE_TZ else None))
 
     def test_invalid_ipn_received(self):
         PayPalIPN._postback = lambda self: b"INVALID"
@@ -513,7 +515,8 @@ class IPNLocaleTest(IPNUtilsMixin, MockedPostbackMixin, TestCase):
         self.assertEqual(ipn_obj.last_name, u"User")
         # Check date parsing
         self.assertEqual(ipn_obj.payment_date,
-                         datetime(2009, 2, 3, 7, 4, 6, tzinfo=timezone.utc))
+                         datetime(2009, 2, 3, 7, 4, 6,
+                                  tzinfo=timezone.utc if settings.USE_TZ else None))
 
 
 @override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')
@@ -560,7 +563,8 @@ class IPNSimulatorTests(TestCase):
         self.assertFalse(ipn.flag)
         self.assertEqual(ipn.mc_gross, Decimal("12.34"))
         # For tests, we get conversion to UTC because this is all SQLite supports.
-        self.assertEqual(ipn.payment_date, datetime(2009, 2, 3, 7, 4, 6, tzinfo=timezone.UTC()))
+        self.assertEqual(ipn.payment_date, datetime(2009, 2, 3, 7, 4, 6,
+                                                    tzinfo=timezone.utc if settings.USE_TZ else None))
 
     def test_declined(self):
         paypal_input = b'payment_type=instant&payment_date=23%3A04%3A06%20Feb%2002%2C%202009%20PDT&' \

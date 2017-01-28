@@ -6,6 +6,7 @@ Version 0.3.4 (under development)
 ---------------------------------
 
 * Use multi certificates with PaypalEncryptedPaymentsForm
+* Fixed issue #166 - regression from 0.2.7 when using ``USE_TZ=False``
 
 Version 0.3.3
 -------------
