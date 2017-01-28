@@ -7,6 +7,7 @@ env:
 - TOXENV=isort-check
 - TOXENV=py27-django110-tests-usetzfalse
 - TOXENV=py27-django110-tests-usetztrue
+- TOXENV=py27-django111-tests-usetztrue
 - TOXENV=py27-django16-tests-usetzfalse
 - TOXENV=py27-django16-tests-usetztrue
 - TOXENV=py27-django17-tests-usetzfalse
@@ -19,11 +20,13 @@ env:
 - TOXENV=py33-django17-tests-usetztrue
 - TOXENV=py33-django18-tests-usetztrue
 - TOXENV=py34-django110-tests-usetztrue
+- TOXENV=py34-django111-tests-usetztrue
 - TOXENV=py34-django16-tests-usetztrue
 - TOXENV=py34-django17-tests-usetztrue
 - TOXENV=py34-django18-tests-usetztrue
 - TOXENV=py34-django19-tests-usetztrue
 - TOXENV=py35-django110-tests-usetztrue
+- TOXENV=py35-django111-tests-usetztrue
 - TOXENV=py35-django19-tests-usetztrue
 before_install:
   - sudo apt-get -qq update

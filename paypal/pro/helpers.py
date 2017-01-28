@@ -50,7 +50,7 @@ def paypaltime2datetime(s):
         return naive
     else:
         # TIMESTAMP_FORMAT is UTC
-        return timezone.make_aware(naive, timezone.UTC())
+        return timezone.make_aware(naive, timezone.utc)
 
 
 class PayPalError(TypeError):
