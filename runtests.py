@@ -87,12 +87,10 @@ settings.configure(
 )
 
 
-argv = [sys.argv[0], "test"]
-
 if len(test_args) == 0:
     test_args = ["paypal.pro.tests", "paypal.standard.ipn.tests", "paypal.standard.pdt.tests"]
 
-cmd = ["test"] + remaining_options + test_args
+argv = [sys.argv[0], "test"] + remaining_options + test_args
 
 if __name__ == '__main__':
     execute_from_command_line(argv)
