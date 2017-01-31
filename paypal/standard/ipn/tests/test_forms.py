@@ -13,6 +13,7 @@ class PaymentsFormTest(TestCase):
         f = PayPalPaymentsForm(initial={'business': 'me@mybusiness.com',
                                         'amount': '10.50',
                                         'shipping': '2.00',
+                                        'return_url': 'https://example.com/return_url',
                                         })
         rendered = f.render()
         self.assertIn('''action="https://www.sandbox.paypal.com/cgi-bin/webscr"''', rendered)
