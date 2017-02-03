@@ -7,6 +7,9 @@ Release process
 
     tox
 
+  Or check Travis, if it has run against the latest source code:
+  https://travis-ci.org/spookylukey/django-paypal
+
 * Update version numbers:
 
   * ``paypal/__init__.py``
