@@ -2,6 +2,11 @@
  Release notes
 ===============
 
+Version 0.3.6
+-------------
+
+* Version bump due to messed up version numbers in previous release.
+
 Version 0.3.4
 -------------
 
