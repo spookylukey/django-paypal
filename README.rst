@@ -35,10 +35,15 @@ primary responsibilities as:
 Large scale development work and feature additions are not planned by the
 maintainers.
 
-Please bear this in mind if filing an issue. If you discover a bug, unless it is
-a critical data loss or security bug, the maintainers are unlikely to work for
-free to fix it, and a new feature will only be added by the maintainers if they
-need it themselves.
+Some important parts of the code base are not covered by automated tests, and
+may be broken for some versions of Django or Python. These parts of the code
+base currently issue warnings, and the maintainers are waiting for tests to be
+contributed by those who actually need those parts, and docs where appropriate.
+
+Please bear these things in mind if filing an issue. If you discover a bug,
+unless it is a critical data loss or security bug, the maintainers are unlikely
+to work for free to fix it, and a new feature, or tests for existing
+functionality, will only be added by the maintainers if they need it themselves.
 
 That said, if you do have large changes that you want to contribute, including
 large new features (such as implementing newer PayPal payment methods), they
