@@ -20,7 +20,7 @@ Release process
 
 * Release to PyPI::
 
-    ./setup.py sdist bdist_wheel register upload
+    ./setup.py sdist bdist_wheel upload
 
 * Tag and push, for example.::
 
