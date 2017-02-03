@@ -6,6 +6,7 @@ from django import forms
 
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.fields import CountryField, CreditCardCVV2Field, CreditCardExpiryField, CreditCardField
+from paypal.utils import warn_untested
 
 
 class PaymentForm(forms.Form):
@@ -24,6 +25,7 @@ class PaymentForm(forms.Form):
 
     def process(self, request, item):
         """Process a PayPal direct payment."""
+        warn_untested()
         from paypal.pro.helpers import PayPalWPP
 
         wpp = PayPalWPP(request)

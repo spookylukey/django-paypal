@@ -11,6 +11,8 @@ from django.views.decorators.http import require_POST
 from paypal.standard.ipn.forms import PayPalIPNForm
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.models import DEFAULT_ENCODING
+from paypal.utils import warn_untested
+
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,7 @@ def ipn(request):
     try:
         data = QueryDict(request.body, encoding=encoding).copy()
     except LookupError:
+        warn_untested()
         data = None
         flag = "Invalid form - invalid charset"
 
@@ -93,6 +96,7 @@ def ipn(request):
     else:
         # Secrets should only be used over SSL.
         if request.is_secure() and 'secret' in request.GET:
+            warn_untested()
             ipn_obj.verify_secret(form, request.GET['secret'])
         else:
             ipn_obj.verify()

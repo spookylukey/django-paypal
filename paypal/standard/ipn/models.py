@@ -10,6 +10,7 @@ from paypal.standard.ipn.signals import (
     subscription_eot, subscription_modify, subscription_signup, valid_ipn_received
 )
 from paypal.standard.models import PayPalStandardBase
+from paypal.utils import warn_untested
 
 
 class PayPalIPN(PayPalStandardBase):
@@ -51,6 +52,7 @@ class PayPalIPN(PayPalStandardBase):
             if self.is_recurring_create():
                 recurring_create.send(sender=self)
             elif self.is_recurring_payment():
+                warn_untested()
                 recurring_payment.send(sender=self)
             elif self.is_recurring_cancel():
                 recurring_cancel.send(sender=self)
@@ -60,6 +62,7 @@ class PayPalIPN(PayPalStandardBase):
                 recurring_failed.send(sender=self)
         # Subscription signals:
         else:
+            warn_untested()
             if self.is_subscription_cancellation():
                 subscription_cancel.send(sender=self)
             elif self.is_subscription_signup():

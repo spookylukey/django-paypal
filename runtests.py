@@ -76,7 +76,21 @@ settings_dict = dict(
         },
     ],
     USE_TZ=not known_args.use_tz_false,
-)
+    LOGGING={
+        'version': 1,
+        'disable_existing_loggers': True,
+        'root': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+        },
+        'handlers': {
+            'console': {
+                'level': 'WARNING',
+                'class': 'logging.StreamHandler',
+            },
+        },
+    },
+    )
 
 if django.VERSION < (1, 10):
     settings_dict['MIDDLEWARE_CLASSES'] = settings_dict.pop('MIDDLEWARE')

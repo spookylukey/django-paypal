@@ -9,6 +9,7 @@ from django.views.decorators.http import require_GET
 
 from paypal.standard.pdt.forms import PayPalPDTForm
 from paypal.standard.pdt.models import PayPalPDT
+from paypal.utils import warn_untested
 
 
 @require_GET
@@ -56,13 +57,16 @@ def process_pdt(request):
                 try:
                     pdt_obj = form.save(commit=False)
                 except Exception as e:
+                    warn_untested()
                     error = repr(e)
                     failed = True
             else:
+                warn_untested()
                 error = form.errors
                 failed = True
 
             if failed:
+                warn_untested()
                 pdt_obj = PayPalPDT()
                 pdt_obj.set_flag("Invalid form. %s" % error)
 
