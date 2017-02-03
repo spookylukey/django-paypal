@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import django
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.contrib import admin
 
 from paypal.standard.ipn import views
@@ -13,7 +13,7 @@ if django.VERSION < (1, 7):
 
 urlpatterns = [
     url(r'^ipn/$', views.ipn),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 ]
 
 
