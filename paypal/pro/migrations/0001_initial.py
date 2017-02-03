@@ -42,7 +42,8 @@ class Migration(migrations.Migration):
                 ('response', models.TextField(blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True,
+                                           on_delete=models.CASCADE)),
             ],
             options={
                 'db_table': 'paypal_nvp',

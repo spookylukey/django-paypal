@@ -73,7 +73,8 @@ class PayPalNVP(Model):
 
     # Admin fields
     user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
-                             blank=True, null=True)
+                             blank=True, null=True,
+                             on_delete=models.CASCADE)
     flag = models.BooleanField(default=False, blank=True)
     flag_code = models.CharField(max_length=32, blank=True)
     flag_info = models.TextField(blank=True)
