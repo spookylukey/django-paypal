@@ -22,7 +22,6 @@ from paypal.pro.signals import (
 )
 from paypal.utils import warn_untested
 
-
 USER = settings.PAYPAL_WPP_USER
 PASSWORD = settings.PAYPAL_WPP_PASSWORD
 SIGNATURE = settings.PAYPAL_WPP_SIGNATURE

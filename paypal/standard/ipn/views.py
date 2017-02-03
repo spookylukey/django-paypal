@@ -13,7 +13,6 @@ from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.models import DEFAULT_ENCODING
 from paypal.utils import warn_untested
 
-
 logger = logging.getLogger(__name__)
 
 CONTENT_TYPE_ERROR = ("Invalid Content-Type - PayPal is only expected to use "

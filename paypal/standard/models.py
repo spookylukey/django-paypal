@@ -12,7 +12,6 @@ from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 from paypal.standard.helpers import check_secret, duplicate_txn_id
 from paypal.utils import warn_untested
 
-
 ST_PP_ACTIVE = 'Active'
 ST_PP_CANCELLED = 'Cancelled'
 ST_PP_CANCELED_REVERSAL = 'Canceled_Reversal'
