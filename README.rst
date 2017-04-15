@@ -49,6 +49,15 @@ That said, if you do have large changes that you want to contribute, including
 large new features (such as implementing newer PayPal payment methods), they
 will be gladly accepted if they are implemented well.
 
+Issue tracker and support requests
+==================================
+
+The GitHub issue tracker is for reporting bugs in django-paypal, or proposed
+features. It is not for support requests - please see the django-paypal docs,
+or the relevant PayPal docs. Issues (or emails to the maintainers) that are
+really support requests and do not involve fixing django-paypal (or its docs)
+will be ignored/closed.
+
 Contributing to django-paypal
 =============================
 
