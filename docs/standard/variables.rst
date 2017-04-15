@@ -6,6 +6,12 @@ The data variables that are returned on the IPN object are documented here:
 
 https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
 
+.. note:: The names of these data variables are not the same as the values that
+          you `pass to PayPal
+          <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_ -
+          ensure you are looking at the right list!
+
+
 The IPN/PDT objects are Django models with the same attributes as above,
 converted to appropriate Python types e.g. ``Decimal`` for money values.
 

@@ -71,6 +71,9 @@ Using PayPal Standard IPN
    For a full list of variables that can be used in ``paypal_dict``, see
    `PayPal HTML variables documentation <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_.
 
+   .. note:: The names of these variables are not the same as the values
+             returned on the IPN object.
+
    ``payment.html``:
 
    .. code-block:: html
@@ -162,7 +165,7 @@ Using PayPal Standard IPN
 
    Note that ``return_url`` view may need ``@csrf_exempt`` applied to it,
    because PayPal may POST to it (depending on the value of the `rm parameter
-   <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/#paypal-checkout-page-variables`_
+   <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/#paypal-checkout-page-variables>`_
    and possibly other settings), so it should be a custom view that doesn't need
    to handle POSTs otherwise.
 
