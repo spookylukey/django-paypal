@@ -263,7 +263,10 @@ class PayPalStandardBase(Model):
         return data.dict()
 
     def is_transaction(self):
-        return len(self.txn_id) > 0
+        try:
+            return len(self.txn_id) > 0
+        except TypeError, err:
+            return False
 
     def is_refund(self):
         return self.payment_status == ST_PP_REFUNDED
@@ -272,11 +275,17 @@ class PayPalStandardBase(Model):
         return self.payment_status == ST_PP_REVERSED
 
     def is_recurring(self):
-        return len(self.recurring_payment_id) > 0
+        try:
+            return len(self.recurring_payment_id) > 0
+        except TypeError, err:
+            return False
 
     def is_subscription(self):
         warn_untested()
-        return len(self.subscr_id) > 0
+        try:
+            return len(self.subscr_id) > 0
+        except TypeError, err:
+            return False
 
     def is_subscription_payment(self):
         warn_untested()
@@ -327,7 +336,10 @@ class PayPalStandardBase(Model):
 
     def is_billing_agreement(self):
         warn_untested()
-        return len(self.mp_id) > 0
+        try:
+            return len(self.mp_id) > 0
+        except TypeError, err:
+            return False
 
     def is_billing_agreement_create(self):
         warn_untested()
