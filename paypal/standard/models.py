@@ -265,7 +265,7 @@ class PayPalStandardBase(Model):
     def is_transaction(self):
         try:
             return len(self.txn_id) > 0
-        except TypeError, err:
+        except TypeError:
             return False
 
     def is_refund(self):
@@ -277,14 +277,14 @@ class PayPalStandardBase(Model):
     def is_recurring(self):
         try:
             return len(self.recurring_payment_id) > 0
-        except TypeError, err:
+        except TypeError:
             return False
 
     def is_subscription(self):
         warn_untested()
         try:
             return len(self.subscr_id) > 0
-        except TypeError, err:
+        except TypeError:
             return False
 
     def is_subscription_payment(self):
@@ -338,7 +338,7 @@ class PayPalStandardBase(Model):
         warn_untested()
         try:
             return len(self.mp_id) > 0
-        except TypeError, err:
+        except TypeError:
             return False
 
     def is_billing_agreement_create(self):
