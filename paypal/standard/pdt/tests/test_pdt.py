@@ -4,6 +4,7 @@ see http://www.djangoproject.com/documentation/testing/ for details
 """
 from __future__ import unicode_literals
 
+import mock
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import TestCase
@@ -105,6 +106,22 @@ class PDTTest(TestCase):
         self.assertEqual(pdt_obj.custom, self.get_params['cm'])
 
 
+class MockedResponse:
+    content = 'test'
+
+
+def mocked_post(*args, **kwargs):
+    url = args[0]
+    data = kwargs['data']
+
+    assert url == SANDBOX_POSTBACK_ENDPOINT
+    assert data['cmd'] == '_notify-synch'
+    assert 'at' in data
+    assert 'tx' in data
+
+    return MockedResponse()
+
+
 class PDTPostbackTest(TestCase):
     """
     Tests an actual postback to PayPal server.
@@ -116,6 +133,11 @@ class PDTPostbackTest(TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
+
+    @mock.patch('paypal.standard.pdt.models.requests.post', side_effect=mocked_post)
+    def test_postback(self, post):
+        response = self.pdt._postback()
+        self.assertEqual(response, MockedResponse.content)
 
     def test_enpoint(self):
         endpoint = self.pdt.get_endpoint()

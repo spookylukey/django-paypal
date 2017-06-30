@@ -47,7 +47,6 @@ class PayPalPDT(PayPalStandardBase):
         SUCCESS or FAILED.
 
         """
-        warn_untested()
         return requests.post(self.get_endpoint(),
                              data=dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)).content
 
