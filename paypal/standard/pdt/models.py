@@ -47,12 +47,10 @@ class PayPalPDT(PayPalStandardBase):
         SUCCESS or FAILED.
 
         """
-        warn_untested()
         return requests.post(self.get_endpoint(),
                              data=dict(cmd="_notify-synch", at=IDENTITY_TOKEN, tx=self.tx)).content
 
     def get_endpoint(self):
-        warn_untested()
         if getattr(settings, 'PAYPAL_TEST', True):
             return SANDBOX_POSTBACK_ENDPOINT
         else:
