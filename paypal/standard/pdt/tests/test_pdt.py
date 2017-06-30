@@ -4,10 +4,12 @@ see http://www.djangoproject.com/documentation/testing/ for details
 """
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 from paypal.standard.pdt.models import PayPalPDT
 
 from .settings import TEMPLATE_DIRS, TEMPLATES
@@ -101,3 +103,24 @@ class PDTTest(TestCase):
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
         pdt_obj = PayPalPDT.objects.all()[0]
         self.assertEqual(pdt_obj.custom, self.get_params['cm'])
+
+
+class PDTPostbackTest(TestCase):
+    """
+    Tests an actual postback to PayPal server.
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.pdt = PayPalPDT()
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
+    def test_enpoint(self):
+        endpoint = self.pdt.get_endpoint()
+
+        if getattr(settings, 'PAYPAL_TEST', True):
+            self.assertEqual(endpoint, SANDBOX_POSTBACK_ENDPOINT)
+        else:
+            self.assertEqual(endpoint, POSTBACK_ENDPOINT)
