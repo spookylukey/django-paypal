@@ -17,7 +17,7 @@ class PaymentForm(forms.Form):
     street = forms.CharField(255, label=_("Street Address"))
     city = forms.CharField(255, label=_("City"))
     state = forms.CharField(255, label=_("State"))
-    countrycode = CountryField(label=_("Country", initial="US"))
+    countrycode = CountryField(label=_("Country"), initial="US")
     zip = forms.CharField(32, label=_("Postal / Zip Code"))
     acct = CreditCardField(label=_("Credit Card Number"))
     expdate = CreditCardExpiryField(label=_("Expiration Date"))
