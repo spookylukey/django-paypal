@@ -1,6 +1,7 @@
 Using PayPal Standard with Encrypted Buttons
 ============================================
 
+
 Use this method to encrypt your button so values in the form can't be tampered
 with. Thanks to `Jon Atkinson <http://jonatkinson.co.uk/>`_ for the `tutorial
 <http://jonatkinson.co.uk/paypal-encrypted-buttons-django/>`_.
@@ -8,6 +9,10 @@ with. Thanks to `Jon Atkinson <http://jonatkinson.co.uk/>`_ for the `tutorial
 1. Encrypted buttons require the `M2Crypto` library::
 
        pip install M2Crypto
+
+.. note::
+
+    Python 3 users may skip this section as of today, M2Crypto is only available on Python 2. see: https://gitlab.com/m2crypto/m2crypto/issues/114 for more informations.
 
 2. Encrypted buttons require certificates. Create a private key::
 
