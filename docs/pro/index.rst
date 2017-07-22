@@ -116,6 +116,6 @@ to use through the provided ``PayPalPro`` class.
 Alternatively, if you want to get down to the nitty gritty and perform some
 more advanced operations with Payments Pro, use the :class:`paypal.pro.helpers.PayPalWPP` class directly.
 
-If you are testing locally using the WPP sandbox and are having problems SSL,
-please see `issue 145
+If you are testing locally using the WPP sandbox and are having SSL
+problems, please see `issue 145
 <https://github.com/spookylukey/django-paypal/issues/145>`_.
