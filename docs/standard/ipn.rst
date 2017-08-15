@@ -83,6 +83,9 @@ Using PayPal Standard IPN
        <!-- writes out the form tag automatically -->
        {{ form.render }}
 
+   The image used for the button can be customized using the :doc:`/settings`, or
+   by subclassing ``PayPalPaymentsForm`` and overriding the ``get_image``
+   method.
 
 4. When someone uses this button to buy something PayPal makes a HTTP POST to
    your "notify_url". PayPal calls this Instant Payment Notification (IPN).

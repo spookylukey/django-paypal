@@ -1,8 +1,6 @@
 Settings
 ========
 
-.. currentmodule:: django.conf.settings
-
 Some settings are documented on other documentation pages. In addition, you can
 set the following values in your settings.py to customise the behaviour of django-paypal.
 
