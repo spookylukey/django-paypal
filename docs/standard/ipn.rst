@@ -164,8 +164,8 @@ Using PayPal Standard IPN
    to handle someone returning from PayPal.
 
    Note that ``return_url`` view may need ``@csrf_exempt`` applied to it,
-   because PayPal may POST to it (depending on the value of the `rm parameter
-   <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/#paypal-checkout-page-variables>`_
+   because PayPal may POST to it (depending on the value of the
+   `rm parameter <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/#paypal-checkout-page-variables>`_
    and possibly other settings), so it should be a custom view that doesn't need
    to handle POSTs otherwise.
 
