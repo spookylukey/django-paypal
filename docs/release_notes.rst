@@ -2,8 +2,8 @@
  Release notes
 ===============
 
-Version 0.4.1 (under development)
----------------------------------
+Version 0.4.1
+-------------
 
 * Added forgotten docs file
 
