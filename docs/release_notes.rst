@@ -3,8 +3,24 @@
 ===============
 
 
-Version 0.3.7 (under development)
+Version 0.4.0 (under development)
 ---------------------------------
+
+* Cleaned up and documented all settings related to button images. Specifically:
+
+  * The default images have been updated to recent ones. This is backwards
+    incompatible if you were relying on the previous (very old) image and had
+    not set ``PAYPAL_IMAGE`` in your settings.
+
+  * Removed separate settings for sandbox mode - these only meant more work when
+    configuring, and production looked different from sandbox by default. This
+    is backwards incompatible, but only affects development mode.
+
+  * Names of settings made clearer. The new names are:
+
+    * ``PAYPAL_BUY_BUTTON_IMAGE`` (was: ``PAYPAL_IMAGE``)
+    * ``PAYPAL_DONATION_BUTTON_IMAGE`` (was: ``PAYPAL_DONATION_IMAGE``)
+    * ``PAYPAL_SUBSCRIPTION_BUTTON_IMAGE`` (was: ``PAYPAL_SUBSCRIPTION_IMAGE``)
 
 
 Version 0.3.6

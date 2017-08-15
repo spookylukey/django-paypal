@@ -13,9 +13,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from paypal.standard.conf import (
-    DONATION_IMAGE, DONATION_SANDBOX_IMAGE, IMAGE, PAYPAL_CERT, PAYPAL_CERT_ID, PAYPAL_PRIVATE_CERT,
-    PAYPAL_PUBLIC_CERT, POSTBACK_ENDPOINT, SANDBOX_IMAGE, SANDBOX_POSTBACK_ENDPOINT, SUBSCRIPTION_IMAGE,
-    SUBSCRIPTION_SANDBOX_IMAGE
+    BUY_BUTTON_IMAGE, DONATION_BUTTON_IMAGE, PAYPAL_CERT, PAYPAL_CERT_ID, PAYPAL_PRIVATE_CERT, PAYPAL_PUBLIC_CERT,
+    POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT, SUBSCRIPTION_BUTTON_IMAGE
 )
 from paypal.standard.widgets import ReservedValueHiddenInput, ValueHiddenInput
 from paypal.utils import warn_untested
@@ -202,13 +201,10 @@ class PayPalPaymentsForm(forms.Form):
 
     def get_image(self):
         return {
-            (True, self.SUBSCRIBE): SUBSCRIPTION_SANDBOX_IMAGE,
-            (True, self.BUY): SANDBOX_IMAGE,
-            (True, self.DONATE): DONATION_SANDBOX_IMAGE,
-            (False, self.SUBSCRIBE): SUBSCRIPTION_IMAGE,
-            (False, self.BUY): IMAGE,
-            (False, self.DONATE): DONATION_IMAGE,
-        }[self.test_mode(), self.button_type]
+            self.SUBSCRIBE: SUBSCRIPTION_BUTTON_IMAGE,
+            self.BUY: BUY_BUTTON_IMAGE,
+            self.DONATE: DONATION_BUTTON_IMAGE,
+        }[self.button_type]
 
     def is_transaction(self):
         warn_untested()

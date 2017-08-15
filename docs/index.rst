@@ -21,6 +21,7 @@ Contents:
    tests
    release_notes
    updatedb
+   settings
 
 
 Indices and tables
