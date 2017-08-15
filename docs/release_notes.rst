@@ -3,8 +3,8 @@
 ===============
 
 
-Version 0.4.0 (under development)
----------------------------------
+Version 0.4.0
+-------------
 
 * Cleaned up and documented all settings related to button images. Specifically:
 
