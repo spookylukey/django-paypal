@@ -191,7 +191,8 @@ your machine is behind a firewall/router and therefore is not publicly
 accessible on the internet (this will be the case for most developer machines),
 PayPal will not be able to post back to your view. You will need to use a tool
 like https://ngrok.com/ to make your machine publicly accessible, and ensure
-that you are sending PayPal your public URL, not ``localhost``.
+that you are sending PayPal your public URL, not ``localhost``, in the
+``notify_url``, ``return_url`` and ``cancel_return`` fields.
 
 Simulator testing
 -----------------
