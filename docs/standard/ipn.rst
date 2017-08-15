@@ -56,9 +56,9 @@ Using PayPal Standard IPN
                "amount": "10000000.00",
                "item_name": "name of the item",
                "invoice": "unique-invoice-id",
-               "notify_url": "https://www.example.com" + reverse('paypal-ipn'),
-               "return_url": "https://www.example.com/your-return-location/",
-               "cancel_return": "https://www.example.com/your-cancel-location/",
+               "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
+               "return_url": request.build_absolute_uri(reverse('your-return-view')),
+               "cancel_return": request.build_absolute_uri(reverse('your-cancel-view')),
                "custom": "Upgrade all users!",  # Custom command to correlate to some function later (optional)
            }
 
