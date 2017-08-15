@@ -1,14 +1,14 @@
 Release process
 ---------------
 
-* Change docs/release_notes.rst to remove " (under development)"
-
 * Run all tests::
 
     tox
 
   Or check Travis, if it has run against the latest source code:
   https://travis-ci.org/spookylukey/django-paypal
+
+* Change docs/release_notes.rst to remove " (under development)"
 
 * Update version numbers:
 
