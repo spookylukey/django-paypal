@@ -5,6 +5,8 @@
 Version 0.4.1 (under development)
 ---------------------------------
 
+* Added forgotten docs file
+
 Version 0.4.0
 -------------
 
