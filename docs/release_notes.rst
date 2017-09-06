@@ -2,6 +2,12 @@
  Release notes
 ===============
 
+Version 0.5.0 - under development
+---------------------------------
+
+* Dropped official support for Python 3.3
+
+
 Version 0.4.1
 -------------
 
