@@ -131,7 +131,7 @@ Using PayPal Standard IPN
    <http://django-paypal.readthedocs.org/en/v0.1.5/standard/ipn.html>`_)
 
 
-   Example code: signals.py
+   Example code: ``yourproject/hooks.py``
 
    .. code-block:: python
 
@@ -166,17 +166,14 @@ Using PayPal Standard IPN
 
        valid_ipn_received.connect(show_me_the_money)
 
-   Remember to import the signals file at the end of your models.py: (or, in 
-   `AppConfig.ready() <https://docs.djangoproject.com/en/1.11/ref/applications/#django.apps.AppConfig.ready>`_
-   function, you'll need 
-   `this <https://docs.djangoproject.com/en/1.11/ref/applications/#configuring-applications>`_
-   too)
-
-   .. code-block:: python
-
-       # bellow comment would tell PyCharm not to delete this import during optimize imports
-       # noinspection PyUnresolvedReferences
-       from YOUR_APP_NAME import signals
+   Remember to ensure that import the hooks file is imported i.e. that you are
+   connecting the signals when your project initializes. The standard way to do
+   this is to `create an AppConfig class
+   <https://docs.djangoproject.com/en/1.11/ref/applications/#configuring-applications>`_
+   and add a `ready()
+   <https://docs.djangoproject.com/en/1.11/ref/applications/#django.apps.AppConfig.ready>`_
+   method, in which you can register your signal handlers or import a module
+   that does this.
 
    See the :doc:`variables` documentation for information about attributes on
    the IPN object that you can use.
