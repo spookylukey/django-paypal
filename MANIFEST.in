@@ -1,7 +1,7 @@
 global-exclude *~
 include setup.py
 include README
-include CONTRIBUTORS
+include CONTRIBUTORS.md
 include MANIFEST.in
 include LICENSE
 include RELEASE.rst
