@@ -23,7 +23,7 @@ class PaymentsFormTest(TestCase):
         self.assertIn('''value="2.00"''', rendered)
         self.assertIn('''value="10.50"''', rendered)
         self.assertIn('''buynowCC''', rendered)
-        self.assertIn('''value="'''+return_url+'''"''', rendered)
+        self.assertIn('''value="''' + return_url + '''"''', rendered)
 
         f = PayPalPaymentsForm(initial={'business': 'me@mybusiness.com',
                                         'amount': '10.50',
@@ -36,7 +36,7 @@ class PaymentsFormTest(TestCase):
         self.assertIn('''value="2.00"''', rendered)
         self.assertIn('''value="10.50"''', rendered)
         self.assertIn('''buynowCC''', rendered)
-        self.assertIn('''value="'''+return_url+'''"''', rendered)
+        self.assertIn('''value="''' + return_url + '''"''', rendered)
 
     def test_form_endpont(self):
         with self.settings(PAYPAL_TEST=False):
