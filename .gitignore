@@ -2,6 +2,7 @@
 .svn
 .project
 .pydevproject
+.vscode
 /dist
 /build
 /django_paypal.egg-info

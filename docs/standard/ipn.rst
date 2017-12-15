@@ -57,7 +57,7 @@ Using PayPal Standard IPN
                "item_name": "name of the item",
                "invoice": "unique-invoice-id",
                "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
-               "return_url": request.build_absolute_uri(reverse('your-return-view')),
+               "return": request.build_absolute_uri(reverse('your-return-view')),
                "cancel_return": request.build_absolute_uri(reverse('your-cancel-view')),
                "custom": "premium_plan",  # Custom command to correlate to some function later (optional)
            }
@@ -178,10 +178,10 @@ Using PayPal Standard IPN
    See the :doc:`variables` documentation for information about attributes on
    the IPN object that you can use.
 
-6. You will also need to implement the ``return_url`` and ``cancel_return`` views
+6. You will also need to implement the ``return`` and ``cancel_return`` views
    to handle someone returning from PayPal.
 
-   Note that ``return_url`` view may need ``@csrf_exempt`` applied to it,
+   Note that the ``return`` view may need ``@csrf_exempt`` applied to it,
    because PayPal may POST to it (depending on the value of the
    `rm parameter <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/#paypal-checkout-page-variables>`_
    and possibly other settings), so it should be a custom view that doesn't need
@@ -190,7 +190,7 @@ Using PayPal Standard IPN
    When using PayPal Standard with Subscriptions this is not necessary since
    PayPal will route the user back to your site via GET.
 
-   For ``return_url``, you need to cope with the possibility that the IPN has not
+   For ``return``, you need to cope with the possibility that the IPN has not
    yet been received and handled by the IPN listener you implemented (which can
    happen rarely), or that there was some kind of error with the IPN.
 
@@ -204,7 +204,7 @@ accessible on the internet (this will be the case for most developer machines),
 PayPal will not be able to post back to your view. You will need to use a tool
 like https://ngrok.com/ to make your machine publicly accessible, and ensure
 that you are sending PayPal your public URL, not ``localhost``, in the
-``notify_url``, ``return_url`` and ``cancel_return`` fields.
+``notify_url``, ``return`` and ``cancel_return`` fields.
 
 Simulator testing
 -----------------

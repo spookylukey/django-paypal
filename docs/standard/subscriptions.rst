@@ -19,7 +19,7 @@ views.py:
        "no_note": "1",                    # remove extra notes (optional)
        "item_name": "my cool subscription",
        "notify_url": "http://www.example.com/your-ipn-location/",
-       "return_url": "http://www.example.com/your-return-location/",
+       "return": "http://www.example.com/your-return-location/",
        "cancel_return": "http://www.example.com/your-cancel-location/",
    }
 

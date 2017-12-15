@@ -16,7 +16,7 @@ from paypal.standard.conf import (
     BUY_BUTTON_IMAGE, DONATION_BUTTON_IMAGE, PAYPAL_CERT, PAYPAL_CERT_ID, PAYPAL_PRIVATE_CERT, PAYPAL_PUBLIC_CERT,
     POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT, SUBSCRIPTION_BUTTON_IMAGE
 )
-from paypal.standard.widgets import ReservedValueHiddenInput, ValueHiddenInput
+from paypal.standard.widgets import ValueHiddenInput
 from paypal.utils import warn_untested
 
 log = logging.getLogger(__name__)
@@ -96,7 +96,9 @@ class PayPalPaymentsForm(forms.Form):
         ("_xclick", "Buy now or Donations"),
         ("_donations", "Donations"),
         ("_cart", "Shopping cart"),
-        ("_xclick-subscriptions", "Subscribe")
+        ("_xclick-subscriptions", "Subscribe"),
+        ("_xclick-auto-billing", "Automatic Billing"),
+        ("_xclick-payment-plan", "Installment Plan"),
     )
     SHIPPING_CHOICES = ((1, "No shipping"), (0, "Shipping"))
     NO_NOTE_CHOICES = ((1, "No Note"), (0, "Include Note"))
@@ -113,43 +115,6 @@ class PayPalPaymentsForm(forms.Form):
     SUBSCRIBE = 'subscribe'
     DONATE = 'donate'
 
-    # Where the money goes.
-    business = forms.CharField(widget=ValueHiddenInput())
-
-    # Item information.
-    amount = forms.IntegerField(widget=ValueHiddenInput())
-    item_name = forms.CharField(widget=ValueHiddenInput())
-    item_number = forms.CharField(widget=ValueHiddenInput())
-    quantity = forms.CharField(widget=ValueHiddenInput())
-
-    # Subscription Related.
-    a1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 Price
-    p1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 Duration
-    t1 = forms.CharField(widget=ValueHiddenInput())   # Trial 1 unit of Duration, default to Month
-    a2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 Price
-    p2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 Duration
-    t2 = forms.CharField(widget=ValueHiddenInput())   # Trial 2 unit of Duration, default to Month
-    a3 = forms.CharField(widget=ValueHiddenInput())   # Subscription Price
-    p3 = forms.CharField(widget=ValueHiddenInput())   # Subscription Duration
-    t3 = forms.CharField(widget=ValueHiddenInput())   # Subscription unit of Duration, default to Month
-    src = forms.CharField(widget=ValueHiddenInput())  # Is billing recurring? default to yes
-    sra = forms.CharField(widget=ValueHiddenInput())  # Reattempt billing on failed cc transaction
-    no_note = forms.CharField(widget=ValueHiddenInput())
-    # Can be either 1 or 2. 1 = modify or allow new subscription creation, 2 = modify only
-    modify = forms.IntegerField(widget=ValueHiddenInput())  # Are we modifying an existing subscription?
-
-    # Localization / PayPal Setup
-    lc = forms.CharField(widget=ValueHiddenInput())
-    page_style = forms.CharField(widget=ValueHiddenInput())
-    cbt = forms.CharField(widget=ValueHiddenInput())
-
-    # IPN control.
-    notify_url = forms.CharField(widget=ValueHiddenInput())
-    cancel_return = forms.CharField(widget=ValueHiddenInput())
-    return_url = forms.CharField(widget=ReservedValueHiddenInput(attrs={"name": "return"}))
-    custom = forms.CharField(widget=ValueHiddenInput())
-    invoice = forms.CharField(widget=ValueHiddenInput())
-
     # Default fields.
     cmd = forms.ChoiceField(widget=forms.HiddenInput(), initial=CMD_CHOICES[0][0])
     charset = forms.CharField(widget=forms.HiddenInput(), initial="utf-8")
@@ -162,6 +127,7 @@ class PayPalPaymentsForm(forms.Form):
         self.button_type = button_type
         if 'initial' in kwargs:
             kwargs['initial'] = self._fix_deprecated_paypal_receiver_email(kwargs['initial'])
+            kwargs['initial'] = self._fix_deprecated_return_url(kwargs['initial'])
             # Dynamically create, so we can support everything PayPal does.
             for k, v in kwargs['initial'].items():
                 if k not in self.base_fields:
@@ -174,6 +140,14 @@ class PayPalPaymentsForm(forms.Form):
                         The keyword business argument must be given to PayPalPaymentsForm
                         on creation""", DeprecationWarning)
                 initial_args['business'] = settings.PAYPAL_RECEIVER_EMAIL
+        return initial_args
+
+    def _fix_deprecated_return_url(self, initial_args):
+        if 'return_url' in initial_args:
+            warn("""The use of the initial['return_url'] is Deprecated.
+                    Please use initial['return'] instead""", DeprecationWarning)
+            initial_args['return'] = initial_args['return_url']
+            del initial_args['return_url']
         return initial_args
 
     def test_mode(self):
@@ -252,9 +226,6 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
             elif field.initial is not None:
                 value = field.initial
             if value is not None:
-                # @@@ Make this less hackish and put it in the widget.
-                if name == "return_url":
-                    name = "return"
                 plaintext += u'%s=%s\n' % (name, value)
         plaintext = plaintext.encode('utf-8')
 
