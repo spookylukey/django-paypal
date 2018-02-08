@@ -92,6 +92,8 @@ Using PayPal Standard IPN
    The view ``paypal.standard.ipn.views.ipn`` handles IPN processing. To set the
    correct ``notify_url`` add the following to your ``urls.py``:
 
+   Django < 2.0
+
    .. code-block:: python
 
        from django.conf.urls import url, include
@@ -99,6 +101,16 @@ Using PayPal Standard IPN
        urlpatterns = [
            url(r'^paypal/', include('paypal.standard.ipn.urls')),
        ]
+
+  Django > 2.0
+
+  .. code-block:: python
+
+    from django.urls import path, include
+
+    urlpatterns = [
+        path('paypal/', include('paypal.standard.ipn.urls')),
+    ]
 
 5. Whenever an IPN is processed a signal will be sent with the result of the
    transaction.
