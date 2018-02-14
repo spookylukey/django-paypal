@@ -56,7 +56,7 @@ with. Thanks to `Jon Atkinson <http://jonatkinson.co.uk/>`_ for the `tutorial
        def view_that_asks_for_money(request):
            ...
            # Create the instance.
-           form = PayPalPaymentsForm(initial=paypal_dict)
+           form = PayPalEncryptedPaymentsForm(initial=paypal_dict)
            # Works just like before!
            form.render()
 
@@ -78,7 +78,7 @@ with. Thanks to `Jon Atkinson <http://jonatkinson.co.uk/>`_ for the `tutorial
            paypal_cert = '/path/to/another/paypal_cert.pem'
            paypal_cert_id = 'another-paypal-id'
            # Create the instance.
-           form = PayPalPaymentsForm(initial=paypal_dict,
+           form = PayPalEncryptedPaymentsForm(initial=paypal_dict,
                 private_cert=paypal_private_cert,
                 public_cert=paypal_public_cert,
                 paypal_cert=paypal_cert,
