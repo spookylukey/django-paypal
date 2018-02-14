@@ -243,7 +243,7 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
         p7 = s.encrypt(tmp, flags=SMIME.PKCS7_BINARY)
         out = BIO.MemoryBuffer()
         p7.write(out)
-        return out.read()
+        return out.read().encode()
 
     def as_p(self):
         warn_untested()
