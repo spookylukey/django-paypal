@@ -89,14 +89,14 @@ def strip_ip_port(ip_address):
 
     # IPv6 with port
     elif ']:' in ip_address:
-        port_removed = ip_address.rpartition(':')[0]
-        cleaned_ip = str(port_removed).translate(None, b'[]')
+        # Remove the port following last ':', and then strip first and last chars for [].
+        cleaned_ip = ip_address.rpartition(':')[0][1:-1]
 
     # IPv6 without port
     else:
         cleaned_ip = ip_address
 
-    return unicode(cleaned_ip)
+    return cleaned_ip
 
 
 class PayPalWPP(object):
