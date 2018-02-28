@@ -24,8 +24,9 @@ Release process
 
 * Release to PyPI::
 
-    umask 000
-    ./setup.py sdist bdist_wheel upload
+    $ umask 000
+    $ ./setup.py sdist bdist_wheel
+    $ twine upload dist/django_paypal-$VERSION-py2.py3-none-any.whl dist/django-paypal-$VERSION.tar.gz
 
 * Tag and push, for example.::
 
