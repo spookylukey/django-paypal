@@ -16,10 +16,15 @@ Release process
   * ``setup.py``
   * ``docs/conf.py``
 
+* Ensure correct file permissions::
+
+  $ chmod ugo+r -R *
+
 * Commit
 
 * Release to PyPI::
 
+    umask 000
     ./setup.py sdist bdist_wheel upload
 
 * Tag and push, for example.::
