@@ -14,7 +14,7 @@ from vcr import VCR
 
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.fields import CreditCardField
-from paypal.pro.helpers import VERSION, PayPalError, PayPalWPP
+from paypal.pro.helpers import VERSION, PayPalError, PayPalWPP, strip_ip_port
 from paypal.pro.signals import payment_was_successful
 from paypal.pro.views import PayPalPro
 
@@ -330,6 +330,29 @@ class PayPalWPPTest(TestCase):
             wpp.doReferenceTransaction({'referenceid': reference_id,
                                         'amt': amount})
 
+    def test_strip_ip_port(self):
+        IPv4 = '192.168.0.1'
+        IPv6 = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+        PORT = '8000'
+
+        # IPv4 with port
+        test = '%s:%s' % (IPv4, PORT)
+        self.assertEqual(IPv4, strip_ip_port(test))
+
+        # IPv4 without port
+        test = IPv4
+        self.assertEqual(IPv4, strip_ip_port(test))
+
+        # IPv6 with port
+        test = '[%s]:%s' % (IPv6, PORT)
+        self.assertEqual(IPv6, strip_ip_port(test))
+
+        # IPv6 without port
+        test = IPv6
+        self.assertEqual(IPv6, strip_ip_port(test))
+
+        # No IP
+        self.assertEqual('', strip_ip_port(''))
 
 # -- DoExpressCheckoutPayment
 # PayPal Request:
