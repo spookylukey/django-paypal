@@ -205,7 +205,6 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
     def __init__(self, private_cert=PAYPAL_PRIVATE_CERT, public_cert=PAYPAL_PUBLIC_CERT,
             paypal_cert=PAYPAL_CERT, cert_id=PAYPAL_CERT_ID, *args, **kwargs):
-        warn_untested()
         super(PayPalEncryptedPaymentsForm, self).__init__(*args, **kwargs)
         self.private_cert = private_cert
         self.public_cert = public_cert
@@ -214,7 +213,6 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
 
     def _encrypt(self):
         """Use your key thing to encrypt things."""
-        warn_untested()
         from M2Crypto import BIO, SMIME, X509
 
         # Iterate through the fields and pull out the ones that have a value.
@@ -243,10 +241,9 @@ class PayPalEncryptedPaymentsForm(PayPalPaymentsForm):
         p7 = s.encrypt(tmp, flags=SMIME.PKCS7_BINARY)
         out = BIO.MemoryBuffer()
         p7.write(out)
-        return out.read().encode()
+        return out.read().decode()
 
     def as_p(self):
-        warn_untested()
         return mark_safe(u"""
 <input type="hidden" name="cmd" value="_s-xclick" />
 <input type="hidden" name="encrypted" value="%s" />

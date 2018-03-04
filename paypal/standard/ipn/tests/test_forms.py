@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
 
+import os
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from paypal.standard.forms import PayPalPaymentsForm
+from paypal.standard.forms import (
+    PayPalPaymentsForm,
+    PayPalEncryptedPaymentsForm,
+)
 from paypal.standard.ipn.forms import PayPalIPNForm
 
 
@@ -75,3 +79,31 @@ class PaymentsFormTest(TestCase):
                 }
             ]
         )
+
+    def test_encrypted_button(self):
+        data = {
+            'amount': '10.50',
+            'shipping': '2.00',
+        }
+
+        # Paypal Certificate Information
+        here = os.path.dirname(os.path.abspath(__file__))
+        paypal_private_cert = os.path.join(here, 'test_cert__do_not_use__private.pem')
+        paypal_public_cert = os.path.join(here, 'test_cert__do_not_use__public.pem')
+        paypal_cert = os.path.join(here, 'test_cert_from_paypal__do_not_use.pem')
+        paypal_cert_id = 'another-paypal-id'
+
+        # Create the instance.
+        form = PayPalEncryptedPaymentsForm(
+            initial=data,
+            private_cert=paypal_private_cert,
+            public_cert=paypal_public_cert,
+            paypal_cert=paypal_cert,
+            cert_id=paypal_cert_id
+        )
+
+        rendered = form.render()
+
+        self.assertIn('''name="cmd" value="_s-xclick"''', rendered)
+        self.assertIn('''name="encrypted" value="-----BEGIN PKCS7-----''', rendered)
+        self.assertRegex(rendered, r'.*name="encrypted" value="-----BEGIN PKCS7-----\n([A-Za-z0-9/\+]{64}\n)*[A-Za-z0-9/\+]{1,64}={0,2}\n-----END PKCS7-----\n.*', 'Encryption has wrong form')
