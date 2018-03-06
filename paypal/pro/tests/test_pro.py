@@ -6,6 +6,7 @@ import warnings
 from decimal import Decimal
 
 import mock
+from django.contrib.auth import get_user_model
 from django.forms import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -25,8 +26,11 @@ RF = RequestFactory()
 vcr = VCR(path_transformer=VCR.ensure_suffix('.yaml'))
 
 
-def make_request():
-    return RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
+def make_request(user=None):
+    request = RF.get("/pay/", REMOTE_ADDR="127.0.0.1:8000")
+    if user is not None:
+        request.user = user
+    return request
 
 
 class CreditCardFieldTest(TestCase):
@@ -125,16 +129,8 @@ class PayPalWPPTest(TestCase):
             'cancelurl': 'http://www.example.com/cancel/'
         }
 
-    @vcr.use_cassette()
-    def test_doDirectPayment_missing_params(self):
-        wpp = PayPalWPP(make_request())
-        data = {'firstname': 'Chewbacca'}
-        self.assertRaises(PayPalError, wpp.doDirectPayment, data)
-
-    @vcr.use_cassette()
-    def test_doDirectPayment_valid(self):
-        wpp = PayPalWPP(make_request())
-        data = {
+    def get_valid_doDirectPayment_data(self):
+        return {
             'firstname': 'Brave',
             'lastname': 'Star',
             'street': '1 Main St',
@@ -146,9 +142,31 @@ class PayPalWPPTest(TestCase):
             'expdate': '112021',
             'cvv2': '',
             'creditcardtype': 'visa',
-            'ipaddress': '10.0.1.199', }
+            'ipaddress': '10.0.1.199',
+        }
+
+    @vcr.use_cassette()
+    def test_doDirectPayment_missing_params(self):
+        wpp = PayPalWPP(make_request())
+        data = {'firstname': 'Chewbacca'}
+        self.assertRaises(PayPalError, wpp.doDirectPayment, data)
+
+    @vcr.use_cassette()
+    def test_doDirectPayment_valid(self):
+        wpp = PayPalWPP(make_request())
+        data = self.get_valid_doDirectPayment_data()
         data.update(self.item)
         self.assertTrue(wpp.doDirectPayment(data))
+
+    @vcr.use_cassette()
+    def test_doDirectPayment_authenticated_user(self):
+        User = get_user_model()
+        user = User.objects.create(username='testuser')
+        wpp = PayPalWPP(make_request(user=user))
+        data = self.get_valid_doDirectPayment_data()
+        data.update(self.item)
+        npm_obj = wpp.doDirectPayment(data)
+        self.assertEqual(npm_obj.user, user)
 
     @vcr.use_cassette()
     def test_doDirectPayment_invalid(self):
@@ -172,19 +190,7 @@ class PayPalWPPTest(TestCase):
     @vcr.use_cassette()
     def test_doDirectPayment_valid_with_signal(self):
         wpp = PayPalWPP(make_request())
-        data = {
-            'firstname': 'Brave',
-            'lastname': 'Star',
-            'street': '1 Main St',
-            'city': u'San Jos\xe9',
-            'state': 'CA',
-            'countrycode': 'US',
-            'zip': '95131',
-            'acct': '4032039938039650',
-            'expdate': '112021',
-            'cvv2': '',
-            'creditcardtype': 'visa',
-            'ipaddress': '10.0.1.199', }
+        data = self.get_valid_doDirectPayment_data()
         data.update(self.item)
 
         self.got_signal = False

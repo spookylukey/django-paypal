@@ -103,7 +103,6 @@ class PayPalNVP(Model):
             from paypal.pro.helpers import strip_ip_port
             self.ipaddress = strip_ip_port(request.META.get('REMOTE_ADDR', ''))
             if hasattr(request, "user") and request.user.is_authenticated():
-                warn_untested()
                 self.user = request.user
         else:
             self.ipaddress = ''
