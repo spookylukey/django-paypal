@@ -156,7 +156,14 @@ class PayPalWPPTest(TestCase):
         wpp = PayPalWPP(make_request())
         data = self.get_valid_doDirectPayment_data()
         data.update(self.item)
-        self.assertTrue(wpp.doDirectPayment(data))
+        nvp = wpp.doDirectPayment(data)
+        self.assertIsNotNone(nvp)
+        for k, v in [('avscode', 'X'),
+                     ('amt', '9.95'),
+                     ('correlationid', '1025431f33d89'),
+                     ('currencycode', 'USD'),
+                     ('ack', 'Success')]:
+            self.assertEqual(nvp.response_dict[k], v)
 
     @vcr.use_cassette()
     def test_doDirectPayment_authenticated_user(self):

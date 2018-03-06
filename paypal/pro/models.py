@@ -94,7 +94,6 @@ class PayPalNVP(Model):
         Returns a (MultiValueDict) dictionary containing all the parameters returned in the PayPal response.
         """
         # Undo the urlencode done in init
-        warn_untested()
         return QueryDict(self.response)
 
     def init(self, request, paypal_request, paypal_response):
