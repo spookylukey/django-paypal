@@ -1,5 +1,5 @@
-Using PayPal Payments Pro (WPP)
-===============================
+Using Website Payments Pro
+==========================
 
 
 .. toctree::
@@ -8,16 +8,18 @@ Using PayPal Payments Pro (WPP)
    detail
 
 
-PayPal Payments Pro (or "Website Payments Pro") is a more awesome version of
-PayPal that lets you accept payments on your site. This is now documented by
-PayPal as a `Classic API
-<https://developer.paypal.com/webapps/developer/docs/classic/products/>`_ and
-should not be confused with the "PayPal Payments Pro (Payflow Edition)" which is
-a newer API.
+`Website Payments Pro
+<https://developer.paypal.com/docs/classic/products/website-payments-pro/>`_ is
+a version of PayPal that lets you accept payments on your site using server side
+calls. The branding of this is confusing. It was branded as "Paypal Payments
+Pro" at one point. Later "PayPal Payments Pro (Payflow Edition)" was introduced,
+and that was later renamed to "PayPal Payments Pro", while the old "PayPal
+Payments Pro" was rebranded to "Website Payments Pro". It is this older API (not
+Payflow) that is supported by django-paypal and documented here.
 
-The PayPal Payments Pro solution reuses code from `paypal.standard` so you'll
-need to include both apps. django-paypal makes the whole process incredibly easy
-to use through the provided ``PayPalPro`` class.
+The PayPal Website Payments Pro solution reuses code from `paypal.standard` so
+you'll need to include both apps. django-paypal makes the whole process
+incredibly easy to use through the provided ``PayPalPro`` class.
 
 1. Obtain PayPal Pro API credentials: login to PayPal, click *My Account*,
    *Profile*, *Request API credentials*, *Set up PayPal API credentials and
