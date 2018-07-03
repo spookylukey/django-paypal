@@ -1,10 +1,9 @@
 global-exclude *~
 include setup.py
-include README
-include CONTRIBUTORS.md
+include *.rst
+include *.md
 include MANIFEST.in
 include LICENSE
-include RELEASE.rst
 include tox.ini
 include *.py
 recursive-include docs *.rst

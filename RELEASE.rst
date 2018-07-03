@@ -16,11 +16,17 @@ Release process
   * ``setup.py``
   * ``docs/conf.py``
 
+* Ensure correct file permissions::
+
+  $ chmod ugo+r -R *
+
 * Commit
 
 * Release to PyPI::
 
-    ./setup.py sdist bdist_wheel upload
+    $ umask 000
+    $ ./setup.py sdist bdist_wheel
+    $ twine upload dist/django_paypal-$VERSION-py2.py3-none-any.whl dist/django-paypal-$VERSION.tar.gz
 
 * Tag and push, for example.::
 

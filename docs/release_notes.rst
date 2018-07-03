@@ -2,14 +2,18 @@
  Release notes
 ===============
 
-Version 0.5.0 - under development
+
+Version 0.5.1 (under development)
 ---------------------------------
-
-* Dropped official support for Python 3.3
-
 
 Version 0.5.0
 -------------
+
+* Dropped official support for Python 3.3
+
+* Support for Django 2.0
+
+* Fixed bug with IPv6 addresses (thanks @alexcrawley)
 
 * Tidy up and update PayPalPaymentsForm. Specifically:
 
@@ -20,8 +24,10 @@ Version 0.5.0
     ``return``, but Python's return keyword meant it wasn't possible to set that field in
     the class's definition. Later, code in __init__ was added to handle any value in ``initial``, in
     particular ``initial['return']``. As the work around which renamed 'return' to 'return_url'
-    is not necessary, it is now being deprecated. To maintain backwards compatability
+    is not necessary, it is now being deprecated. To maintain backwards compatibility
     initial['return_url'] is remapped to initial['return'], with a deprecation warning.
+
+    Thanks @JonathanRoach
 
   * Add cmd choices for _xclick-auto-billing and _xclick-payment-plan.
 

@@ -94,15 +94,14 @@ class PayPalNVP(Model):
         Returns a (MultiValueDict) dictionary containing all the parameters returned in the PayPal response.
         """
         # Undo the urlencode done in init
-        warn_untested()
         return QueryDict(self.response)
 
     def init(self, request, paypal_request, paypal_response):
         """Initialize a PayPalNVP instance from a HttpRequest."""
         if request is not None:
-            self.ipaddress = request.META.get('REMOTE_ADDR', '').split(':')[0]
+            from paypal.pro.helpers import strip_ip_port
+            self.ipaddress = strip_ip_port(request.META.get('REMOTE_ADDR', ''))
             if hasattr(request, "user") and request.user.is_authenticated():
-                warn_untested()
                 self.user = request.user
         else:
             self.ipaddress = ''

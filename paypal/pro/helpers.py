@@ -78,6 +78,27 @@ def express_endpoint_for_token(token, commit=False):
     return express_endpoint() % urlencode(pp_params)
 
 
+def strip_ip_port(ip_address):
+    """
+    Strips the port from an IPv4 or IPv6 address, returns a unicode object.
+    """
+
+    # IPv4 with or without port
+    if '.' in ip_address:
+        cleaned_ip = ip_address.split(':')[0]
+
+    # IPv6 with port
+    elif ']:' in ip_address:
+        # Remove the port following last ':', and then strip first and last chars for [].
+        cleaned_ip = ip_address.rpartition(':')[0][1:-1]
+
+    # IPv6 without port
+    else:
+        cleaned_ip = ip_address
+
+    return cleaned_ip
+
+
 class PayPalWPP(object):
     """
     Wrapper class for the PayPal Website Payments Pro.
