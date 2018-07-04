@@ -102,7 +102,9 @@ class PayPalNVP(Model):
         if request is not None:
             from paypal.pro.helpers import strip_ip_port
             self.ipaddress = strip_ip_port(request.META.get('REMOTE_ADDR', ''))
-            if hasattr(request, "user") and (request.user.is_authenticated if django.VERSION >= (1, 10) else request.user.is_authenticated()):
+            if (hasattr(request, "user") and
+                    (request.user.is_authenticated if django.VERSION >= (1, 10)
+                        else request.user.is_authenticated())):
                 self.user = request.user
         else:
             self.ipaddress = ''

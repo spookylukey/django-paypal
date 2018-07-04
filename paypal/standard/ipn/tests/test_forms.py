@@ -1,13 +1,12 @@
 from __future__ import unicode_literals
 
 import os
+import re
+
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from paypal.standard.forms import (
-    PayPalPaymentsForm,
-    PayPalEncryptedPaymentsForm,
-)
+from paypal.standard.forms import PayPalEncryptedPaymentsForm, PayPalPaymentsForm
 from paypal.standard.ipn.forms import PayPalIPNForm
 
 
@@ -106,4 +105,12 @@ class PaymentsFormTest(TestCase):
 
         self.assertIn('''name="cmd" value="_s-xclick"''', rendered)
         self.assertIn('''name="encrypted" value="-----BEGIN PKCS7-----''', rendered)
-        self.assertRegex(rendered, r'.*name="encrypted" value="-----BEGIN PKCS7-----\n([A-Za-z0-9/\+]{64}\n)*[A-Za-z0-9/\+]{1,64}={0,2}\n-----END PKCS7-----\n.*', 'Encryption has wrong form')
+        expected_regex = re.compile(
+            r'.*name="encrypted" value="-----BEGIN PKCS7-----\n' +
+            r'([A-Za-z0-9/\+]{64}\n)*[A-Za-z0-9/\+]{1,64}={0,2}\n' +
+            r'-----END PKCS7-----\n.*'
+        )
+        self.assertTrue(
+            expected_regex.search(rendered),
+            msg='Button encryption has wrong form - expected a block of PKCS7 data'
+        )
