@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.conf import settings
 from django.db import models
 from django.forms.models import model_to_dict
@@ -101,7 +102,7 @@ class PayPalNVP(Model):
         if request is not None:
             from paypal.pro.helpers import strip_ip_port
             self.ipaddress = strip_ip_port(request.META.get('REMOTE_ADDR', ''))
-            if hasattr(request, "user") and request.user.is_authenticated():
+            if hasattr(request, "user") and (request.user.is_authenticated if django.VERSION >= (1, 10) else request.user.is_authenticated()):
                 self.user = request.user
         else:
             self.ipaddress = ''
