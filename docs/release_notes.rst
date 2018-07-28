@@ -6,6 +6,12 @@
 Version 0.5.1 (under development)
 ---------------------------------
 
+* Encrypted button corrections
+
+* .encode() the encrypted result to avoid b'' decoration under Python 3
+
+* Fix the encrypted button examples in the documentation to use the encrypted form
+
 Version 0.5.0
 -------------
 
