@@ -19,7 +19,7 @@ from paypal.pro.helpers import VERSION, PayPalError, PayPalWPP, strip_ip_port
 from paypal.pro.signals import payment_was_successful
 from paypal.pro.views import PayPalPro
 
-from .settings import TEMPLATE_DIRS, TEMPLATES
+from .settings import TEMPLATES
 
 RF = RequestFactory()
 
@@ -64,8 +64,7 @@ def ppp_wrapper(request, handler=None):
     return ppp(request)
 
 
-@override_settings(TEMPLATE_DIRS=TEMPLATE_DIRS,
-                   TEMPLATES=TEMPLATES)
+@override_settings(TEMPLATES=TEMPLATES)
 class PayPalProTest(TestCase):
 
     @vcr.use_cassette()

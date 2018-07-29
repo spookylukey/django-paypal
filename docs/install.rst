@@ -10,10 +10,8 @@ Or using the latest version from GitHub::
 
     pip install git://github.com/spookylukey/django-paypal.git#egg=django-paypal
 
-If you are using Django < 1.7, you should also install South >= 1.0.1 if you
-haven't already. This is not listed as a dependency for the sake of users who
-are on Django >= 1.7 and don't need it.
-
+If you are using Django < 1.11, you should use django-paypal 0.5.x and refer to
+its documentation.
 
 You will also need to edit your ``settings.py``, but the specifics depend on
 whether you are using IPN/PDT/Pro.

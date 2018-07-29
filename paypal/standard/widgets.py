@@ -1,17 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import django
 from django import forms
+from django.forms.utils import flatatt
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
-
-try:
-    from django.forms.utils import flatatt  # Django 1.7 and later
-except ImportError:
-    from django.forms.util import flatatt  # earlier
-
-
-widget_render_takes_renderer = django.VERSION >= (1, 11)
 
 
 class ValueHiddenInput(forms.HiddenInput):
@@ -24,13 +16,9 @@ class ValueHiddenInput(forms.HiddenInput):
         if value is None:
             return u''
         else:
-            if widget_render_takes_renderer:
-                return super(ValueHiddenInput, self).render(name, value,
-                                                            attrs=attrs,
-                                                            renderer=renderer)
-            else:
-                return super(ValueHiddenInput, self).render(name, value,
-                                                            attrs=attrs)
+            return super(ValueHiddenInput, self).render(name, value,
+                                                        attrs=attrs,
+                                                        renderer=renderer)
 
 
 class ReservedValueHiddenInput(ValueHiddenInput):

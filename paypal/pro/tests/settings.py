@@ -2,13 +2,11 @@ from __future__ import unicode_literals
 
 import os
 
-TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'templates')
-# Django 1.8 and later
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            TEMPLATE_DIR,
+            os.path.join(os.path.dirname(__file__), 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -24,5 +22,3 @@ TEMPLATES = [
         },
     },
 ]
-# Django 1.7 and earlier
-TEMPLATE_DIRS = [TEMPLATE_DIR]

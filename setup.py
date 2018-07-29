@@ -21,7 +21,7 @@ setup(
     maintainer_email="L.Plant.98@cantab.net",
     url=URL,
     install_requires=[
-        'Django>=1.6',
+        'Django>=1.11',
         'six>=1.4.1',
         'requests>=2.5.3',
         'pytz>=2015.4',
@@ -32,6 +32,9 @@ setup(
     include_package_data=True,
     classifiers=[
         "Framework :: Django",
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
         "Operating System :: OS Independent",
@@ -39,5 +42,7 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
 )
