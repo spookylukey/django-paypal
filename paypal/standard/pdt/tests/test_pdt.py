@@ -13,7 +13,7 @@ from django.test.utils import override_settings
 from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 from paypal.standard.pdt.models import PayPalPDT
 
-from .settings import TEMPLATE_DIRS, TEMPLATES
+from .settings import TEMPLATES
 
 
 class DummyPayPalPDT(object):
@@ -39,8 +39,7 @@ class DummyPayPalPDT(object):
 
 
 @override_settings(ROOT_URLCONF="paypal.standard.pdt.tests.test_urls",
-                   TEMPLATES=TEMPLATES,
-                   TEMPLATE_DIRS=TEMPLATE_DIRS)
+                   TEMPLATES=TEMPLATES)
 class PDTTest(TestCase):
 
     def setUp(self):

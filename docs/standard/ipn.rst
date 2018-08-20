@@ -169,9 +169,9 @@ Using PayPal Standard IPN
    Remember to ensure that import the hooks file is imported i.e. that you are
    connecting the signals when your project initializes. The standard way to do
    this is to `create an AppConfig class
-   <https://docs.djangoproject.com/en/1.11/ref/applications/#configuring-applications>`_
+   <https://docs.djangoproject.com/en/2.1/ref/applications/#configuring-applications>`_
    and add a `ready()
-   <https://docs.djangoproject.com/en/1.11/ref/applications/#django.apps.AppConfig.ready>`_
+   <https://docs.djangoproject.com/en/2.1/ref/applications/#django.apps.AppConfig.ready>`_
    method, in which you can register your signal handlers or import a module
    that does this.
 

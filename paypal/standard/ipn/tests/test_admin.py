@@ -3,16 +3,12 @@ from __future__ import unicode_literals
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import valid_ipn_received
 
 from .test_ipn import IPN_POST_PARAMS, IPNUtilsMixin, MockedPostbackMixin
-
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
 
 
 @override_settings(ROOT_URLCONF='paypal.standard.ipn.tests.test_urls')

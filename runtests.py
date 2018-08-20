@@ -5,7 +5,6 @@ import argparse
 import sys
 import warnings
 
-import django
 from django.conf import settings
 from django.core.management import execute_from_command_line
 
@@ -56,7 +55,7 @@ settings_dict = dict(
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
     ],
-    TEMPLATES=[  # Django 1.8 and later
+    TEMPLATES=[
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [
@@ -91,10 +90,6 @@ settings_dict = dict(
         },
     },
     )
-
-if django.VERSION < (1, 10):
-    settings_dict['MIDDLEWARE_CLASSES'] = settings_dict.pop('MIDDLEWARE')
-
 
 settings.configure(**settings_dict)
 
