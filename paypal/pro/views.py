@@ -88,12 +88,6 @@ class PayPalPro(object):
         self.form_context_name = form_context_name
         self.nvp_handler = nvp_handler
 
-        if nvp_handler is None:
-            warnings.warn(
-                "You didn't pass `nvp_handler` to PayPalPro. You should pass a callback "
-                "here instead of using the `payment_was_successful` "
-                "signal", DeprecationWarning)
-
     def __call__(self, request):
         """Return the appropriate response for the state of the transaction."""
         self.request = request
@@ -200,5 +194,4 @@ class PayPalPro(object):
             return HttpResponseRedirect(self.success_url)
 
     def handle_nvp(self, nvp):
-        if self.nvp_handler is not None:
-            self.nvp_handler(nvp)
+        self.nvp_handler(nvp)

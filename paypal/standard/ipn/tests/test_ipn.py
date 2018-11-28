@@ -14,10 +14,7 @@ from six import text_type
 from six.moves.urllib.parse import urlencode
 
 from paypal.standard.ipn.models import PayPalIPN
-from paypal.standard.ipn.signals import (
-    invalid_ipn_received, payment_was_flagged, payment_was_refunded, payment_was_reversed, payment_was_successful,
-    recurring_cancel, recurring_create, recurring_failed, recurring_payment, recurring_skipped, valid_ipn_received
-)
+from paypal.standard.ipn.signals import invalid_ipn_received, valid_ipn_received
 from paypal.standard.ipn.views import CONTENT_TYPE_ERROR
 from paypal.standard.models import ST_PP_CANCELLED
 
@@ -68,43 +65,14 @@ class ResetIPNSignalsMixin(object):
         super(ResetIPNSignalsMixin, self).setUp()
         self.valid_ipn_received_receivers = valid_ipn_received.receivers
         self.invalid_ipn_received_receivers = invalid_ipn_received.receivers
-        # Deprecated:
-        self.payment_was_successful_receivers = payment_was_successful.receivers
-        self.payment_was_flagged_receivers = payment_was_flagged.receivers
-        self.payment_was_refunded_receivers = payment_was_refunded.receivers
-        self.payment_was_reversed_receivers = payment_was_reversed.receivers
-        self.recurring_skipped_receivers = recurring_skipped.receivers
-        self.recurring_failed_receivers = recurring_failed.receivers
-        self.recurring_create_receivers = recurring_create.receivers
-        self.recurring_payment_receivers = recurring_payment.receivers
-        self.recurring_cancel_receivers = recurring_cancel.receivers
 
         valid_ipn_received.receivers = []
         invalid_ipn_received.receivers = []
-        # Deprecated:
-        payment_was_successful.receivers = []
-        payment_was_flagged.receivers = []
-        payment_was_refunded.receivers = []
-        payment_was_reversed.receivers = []
-        recurring_skipped.receivers = []
-        recurring_failed.receivers = []
-        recurring_create.receivers = []
-        recurring_payment.receivers = []
-        recurring_cancel.receivers = []
 
     def tearDown(self):
         valid_ipn_received.receivers = self.valid_ipn_received_receivers
         invalid_ipn_received.receivers = self.invalid_ipn_received_receivers
 
-        payment_was_successful.receivers = self.payment_was_successful_receivers
-        payment_was_flagged.receivers = self.payment_was_flagged_receivers
-        payment_was_refunded.receivers = self.payment_was_refunded_receivers
-        payment_was_reversed.receivers = self.payment_was_reversed_receivers
-        recurring_skipped.receivers = self.recurring_skipped_receivers
-        recurring_failed.receivers = self.recurring_failed_receivers
-        recurring_create.receivers = self.recurring_create_receivers
-        recurring_payment.receivers = self.recurring_payment_receivers
-        recurring_cancel.receivers = self.recurring_cancel_receivers
         super(ResetIPNSignalsMixin, self).tearDown()
 
 
@@ -120,7 +88,7 @@ class IPNUtilsMixin(ResetIPNSignalsMixin):
         post_data = urlencode(byte_params)
         return self.client.post("/ipn/", post_data, content_type='application/x-www-form-urlencoded')
 
-    def assertGotSignal(self, signal, flagged, params=IPN_POST_PARAMS, deprecated=False):
+    def assertGotSignal(self, signal, flagged, params=IPN_POST_PARAMS):
         # Check the signal was sent. These get lost if they don't reference self.
         self.got_signal = False
         self.signal_obj = None
@@ -129,12 +97,7 @@ class IPNUtilsMixin(ResetIPNSignalsMixin):
             self.got_signal = True
             self.signal_obj = sender
 
-        if deprecated:
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
-                signal.connect(handle_signal)
-        else:
-            signal.connect(handle_signal)
+        signal.connect(handle_signal)
 
         response = self.paypal_post(params)
         self.assertEqual(response.status_code, 200)
@@ -145,8 +108,6 @@ class IPNUtilsMixin(ResetIPNSignalsMixin):
 
         self.assertTrue(self.got_signal)
         self.assertEqual(self.signal_obj, ipn_obj)
-        if deprecated:
-            self.assertEqual(len([r for r in w if r.category == DeprecationWarning]), 1)
         return ipn_obj
 
     def assertFlagged(self, updates, flag_info):
@@ -199,47 +160,6 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         self.assertEqual(ipn_obj.flag_info, "")
         self.assertEqual(ipn_obj.flag_code, "")
 
-    def test_payment_was_successful(self):
-        self.assertGotSignal(payment_was_successful, False, deprecated=True)
-
-    def test_payment_was_flagged(self):
-        PayPalIPN._postback = lambda self: b"INVALID"
-        self.assertGotSignal(payment_was_flagged, True, deprecated=True)
-
-    def test_refunded_ipn(self):
-        update = {
-            "payment_status": "Refunded"
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.assertGotSignal(payment_was_refunded, False, params, deprecated=True)
-
-    def test_with_na_date(self):
-        update = {
-            "payment_status": "Refunded",
-            "time_created": "N/A"
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.assertGotSignal(payment_was_refunded, False, params, deprecated=True)
-
-    def test_reversed_ipn(self):
-        update = {
-            "payment_status": "Reversed"
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.assertGotSignal(payment_was_reversed, False, params, deprecated=True)
-
-    @override_settings(PAYPAL_RECEIVER_EMAIL=TEST_RECEIVER_EMAIL)
-    def test_incorrect_receiver_email(self):
-        update = {"receiver_email": "incorrect_email@someotherbusiness.com"}
-        flag_info = "Invalid receiver_email. (incorrect_email@someotherbusiness.com)"
-        self.assertFlagged(update, flag_info)
-
     def test_invalid_payment_status(self):
         update = {"payment_status": "Failure"}
         flag_info = u"Invalid payment_status. (Failure)"
@@ -271,80 +191,6 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         ipn_objs = PayPalIPN.objects.order_by('created_at', 'pk')
         self.assertEqual(ipn_objs[0].flag, True)
         self.assertEqual(ipn_objs[1].flag, False)
-
-    def test_recurring_payment_skipped_ipn(self):
-        update = {
-            "recurring_payment_id": "BN5JZ2V7MLEV4",
-            "txn_type": "recurring_payment_skipped",
-            "txn_id": ""
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.assertGotSignal(recurring_skipped, False, params, deprecated=True)
-
-    def test_recurring_payment_failed_ipn(self):
-        update = {
-            "recurring_payment_id": "BN5JZ2V7MLEV4",
-            "txn_type": "recurring_payment_failed",
-            "txn_id": ""
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.assertGotSignal(recurring_failed, False, params, deprecated=True)
-
-    def test_recurring_payment_create_ipn(self):
-        update = {
-            "recurring_payment_id": "BN5JZ2V7MLEV4",
-            "txn_type": "recurring_payment_profile_created",
-            "txn_id": ""
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.assertGotSignal(recurring_create, False, params, deprecated=True)
-
-    def test_recurring_payment_cancel_ipn(self):
-        update = {
-            "recurring_payment_id": "BN5JZ2V7MLEV4",
-            "txn_type": "recurring_payment_profile_cancel",
-            "txn_id": ""
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.assertGotSignal(recurring_cancel, False, params, deprecated=True)
-
-    def test_recurring_payment_ipn(self):
-        """
-        The wat the code is written in
-        PayPalIPN.send_signals the recurring_payment
-        will never be sent because the paypal ipn
-        contains a txn_id, if this test failes you
-        might break some compatibility
-        """
-        update = {
-            "recurring_payment_id": "BN5JZ2V7MLEV4",
-            "txn_type": "recurring_payment",
-        }
-        params = IPN_POST_PARAMS.copy()
-        params.update(update)
-
-        self.got_signal = False
-        self.signal_obj = None
-
-        def handle_signal(sender, **kwargs):
-            self.got_signal = True
-            self.signal_obj = sender
-
-        with warnings.catch_warnings(record=True):
-            recurring_payment.connect(handle_signal)
-        response = self.paypal_post(params)
-        self.assertEqual(response.status_code, 200)
-        ipns = PayPalIPN.objects.all()
-        self.assertEqual(len(ipns), 1)
-        self.assertFalse(self.got_signal)
 
     def test_posted_params_attribute(self):
         params = {'btn_id1': b"3453595",

@@ -46,18 +46,6 @@ class PaymentsFormTest(TestCase):
             f = PayPalPaymentsForm(initial={})
             self.assertNotIn('sandbox', f.render())
 
-    @override_settings(PAYPAL_RECEIVER_EMAIL='me@mybusiness.com')
-    def test_form_render_deprecated_paypal_receiver_email(self):
-        f = PayPalPaymentsForm(initial={'amount': '10.50',
-                                        'shipping': '2.00',
-                                        })
-        rendered = f.render()
-        self.assertIn('''action="https://www.sandbox.paypal.com/cgi-bin/webscr"''', rendered)
-        self.assertIn('''value="me@mybusiness.com"''', rendered)
-        self.assertIn('''value="2.00"''', rendered)
-        self.assertIn('''value="10.50"''', rendered)
-        self.assertIn('''buynowCC''', rendered)
-
     def test_invalid_date_format(self):
         data = {'payment_date': "2015-10-25 01:21:32"}
         form = PayPalIPNForm(data)

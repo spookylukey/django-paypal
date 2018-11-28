@@ -16,7 +16,6 @@ from vcr import VCR
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.fields import CreditCardField
 from paypal.pro.helpers import VERSION, PayPalError, PayPalWPP, strip_ip_port
-from paypal.pro.signals import payment_was_successful
 from paypal.pro.views import PayPalPro
 
 from .settings import TEMPLATES
@@ -194,47 +193,10 @@ class PayPalWPPTest(TestCase):
         self.assertRaises(PayPalFailure, wpp.doDirectPayment, data)
 
     @vcr.use_cassette()
-    def test_doDirectPayment_valid_with_signal(self):
-        wpp = PayPalWPP(make_request())
-        data = self.get_valid_doDirectPayment_data()
-        data.update(self.item)
-
-        self.got_signal = False
-        self.signal_obj = None
-
-        def handle_signal(sender, **kwargs):
-            self.got_signal = True
-            self.signal_obj = sender
-
-        payment_was_successful.connect(handle_signal)
-        self.assertTrue(wpp.doDirectPayment(data))
-        self.assertTrue(self.got_signal)
-
-    @vcr.use_cassette()
     def test_setExpressCheckout(self):
         wpp = PayPalWPP(make_request())
         nvp_obj = wpp.setExpressCheckout(self.ec_item)
         self.assertEqual(nvp_obj.ack, "Success")
-
-    @vcr.use_cassette()
-    @mock.patch.object(PayPalWPP, '_request', autospec=True)
-    def test_setExpressCheckout_deprecation(self, mock_request_object):
-        wpp = PayPalWPP(make_request())
-        mock_request_object.return_value = 'ack=Success&token=EC-XXXX&version=%s'
-        item = self.ec_item.copy()
-        item.update({'amt': item['paymentrequest_0_amt']})
-        del item['paymentrequest_0_amt']
-        with warnings.catch_warnings(record=True) as warning_list:
-            warnings.simplefilter("always")
-            nvp_obj = wpp.setExpressCheckout(item)
-            # Make sure our warning was given
-            self.assertTrue(any(warned.category == DeprecationWarning
-                                for warned in warning_list))
-            # Make sure the method still went through
-            call_args = mock_request_object.call_args
-            self.assertIn('PAYMENTREQUEST_0_AMT=%s' % item['amt'],
-                          call_args[0][1])
-            self.assertEqual(nvp_obj.ack, "Success")
 
     @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)
@@ -266,30 +228,6 @@ class PayPalWPPTest(TestCase):
         wpp = PayPalWPP(make_request())
         with self.assertRaises(PayPalFailure):
             wpp.doExpressCheckoutPayment(item)
-
-    @vcr.use_cassette()
-    @mock.patch.object(PayPalWPP, '_request', autospec=True)
-    def test_doExpressCheckoutPayment_deprecation(self, mock_request_object):
-        wpp = PayPalWPP(make_request())
-        mock_request_object.return_value = 'ack=Success&token=EC-XXXX&version=%s'
-        ec_token = 'EC-1234567890'
-        payerid = 'LXYZABC1234'
-        item = self.ec_item.copy()
-        item.update({'amt': item['paymentrequest_0_amt'],
-                     'token': ec_token,
-                     'payerid': payerid})
-        del item['paymentrequest_0_amt']
-        with warnings.catch_warnings(record=True) as warning_list:
-            warnings.simplefilter("always")
-            nvp_obj = wpp.doExpressCheckoutPayment(item)
-            # Make sure our warning was given
-            self.assertTrue(any(warned.category == DeprecationWarning
-                                for warned in warning_list))
-            # Make sure the method still went through
-            call_args = mock_request_object.call_args
-            self.assertIn('PAYMENTREQUEST_0_AMT=%s' % item['amt'],
-                          call_args[0][1])
-            self.assertEqual(nvp_obj.ack, "Success")
 
     @vcr.use_cassette()
     @mock.patch.object(PayPalWPP, '_request', autospec=True)

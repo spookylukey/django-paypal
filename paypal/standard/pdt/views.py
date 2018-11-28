@@ -2,29 +2,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from warnings import warn
-
-from django.shortcuts import render
-from django.views.decorators.http import require_GET
-
 from paypal.standard.pdt.forms import PayPalPDTForm
 from paypal.standard.pdt.models import PayPalPDT
 from paypal.utils import warn_untested
-
-
-@require_GET
-def pdt(request, template="pdt/pdt.html", context=None):
-    """Standard implementation of a view that processes PDT and then renders a template
-    For more advanced uses, create your own view and call process_pdt.
-    """
-    warn("Use of pdt view is deprecated. Instead you should create your\n"
-         "own view, and use the process_pdt helper function",
-         DeprecationWarning)
-    pdt_obj, failed = process_pdt(request)
-
-    context = context or {}
-    context.update({"failed": failed, "pdt_obj": pdt_obj})
-    return render(request, template, context)
 
 
 def process_pdt(request):

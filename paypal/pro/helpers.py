@@ -17,9 +17,6 @@ from django.utils.http import urlencode
 
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.models import PayPalNVP
-from paypal.pro.signals import (
-    payment_profile_created, payment_was_successful, recurring_cancel, recurring_reactivate, recurring_suspend
-)
 from paypal.utils import warn_untested
 
 USER = settings.PAYPAL_WPP_USER
@@ -146,7 +143,6 @@ class PayPalWPP(object):
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
-        payment_was_successful.send(sender=nvp_obj, **params)
         # @@@ Could check cvv2match / avscode are both 'X' or '0'
         # qd = django.http.QueryDict(nvp_obj.response)
         # if qd.get('cvv2match') not in ['X', '0']:
@@ -162,15 +158,6 @@ class PayPalWPP(object):
         reference transactions and recurring payments.
         Returns a NVP instance - check for token and payerid to continue!
         """
-        if "amt" in params:
-            import warnings
-
-            warnings.warn("'amt' has been deprecated. 'paymentrequest_0_amt' "
-                          "should be used instead.", DeprecationWarning)
-            # Make a copy so we don't change things unexpectedly
-            params = params.copy()
-            params.update({'paymentrequest_0_amt': params['amt']})
-            del params['amt']
         if self._is_recurring(params):
             params = self._recurring_setExpressCheckout_adapter(params)
 
@@ -185,21 +172,11 @@ class PayPalWPP(object):
         """
         Check the dude out:
         """
-        if "amt" in params:
-            import warnings
-
-            warnings.warn("'amt' has been deprecated. 'paymentrequest_0_amt' "
-                          "should be used instead.", DeprecationWarning)
-            # Make a copy so we don't change things unexpectedly
-            params = params.copy()
-            params.update({'paymentrequest_0_amt': params['amt']})
-            del params['amt']
         defaults = {"method": "DoExpressCheckoutPayment", "paymentaction": "Sale"}
         required = ["paymentrequest_0_amt", "token", "payerid"]
         nvp_obj = self._fetch(params, required, defaults)
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
-        payment_was_successful.send(sender=nvp_obj, **params)
         return nvp_obj
 
     def createRecurringPaymentsProfile(self, params, direct=False):
@@ -221,7 +198,6 @@ class PayPalWPP(object):
         # Flag if profile_type != ActiveProfile
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
-        payment_profile_created.send(sender=nvp_obj, **params)
         return nvp_obj
 
     def getExpressCheckoutDetails(self, params):
@@ -231,9 +207,6 @@ class PayPalWPP(object):
         if nvp_obj.flag:
             raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
-
-    def setCustomerBillingAgreement(self, params):
-        raise DeprecationWarning
 
     def createBillingAgreement(self, params):
         """
@@ -285,14 +258,7 @@ class PayPalWPP(object):
 
         # TODO: This fail silently check should be using the error code, but its not easy to access
         flag_info_test_string = 'Invalid profile status for cancel action; profile should be active or suspended'
-        if not nvp_obj.flag or (fail_silently and nvp_obj.flag_info == flag_info_test_string):
-            if params['action'] == 'Cancel':
-                recurring_cancel.send(sender=nvp_obj)
-            elif params['action'] == 'Suspend':
-                recurring_suspend.send(sender=nvp_obj)
-            elif params['action'] == 'Reactivate':
-                recurring_reactivate.send(sender=nvp_obj)
-        else:
+        if nvp_obj.flag and not (fail_silently and nvp_obj.flag_info == flag_info_test_string):
             raise PayPalFailure(nvp_obj.flag_info, nvp=nvp_obj)
         return nvp_obj
 

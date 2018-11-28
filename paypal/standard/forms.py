@@ -126,21 +126,11 @@ class PayPalPaymentsForm(forms.Form):
         super(PayPalPaymentsForm, self).__init__(*args, **kwargs)
         self.button_type = button_type
         if 'initial' in kwargs:
-            kwargs['initial'] = self._fix_deprecated_paypal_receiver_email(kwargs['initial'])
             kwargs['initial'] = self._fix_deprecated_return_url(kwargs['initial'])
             # Dynamically create, so we can support everything PayPal does.
             for k, v in kwargs['initial'].items():
                 if k not in self.base_fields:
                     self.fields[k] = forms.CharField(label=k, widget=ValueHiddenInput(), initial=v)
-
-    def _fix_deprecated_paypal_receiver_email(self, initial_args):
-        if 'business' not in initial_args:
-            if hasattr(settings, 'PAYPAL_RECEIVER_EMAIL'):
-                warn("""The use of the settings.PAYPAL_RECEIVER_EMAIL is Deprecated.
-                        The keyword business argument must be given to PayPalPaymentsForm
-                        on creation""", DeprecationWarning)
-                initial_args['business'] = settings.PAYPAL_RECEIVER_EMAIL
-        return initial_args
 
     def _fix_deprecated_return_url(self, initial_args):
         if 'return_url' in initial_args:
@@ -165,13 +155,6 @@ class PayPalPaymentsForm(forms.Form):
     {1}
     <input type="image" src="{2}" border="0" name="submit" alt="Buy it Now" />
 </form>""", self.get_endpoint(), self.as_p(), self.get_image())
-
-    def sandbox(self):
-        "Deprecated.  Use self.render() instead."
-        import warnings
-        warnings.warn("""PaypalPaymentsForm.sandbox() is deprecated.
-                    Use the render() method instead.""", DeprecationWarning)
-        return self.render()
 
     def get_image(self):
         return {

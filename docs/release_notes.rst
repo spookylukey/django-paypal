@@ -16,6 +16,19 @@ Version 1.0 (under development)
 
 * Fixed issue #206 - DB migration required by Django 2.1
 
+* Support for almost all deprecated features removed, including:
+
+  * Signals deprecated in v0.2 (see notes below)
+  * Not passing ``nvp_handler`` to ``PayPalPro`` (see notes under 0.2)
+  * Using ``"amt"`` parameter with ``SetExpressCheckout`` and
+    ``DoExpressCheckoutPayment`` (see notes under 0.1.4 below)
+  * Settings deprecated in v0.4
+  * ``setCustomerBillingAgreement`` (pre 0.1.3 feature)
+  * ``PAYPAL_RECEIVER_EMAIL`` (see notes under 0.3)
+  * ``pdt`` view (see notes under 0.3)
+  * ``sandbox`` method on forms (see notes under 0.2)
+
+
 Version 0.5.0
 -------------
 
@@ -292,12 +305,12 @@ Version 0.2
 
     Instead:
 
-    * If you are using `PayPalWPP` directly, the returned `PayPalNVP` objects
+    * If you are using ``PayPalWPP`` directly, the returned ``PayPalNVP`` objects
       from all method should just be used. Remember that you need to handle
-      `PayPalFailure` exceptions from all direct calls.
+      ``PayPalFailure`` exceptions from all direct calls.
 
-    * If you are using the `PayPalPro` wrapper, you should pass a callable
-      `nvp_handler` keyword argument.
+    * If you are using the ``PayPalPro`` wrapper, you should pass a callable
+      ``nvp_handler`` keyword argument.
 
     Please see :doc:`pro/index`.
 
