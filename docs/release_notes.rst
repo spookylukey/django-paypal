@@ -3,8 +3,10 @@
 ===============
 
 
-Version 0.5.1 (under development)
----------------------------------
+Version 1.0 (under development)
+-------------------------------
+
+* Dropped support for versions of Django before 1.11
 
 * Encrypted button corrections
 

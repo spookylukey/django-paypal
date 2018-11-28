@@ -38,7 +38,7 @@ Release process
 Post release
 ------------
 
-* Bump version numbers to next version with ``.dev1`` suffix, for example ``0.1.7.dev1``
+* Bump version numbers to next version with ``-dev1`` suffix, for example ``0.1.7-dev1``
 
 * Add new section to docs/release_notes.rst, with " (under development)".
 

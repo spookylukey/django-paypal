@@ -45,7 +45,7 @@ New features need documentation adding in docs/
 
 See docs/tests.rst for info about running the test suite.
 
-If you make changes to the models, please create migrations for Django 1.11+ e.g.::
+If you make changes to the models, please create migrations e.g.::
 
     ./manage.py makemigrations ipn
 
