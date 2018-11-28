@@ -15,6 +15,7 @@ settings.configure(
     PAYPAL_IDENTITY_TOKEN='',
     INSTALLED_APPS=[
         'django.contrib.auth',
+        'django.contrib.admin',
         'django.contrib.contenttypes',
         'paypal.pro',
         'paypal.standard',

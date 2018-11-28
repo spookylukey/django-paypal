@@ -14,6 +14,8 @@ Version 1.0 (under development)
 
 * Fix the encrypted button examples in the documentation to use the encrypted form
 
+* Fixed issue #206 - DB migration required by Django 2.1
+
 Version 0.5.0
 -------------
 
