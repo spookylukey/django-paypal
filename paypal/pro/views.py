@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import warnings
-
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 

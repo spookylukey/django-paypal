@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from warnings import warn
-
-from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
 

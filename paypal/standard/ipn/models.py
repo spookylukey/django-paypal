@@ -6,7 +6,6 @@ import requests
 
 from paypal.standard.ipn.signals import invalid_ipn_received, valid_ipn_received
 from paypal.standard.models import PayPalStandardBase
-from paypal.utils import warn_untested
 
 
 class PayPalIPN(PayPalStandardBase):

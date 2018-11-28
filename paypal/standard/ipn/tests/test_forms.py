@@ -4,7 +4,6 @@ import os
 import re
 
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from paypal.standard.forms import PayPalEncryptedPaymentsForm, PayPalPaymentsForm
 from paypal.standard.ipn.forms import PayPalIPNForm

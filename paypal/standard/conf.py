@@ -1,6 +1,3 @@
-import sys
-import warnings
-
 from django.conf import settings
 
 

@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import locale
 import unittest
-import warnings
 from datetime import datetime
 from decimal import Decimal
 
