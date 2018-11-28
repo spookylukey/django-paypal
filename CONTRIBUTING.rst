@@ -29,6 +29,11 @@ Remember that a new feature that is neither documented nor covered by tests is
 not actually a contribution to the project, but only benefits the person who
 “contributed” it, and so won't be accepted.
 
+Patches that are not of sufficient quality will be labelled
+``patch-needs-improvement`` in GitHub with comments added explaining why, and in
+general the original author, not the maintainers, will be expected to do this
+improvement.
+
 In more detail, please see the following guidelines and hints:
 
 **isort** keeps imports in order. Run **tox -e isort-check** to check your
@@ -39,11 +44,11 @@ All bug fixes and new features will require tests to accompany them, unless it
 is very difficult to write the test (e.g. non deterministic behaviour). The
 tests should fail without the fix/feature.
 
-Please add to docs/release_notes.rst for any significant bug fixes or new features.
+Please add to ``docs/release_notes.rst`` for any significant bug fixes or new features.
 
-New features need documentation adding in docs/
+New features need documentation adding in ``docs/``
 
-See docs/tests.rst for info about running the test suite.
+See ``docs/tests.rst`` for info about running the test suite.
 
 If you make changes to the models, please create migrations e.g.::
 
