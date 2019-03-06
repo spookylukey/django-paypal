@@ -55,15 +55,14 @@ using the issue tracker and pull requests.
 Paid support
 ============
 
-In addition to being Open Source, some of the maintainers are able to provide
-support on a paid basis for those who want it. This includes the following kinds
-of things:
+Some of the maintainers are able to provide support on a paid basis for this
+Open Source project. This includes the following kinds of things:
 
-* Paying for bug fixes or new features (with the understanding that these changes
-  will become a part of the Open Source project and are not 'owned' by the person
-  who paid for them).
+* Paying for bug fixes or new features (with the understanding that these
+  changes will become freely available as part of the project and are not
+  'owned' by the person who paid for them).
 
-* Debugging or supporting integrating django-paypal into your project.
+* Debugging or other support for integrating django-paypal into your project.
 
 * Implementing the integration for you from scratch.
 
