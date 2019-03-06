@@ -24,8 +24,8 @@ django-paypal supports:
 Project status
 ==============
 
-This project is *active* but in *maintenance mode*. The maintainers see their
-primary responsibilities as:
+This is an Open Source project that is *active* but in *maintenance mode*. The
+maintainers see their primary responsibilities as:
 
 * fixing any critical data loss or security bugs.
 * keeping the project up-to-date with new versions of Django (or other
@@ -51,3 +51,23 @@ will be gladly accepted if they are implemented well.
 
 Please see `CONTRIBUTING.rst <CONTRIBUTING.rst>`_ for more information about
 using the issue tracker and pull requests.
+
+Paid support
+============
+
+In addition to being Open Source, some of the maintainers are able to provide
+support on a paid basis for those who want it. This includes the following kinds
+of things:
+
+* Paying for bug fixes or new features (with the understanding that these changes
+  will become a part of the Open Source project and are not 'owned' by the person
+  who paid for them).
+
+* Debugging or supporting integrating django-paypal into your project.
+
+* Implementing the integration for you from scratch.
+
+If you are interested in these, you can contact the follower developers:
+
+* Luke Plant [homepage](https://lukeplant.me.uk),
+  [email](L.Plant.98@cantab.net) - long time Django expert and contributor.
