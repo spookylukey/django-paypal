@@ -36,6 +36,23 @@ improvement.
 
 In more detail, please see the following guidelines and hints:
 
+Development environment
+~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Clone your GitHub repo
+
+2. Create a virtualenv, using one of the supported versions of Python.
+
+3. Run ``python setup.py develop``
+
+4. Install development tools::
+
+     pip install tox isort flake8
+
+
+Code quality
+~~~~~~~~~~~~
+
 **isort** keeps imports in order. Run **tox -e isort-check** to check your
 imports, and **isort <PATHPATH>** to fix them. Use **# isort:skip** to
 get imports to be ignored by isort.
