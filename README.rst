@@ -69,5 +69,5 @@ of things:
 
 If you are interested in these, you can contact the follower developers:
 
-* Luke Plant [homepage](https://lukeplant.me.uk),
-  [email](L.Plant.98@cantab.net) - long time Django expert and contributor.
+* Luke Plant - `homepage <https://lukeplant.me.uk>`_,
+  `email <L.Plant.98@cantab.net>`_ - long time Django expert and contributor.
