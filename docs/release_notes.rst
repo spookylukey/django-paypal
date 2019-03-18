@@ -28,6 +28,10 @@ Version 1.0 (under development)
   * ``pdt`` view (see notes under 0.3)
   * ``sandbox`` method on forms (see notes under 0.2)
 
+Version 0.5.1
+-------------
+
+* Increased max_length from 40 to 64 for fields: address_city, address_state.
 
 Version 0.5.0
 -------------
