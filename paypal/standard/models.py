@@ -93,10 +93,10 @@ class PayPalStandardBase(Model):
 
     # Buyer Information Variables
     address_country = models.CharField(max_length=64, blank=True)
-    address_city = models.CharField(max_length=40, blank=True)
+    address_city = models.CharField(max_length=64, blank=True)
     address_country_code = models.CharField(max_length=64, blank=True, help_text="ISO 3166")
     address_name = models.CharField(max_length=128, blank=True)
-    address_state = models.CharField(max_length=40, blank=True)
+    address_state = models.CharField(max_length=64, blank=True)
     address_status = models.CharField(max_length=255, blank=True)
     address_street = models.CharField(max_length=200, blank=True)
     address_zip = models.CharField(max_length=20, blank=True)
