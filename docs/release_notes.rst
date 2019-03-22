@@ -3,8 +3,8 @@
 ===============
 
 
-Version 1.0 (under development)
--------------------------------
+Version 1.0 (2019-03-22)
+------------------------
 
 * Dropped support for versions of Django before 1.11
 
