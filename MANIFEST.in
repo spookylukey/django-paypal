@@ -6,6 +6,7 @@ include MANIFEST.in
 include LICENSE
 include tox.ini
 include *.py
+include *.sh
 recursive-include docs *.rst
 recursive-include docs *.py
 recursive-include docs *.bat
