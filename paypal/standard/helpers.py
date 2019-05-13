@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 import hashlib
 import sys
-if sys.version_info[0] >= 3:
-    unicode = str
-    
 from django.conf import settings
 from django.utils.encoding import smart_str
-
 from paypal.utils import warn_untested
+
+if sys.version_info[0] >= 3:
+    unicode = str
+
 
 def _get_hash(salt, raw_password):
     hashed = smart_str(salt) + smart_str(raw_password)
@@ -16,9 +16,10 @@ def _get_hash(salt, raw_password):
         hashed = hashed.encode()
     return hashed
 
+
 def get_sha1_hexdigest(salt, raw_password):
     warn_untested()
-    return hashlib.sha1(_get_hash(salt,raw_password)).hexdigest()
+    return hashlib.sha1(_get_hash(salt, raw_password)).hexdigest()
 
 
 def duplicate_txn_id(ipn_obj):
@@ -32,11 +33,12 @@ def duplicate_txn_id(ipn_obj):
     """
 
     # get latest similar transaction(s)
-    similars = (ipn_obj.__class__._default_manager
-                .filter(txn_id=ipn_obj.txn_id)
-                .exclude(id=ipn_obj.id)
-                .exclude(flag=True)
-                .order_by('-created_at')[:1])
+    similars = (
+        ipn_obj.__class__._default_manager.filter(txn_id=ipn_obj.txn_id)
+        .exclude(id=ipn_obj.id)
+        .exclude(flag=True)
+        .order_by("-created_at")[:1]
+    )
 
     if len(similars) > 0:
         # we have a similar transaction, has the payment_status changed?
@@ -59,18 +61,20 @@ def make_secret(form_instance, secret_fields=None):
 
     # Build the secret with fields availible in both PaymentForm and the IPN. Order matters.
     if secret_fields is None:
-        secret_fields = ['business', 'item_name']
+        secret_fields = ["business", "item_name"]
 
     data = ""
     for name in secret_fields:
-        if hasattr(form_instance, 'cleaned_data'):
+        if hasattr(form_instance, "cleaned_data"):
             if name in form_instance.cleaned_data:
                 data += unicode(form_instance.cleaned_data[name])
         else:
             # Initial data passed into the constructor overrides defaults.
             if name in form_instance.initial:
                 data += unicode(form_instance.initial[name])
-            elif name in form_instance.fields and form_instance.fields[name].initial is not None:
+            elif (
+                name in form_instance.fields and form_instance.fields[name].initial is not None
+            ):
                 data += unicode(form_instance.fields[name].initial)
 
     secret = get_sha1_hexdigest(settings.SECRET_KEY, data)
