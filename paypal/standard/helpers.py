@@ -1,16 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import hashlib
-
+import sys
+if sys.version_info[0] >= 3:
+    unicode = str
+    
 from django.conf import settings
 from django.utils.encoding import smart_str
 
 from paypal.utils import warn_untested
 
+def _get_hash(salt, raw_password):
+    hashed = smart_str(salt) + smart_str(raw_password)
+    if sys.version_info[0] >= 3:
+        hashed = hashed.encode()
+    return hashed
 
 def get_sha1_hexdigest(salt, raw_password):
     warn_untested()
-    return hashlib.sha1(smart_str(salt) + smart_str(raw_password)).hexdigest()
+    return hashlib.sha1(_get_hash(salt,raw_password)).hexdigest()
 
 
 def duplicate_txn_id(ipn_obj):
