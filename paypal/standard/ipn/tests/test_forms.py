@@ -5,7 +5,7 @@ import re
 
 from django.test import TestCase
 
-from paypal.standard.forms import PayPalEncryptedPaymentsForm, PayPalPaymentsForm
+from paypal.standard.forms import PayPalEncryptedPaymentsForm, PayPalPaymentsForm, PayPalSharedSecretEncryptedPaymentsForm
 from paypal.standard.ipn.forms import PayPalIPNForm
 
 
@@ -87,7 +87,42 @@ class PaymentsFormTest(TestCase):
             paypal_cert=paypal_cert,
             cert_id=paypal_cert_id
         )
+        rendered = form.render()
 
+        self.assertIn('''name="cmd" value="_s-xclick"''', rendered)
+        self.assertIn('''name="encrypted" value="-----BEGIN PKCS7-----''', rendered)
+        expected_regex = re.compile(
+            r'.*name="encrypted" value="-----BEGIN PKCS7-----\n' +
+            r'([A-Za-z0-9/\+]{64}\n)*[A-Za-z0-9/\+]{1,64}={0,2}\n' +
+            r'-----END PKCS7-----\n.*'
+        )
+        self.assertTrue(
+            expected_regex.search(rendered),
+            msg='Button encryption has wrong form - expected a block of PKCS7 data'
+        )
+
+    def test_shared_secret_encrypted_button(self):
+        data = {
+            'notify_url': 'https://example.com/notify_url',
+            'amount': '10.50',
+            'shipping': '2.00',
+        }
+
+        # Paypal Certificate Information
+        here = os.path.dirname(os.path.abspath(__file__))
+        paypal_private_cert = os.path.join(here, 'test_cert__do_not_use__private.pem')
+        paypal_public_cert = os.path.join(here, 'test_cert__do_not_use__public.pem')
+        paypal_cert = os.path.join(here, 'test_cert_from_paypal__do_not_use.pem')
+        paypal_cert_id = 'another-paypal-id'
+
+        # Create the instance.
+        form = PayPalSharedSecretEncryptedPaymentsForm(
+            initial=data,
+            private_cert=paypal_private_cert,
+            public_cert=paypal_public_cert,
+            paypal_cert=paypal_cert,
+            cert_id=paypal_cert_id
+        )
         rendered = form.render()
 
         self.assertIn('''name="cmd" value="_s-xclick"''', rendered)

@@ -35,6 +35,7 @@ settings_dict = dict(
         'django.contrib.admin',
         'django.contrib.sessions',
         'django.contrib.contenttypes',
+        'django.contrib.messages',
         'paypal.pro',
         'paypal.standard',
         'paypal.standard.ipn',
