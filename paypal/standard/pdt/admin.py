@@ -7,7 +7,7 @@ from django.contrib import admin
 from paypal.standard.pdt.models import PayPalPDT
 
 
-# ToDo: How similiar is this to PayPalIPNAdmin? Could we just inherit off one common admin model?
+# ToDo: How similar is this to PayPalIPNAdmin? Could we just inherit off one common admin model?
 class PayPalPDTAdmin(admin.ModelAdmin):
     date_hierarchy = 'payment_date'
     fieldsets = (
