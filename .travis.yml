@@ -33,18 +33,6 @@ matrix:
     - python: "2.7"
       env: DJANGO=1.11 USETZ=False
       dist: trusty
-    - python: "3.4"
-      env: DJANGO=1.11 USETZ=True
-      dist: trusty
-    - python: "3.4"
-      env: DJANGO=1.11 USETZ=False
-      dist: trusty
-    - python: "3.4"
-      env: DJANGO=2.0 USETZ=True
-      dist: trusty
-    - python: "3.4"
-      env: DJANGO=2.0 USETZ=False
-      dist: trusty
   exclude:
     - python: "3.7"
       env: DJANGO=1.11 USETZ=True
