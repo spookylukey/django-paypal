@@ -92,7 +92,14 @@ Using PayPal Standard IPN
    correct ``notify_url`` add the following to your ``urls.py``:
 
    .. code-block:: python
+       # Django 2.0+
+       from django.urls import path, include
 
+       urlpatterns = [
+           path("paypal/", include("paypal.standard.ipn.urls")),
+       ]
+
+       # Django 1.11
        from django.conf.urls import url, include
 
        urlpatterns = [
