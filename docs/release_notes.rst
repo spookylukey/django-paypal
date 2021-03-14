@@ -5,6 +5,7 @@
 Version 1.1 (unreleased)
 ------------------------
 
+* Fix PayPalSharedSecretEncryptedPaymentsForm in Python 3 - thanks Fixed Emilio Moretti
 * Dropped Python 3.4 support
 
 Version 1.0 (2019-03-22)
