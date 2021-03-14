@@ -13,8 +13,8 @@ warnings.simplefilter("always", DeprecationWarning)
 
 
 parser = argparse.ArgumentParser(description="Run the test suite, or specific tests specified using dotted paths.")
-parser.add_argument("--use-tz-false", action='store_true', default=False,
-                    help="Set USE_TZ=False in settings")
+parser.add_argument("--use-tz", action='store', default='true',
+                    help="Set USE_TZ in settings, 'true'/'false'")
 
 known_args, remaining_args = parser.parse_known_args()
 
@@ -76,7 +76,7 @@ settings_dict = dict(
             },
         },
     ],
-    USE_TZ=not known_args.use_tz_false,
+    USE_TZ=not (known_args.use_tz == 'false'),
     LOGGING={
         'version': 1,
         'disable_existing_loggers': True,
