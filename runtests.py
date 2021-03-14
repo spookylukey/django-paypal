@@ -33,6 +33,7 @@ settings_dict = dict(
     INSTALLED_APPS=[
         'django.contrib.auth',
         'django.contrib.admin',
+        'django.contrib.messages',
         'django.contrib.sessions',
         'django.contrib.contenttypes',
         'paypal.pro',
@@ -89,6 +90,7 @@ settings_dict = dict(
             },
         },
     },
+    SECRET_KEY='required_by_django',
     )
 
 settings.configure(**settings_dict)

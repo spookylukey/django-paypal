@@ -1,0 +1,13 @@
+six>=1.4.1
+mock==1.0.1;python_version<'3'
+requests>2.18
+cffi>1.11
+cryptography>2.1
+idna>2.6
+pyasn1>0.4.2
+pycparser>2.18
+pyopenssl>17.5.0
+certifi>2018.1.18
+vcrpy>1.11.1
+ndg-httpsclient>0.4.4
+m2crypto>0.30.1

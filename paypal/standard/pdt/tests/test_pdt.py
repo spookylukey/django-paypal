@@ -4,7 +4,10 @@ see http://www.djangoproject.com/documentation/testing/ for details
 """
 from __future__ import unicode_literals
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import TestCase

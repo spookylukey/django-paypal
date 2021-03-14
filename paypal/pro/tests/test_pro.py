@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 
 from decimal import Decimal
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 from django.contrib.auth import get_user_model
 from django.forms import ValidationError
 from django.test import TestCase
