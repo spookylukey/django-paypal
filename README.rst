@@ -1,10 +1,6 @@
 Django PayPal
 =============
 
-.. image:: https://travis-ci.org/spookylukey/django-paypal.svg?branch=master
-    :target: https://travis-ci.org/spookylukey/django-paypal
-    :alt: Build Status
-
 .. image:: https://badge.fury.io/py/django-paypal.svg
     :target: https://badge.fury.io/py/django-paypal
     :alt: Latest PyPI version

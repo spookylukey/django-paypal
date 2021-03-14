@@ -5,9 +5,6 @@ Release process
 
     tox
 
-  Or check Travis, if it has run against the latest source code:
-  https://travis-ci.org/spookylukey/django-paypal
-
 * Change docs/release_notes.rst to remove "under development" and replace with
   date.
 
