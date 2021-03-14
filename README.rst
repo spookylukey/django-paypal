@@ -1,6 +1,10 @@
 Django PayPal
 =============
 
+
+.. image:: https://github.com/spookylukey/django-paypal/workflows/build/badge.svg
+   :target: https://github.com/spookylukey/django-paypal/actions?query=workflow%3Abuild+branch%3Amaster
+
 .. image:: https://badge.fury.io/py/django-paypal.svg
     :target: https://badge.fury.io/py/django-paypal
     :alt: Latest PyPI version
