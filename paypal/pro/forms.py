@@ -2,8 +2,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys
+
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+
+if sys.version_info < (3, 0):
+    from django.utils.translation import ugettext_lazy as _
+else:
+    from django.utils.translation import gettext_lazy as _
 
 from paypal.pro.exceptions import PayPalFailure
 from paypal.pro.fields import CountryField, CreditCardCVV2Field, CreditCardExpiryField, CreditCardField

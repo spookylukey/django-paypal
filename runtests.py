@@ -68,6 +68,7 @@ settings_dict = dict(
                     'django.template.context_processors.debug',
                     'django.template.context_processors.i18n',
                     'django.template.context_processors.media',
+                    'django.template.context_processors.request',
                     'django.template.context_processors.static',
                     'django.template.context_processors.tz',
                     'django.contrib.messages.context_processors.messages',
@@ -91,6 +92,7 @@ settings_dict = dict(
         },
     },
     SECRET_KEY='required_by_django',
+    DEFAULT_AUTO_FIELD='django.db.models.BigAutoField',
     )
 
 settings.configure(**settings_dict)

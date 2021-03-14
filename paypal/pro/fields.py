@@ -2,12 +2,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys
 from calendar import monthrange
 from datetime import date
 
 import six
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+
+if sys.version_info < (3, 0):
+    from django.utils.translation import ugettext_lazy as _
+else:
+    from django.utils.translation import gettext_lazy as _
+
 from six.moves import range
 
 from paypal.pro.creditcard import verify_credit_card
