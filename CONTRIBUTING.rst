@@ -49,6 +49,12 @@ Development environment
 
      pip install tox isort flake8
 
+5. Recommended: Install `pre-commit <https://pre-commit.com/>`_ and set up
+   the hooks::
+
+       pre-commit install
+
+   This will run flake8/isort automatically when you commit.
 
 Code quality
 ~~~~~~~~~~~~

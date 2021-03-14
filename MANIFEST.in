@@ -8,6 +8,7 @@ include tox.ini
 include *.py
 include *.sh
 include *.txt
+include *.yaml
 recursive-include docs *.rst
 recursive-include docs *.py
 recursive-include docs *.bat
