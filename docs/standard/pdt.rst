@@ -53,10 +53,10 @@ To use PDT:
 
    .. code-block:: python
 
-       from django.conf.urls import url, include
+       from django.urls import path, include
        ...
        urlpatterns = [
-           url(r'^your_return_url/', your_pdt_return_url_view, name="pdt_return_url"),
+           path('your_return_url/', your_pdt_return_url_view, name="pdt_return_url"),
            ...
        ]
 

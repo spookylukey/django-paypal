@@ -102,15 +102,15 @@ incredibly easy to use through the provided ``PayPalPro`` class.
 
    .. code-block:: python
 
-       from django.conf.urls import url, include
+       from django.urls import path, include
 
        from myproject import views
 
 
        urlpatterns = [
            ...
-           url(r'^payment-url/$', views.buy_my_item),
-           url(r'^paypal/', include('paypal.standard.ipn.urls')),
+           path('payment-url/', views.buy_my_item),
+           path('paypal/', include('paypal.standard.ipn.urls')),
        ]
 
 7. Profit.
