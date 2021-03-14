@@ -8,6 +8,7 @@ Version 1.1 (unreleased)
 * Fix PayPalSharedSecretEncryptedPaymentsForm in Python 3 - thanks Fixed Emilio Moretti
 * Dropped Python 3.4 support
 * Fixed some bugs with ``CreditCard.get_type()`` due to bad regexes
+* Fixed a bunch of warnings emitted under modern Django
 
 Version 1.0 (2019-03-22)
 ------------------------
@@ -386,6 +387,3 @@ Version 0.1.3
 * Various bug fixes, including:
 
   * Fixes for non-ASCII characters
-
-
-
