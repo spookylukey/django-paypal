@@ -2,10 +2,10 @@
  Release notes
 ===============
 
-Version 1.1 (unreleased)
+Version 1.1 (2021-03-14)
 ------------------------
 
-* Fix PayPalSharedSecretEncryptedPaymentsForm in Python 3 - thanks Fixed Emilio Moretti
+* Fix PayPalSharedSecretEncryptedPaymentsForm in Python 3 - thanks Emilio Moretti
 * Dropped Python 3.4 support
 * Fixed some bugs with ``CreditCard.get_type()`` due to bad regexes
 * Fixed a bunch of warnings emitted under modern Django
