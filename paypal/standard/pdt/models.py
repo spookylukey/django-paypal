@@ -22,7 +22,7 @@ class PayPalSettingsError(Exception):
 
 try:
     IDENTITY_TOKEN = settings.PAYPAL_IDENTITY_TOKEN
-except:
+except AttributeError:
     raise PayPalSettingsError(
         "You must set PAYPAL_IDENTITY_TOKEN in settings.py. Get this token by enabling PDT in your PayPal account.")
 

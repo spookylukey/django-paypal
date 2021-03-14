@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 import hashlib
 
+import six
 from django.conf import settings
 from django.utils.encoding import smart_str
 
 from paypal.utils import warn_untested
-
-import six
 
 
 def get_sha1_hexdigest(salt, raw_password):

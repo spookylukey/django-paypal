@@ -8,6 +8,7 @@ from setuptools import find_packages, setup
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
+
 DESCRIPTION = 'A pluggable Django application for integrating PayPal Payments Standard or Payments Pro'
 URL = 'https://github.com/spookylukey/django-paypal'
 DOCS_URL = 'https://django-paypal.readthedocs.org'

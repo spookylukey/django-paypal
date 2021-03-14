@@ -18,6 +18,7 @@ def pdt(request, template="pdt/pdt.html", context=None):
     context.update({"failed": failed, "pdt_obj": pdt_obj})
     return render(request, template, context)
 
+
 urlpatterns = [
     url(r'^pdt/$', pdt),
 ]

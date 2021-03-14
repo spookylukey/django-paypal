@@ -6,9 +6,7 @@ import re
 from django.test import TestCase
 
 from paypal.standard.forms import (
-    PayPalEncryptedPaymentsForm,
-    PayPalPaymentsForm,
-    PayPalSharedSecretEncryptedPaymentsForm
+    PayPalEncryptedPaymentsForm, PayPalPaymentsForm, PayPalSharedSecretEncryptedPaymentsForm
 )
 from paypal.standard.ipn.forms import PayPalIPNForm
 
