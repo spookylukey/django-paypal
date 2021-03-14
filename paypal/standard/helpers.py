@@ -44,7 +44,6 @@ def make_secret(form_instance, secret_fields=None):
     selection of variables in params. Should only be used with SSL.
 
     """
-    warn_untested()
     # @@@ Moved here as temporary fix to avoid dependancy on auth.models.
     # @@@ amount is mc_gross on the IPN - where should mapping logic go?
     # @@@ amount / mc_gross is not nessecarily returned as it was sent - how to use it? 10.00 vs. 10.0

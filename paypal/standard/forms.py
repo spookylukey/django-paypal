@@ -249,7 +249,6 @@ class PayPalSharedSecretEncryptedPaymentsForm(PayPalEncryptedPaymentsForm):
 
     def __init__(self, *args, **kwargs):
         "Make the secret from the form initial data and slip it into the form."
-        warn_untested()
         from paypal.standard.helpers import make_secret
 
         super(PayPalSharedSecretEncryptedPaymentsForm, self).__init__(*args, **kwargs)
