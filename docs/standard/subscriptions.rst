@@ -31,4 +31,4 @@ views.py:
 
 
 See `PayPal Subscribe button docs
-<https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/subscribe_buttons/>`_.
+<https://developer.paypal.com/docs/paypal-payments-standard/integration-guide/subscribe-step-1/>`_.

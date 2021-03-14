@@ -46,7 +46,8 @@ large new features (such as implementing newer PayPal payment methods), they
 will be gladly accepted if they are implemented well.
 
 Please see `CONTRIBUTING.rst <CONTRIBUTING.rst>`_ for more information about
-using the issue tracker and pull requests.
+using the issue tracker and pull requests. Please do not open issues for support
+requests.
 
 Paid support
 ============
