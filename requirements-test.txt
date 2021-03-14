@@ -1,5 +1,7 @@
-six>=1.4.1
 mock==1.0.1;python_version<'3'
+enum34==1.1.6;python_version<'3'
+ipaddress==1.0.19;python_version<'3'
+six>=1.4.1
 requests>2.18
 cffi>1.11
 cryptography>2.1

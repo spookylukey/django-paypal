@@ -2,6 +2,10 @@
  Release notes
 ===============
 
+Version 1.1 (unreleased)
+------------------------
+
+* Dropped Python 3.4 support
 
 Version 1.0 (2019-03-22)
 ------------------------
