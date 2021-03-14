@@ -43,8 +43,7 @@ Using PayPal Standard IPN
    ``views.py``:
 
    .. code-block:: python
-
-       from django.core.urlresolvers import reverse
+       from django.urls import reverse
        from django.shortcuts import render
        from paypal.standard.forms import PayPalPaymentsForm
 
@@ -97,8 +96,9 @@ Using PayPal Standard IPN
        from django.urls import path, include
 
        urlpatterns = [
-           path('paypal/', include('paypal.standard.ipn.urls')),
+           path('paypal/', include("paypal.standard.ipn.urls")),
        ]
+
 
 5. Whenever an IPN is processed a signal will be sent with the result of the
    transaction.
