@@ -22,7 +22,7 @@ class PaymentsFormTest(TestCase):
                                         'return_url': return_url,
                                         })
         rendered = f.render()
-        self.assertIn('''action="https://www.sandbox.paypal.com/cgi-bin/webscr"''', rendered)
+        self.assertIn('''action="https://ipnpb.sandbox.paypal.com/cgi-bin/webscr"''', rendered)
         self.assertIn('''value="me@mybusiness.com"''', rendered)
         self.assertIn('''value="2.00"''', rendered)
         self.assertIn('''value="10.50"''', rendered)
@@ -35,7 +35,7 @@ class PaymentsFormTest(TestCase):
                                         'return': return_url,
                                         })
         rendered = f.render()
-        self.assertIn('''action="https://www.sandbox.paypal.com/cgi-bin/webscr"''', rendered)
+        self.assertIn('''action="https://ipnpb.sandbox.paypal.com/cgi-bin/webscr"''', rendered)
         self.assertIn('''value="me@mybusiness.com"''', rendered)
         self.assertIn('''value="2.00"''', rendered)
         self.assertIn('''value="10.50"''', rendered)

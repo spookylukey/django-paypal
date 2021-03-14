@@ -9,6 +9,8 @@ Version 1.1 (unreleased)
 * Dropped Python 3.4 support
 * Fixed some bugs with ``CreditCard.get_type()`` due to bad regexes
 * Fixed a bunch of warnings emitted under modern Django
+* Changed default values of POSTBACK_ENDPOINT and SANDBOX_POSTBACK_ENDPOINT to ones
+  now recommended by PayPal.
 
 Version 1.0 (2019-03-22)
 ------------------------
