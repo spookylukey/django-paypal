@@ -18,8 +18,8 @@ else:
     from django.utils.translation import gettext_lazy as _
 
 from paypal.standard.conf import (
-    BUY_BUTTON_IMAGE, DONATION_BUTTON_IMAGE, PAYPAL_CERT, PAYPAL_CERT_ID, PAYPAL_PRIVATE_CERT, PAYPAL_PUBLIC_CERT,
-    POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT, SUBSCRIPTION_BUTTON_IMAGE
+    BUY_BUTTON_IMAGE, DONATION_BUTTON_IMAGE, LOGIN_URL, PAYPAL_CERT, PAYPAL_CERT_ID, PAYPAL_PRIVATE_CERT,
+    PAYPAL_PUBLIC_CERT, SANDBOX_LOGIN_URL, SUBSCRIPTION_BUTTON_IMAGE
 )
 from paypal.standard.widgets import ValueHiddenInput
 from paypal.utils import warn_untested
@@ -148,18 +148,18 @@ class PayPalPaymentsForm(forms.Form):
     def test_mode(self):
         return getattr(settings, 'PAYPAL_TEST', True)
 
-    def get_endpoint(self):
+    def get_login_url(self):
         "Returns the endpoint url for the form."
         if self.test_mode():
-            return SANDBOX_POSTBACK_ENDPOINT
+            return SANDBOX_LOGIN_URL
         else:
-            return POSTBACK_ENDPOINT
+            return LOGIN_URL
 
     def render(self):
         return format_html(u"""<form action="{0}" method="post">
     {1}
     <input type="image" src="{2}" name="submit" alt="Buy it Now" />
-</form>""", self.get_endpoint(), self.as_p(), self.get_image())
+</form>""", self.get_login_url(), self.as_p(), self.get_image())
 
     def get_image(self):
         return {
