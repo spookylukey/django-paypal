@@ -56,7 +56,7 @@ requests.
 Paid support
 ============
 
-Some of the maintainers are able to provide support on a paid basis for this
+Some of the maintainers may be able to provide support on a paid basis for this
 Open Source project. This includes the following kinds of things:
 
 * Paying for bug fixes or new features (with the understanding that these
@@ -70,4 +70,5 @@ Open Source project. This includes the following kinds of things:
 If you are interested in these, you can contact the follower developers:
 
 * Luke Plant - `homepage <https://lukeplant.me.uk>`_,
-  `email <L.Plant.98@cantab.net>`_ - long time Django expert and contributor.
+  `email <L.Plant.98@cantab.net>`_ - long time Django expert and contributor
+  - see his `status page <https://lukeplant.me.uk/development-work.html>`_ before contacting.
