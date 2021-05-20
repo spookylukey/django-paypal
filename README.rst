@@ -67,7 +67,7 @@ Open Source project. This includes the following kinds of things:
 
 * Implementing the integration for you from scratch.
 
-If you are interested in these, you can contact the follower developers:
+If you are interested in these, you can contact the following developers:
 
 * Luke Plant - `homepage <https://lukeplant.me.uk>`_,
   `email <L.Plant.98@cantab.net>`_ - long time Django expert and contributor
