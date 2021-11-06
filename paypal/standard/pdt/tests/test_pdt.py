@@ -107,6 +107,45 @@ class PDTTest(TestCase):
         pdt_obj = PayPalPDT.objects.all()[0]
         self.assertEqual(pdt_obj.custom, self.get_params['cm'])
 
+    def test_pdt_full_params(self):
+        # New callback parameters as of May 2021
+        self.assertEqual(len(PayPalPDT.objects.all()), 0)
+        params = {
+            "PayerID": "8MZ9FQTSAMUPJ",
+            "st": "Completed",
+            "tx": "4WJ86550014687441",
+            "cc": "EUR",
+            "amt": "225.00",
+            "cm": "a3e192b8-8fea-4a86-b2e8-d5bf502e36be",
+            "payer_email": "buyer_1239119200_per%40yoursite.com",
+            "payer_id": "8MZ9FQTSAMUPJ",
+            "payer_status": "VERIFIED",
+            "first_name": "Test",
+            "last_name": "User",
+            "txn_id": "1ED550410S3402306",
+            "mc_currency": "EUR",
+            "mc_fee": "6.88",
+            "mc_gross": "225.00",
+            "protection_eligibility": "Ineligible",
+            "payment_fee": "6.88",
+            "payment_gross": "5.00",
+            "payment_status": "Completed",
+            "payment_type": "instant",
+            "handling_amount": "0.00",
+            "shipping": "0.00",
+            "item_name": "Example",
+            "quantity": "1",
+            "txn_type": "web_accept",
+            "payment_date": "2021-11-05T10:23:28Z",
+            "business": "test@example.com",
+            "receiver_id": "746LDC2EQAP4W",
+            "notify_version": "UNVERSIONED",
+            "custom": "ABC123",
+            "verify_sign": "ABC123",
+        }
+        paypal_response = self.client.get("/pdt/", params)
+        self.assertContains(paypal_response, 'Transaction complete', status_code=200)
+        self.assertEqual(len(PayPalPDT.objects.all()), 1)
 
 class MockedResponse:
     content = 'test'
