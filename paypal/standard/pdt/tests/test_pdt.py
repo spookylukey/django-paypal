@@ -147,6 +147,7 @@ class PDTTest(TestCase):
         self.assertContains(paypal_response, 'Transaction complete', status_code=200)
         self.assertEqual(len(PayPalPDT.objects.all()), 1)
 
+
 class MockedResponse:
     content = 'test'
 
