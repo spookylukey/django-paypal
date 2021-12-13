@@ -2,6 +2,11 @@
  Release notes
 ===============
 
+Version 1.1.2 (unreleased)
+--------------------------
+
+* Fixed Django 4.0 support
+
 Version 1.1.1 (2021-04-08)
 --------------------------
 * Corrected PayPal URL used in IPN/PDT forms. This is a correction of the fix in

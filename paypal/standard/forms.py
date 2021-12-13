@@ -5,6 +5,7 @@ import sys
 from datetime import datetime
 from warnings import warn
 
+import pytz
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -76,11 +77,28 @@ class PayPalDateTimeField(forms.DateTimeField):
 
         if zone_part in ["PDT", "PST"]:
             # PST/PDT is 'US/Pacific'
-            dt = timezone.pytz.timezone('US/Pacific').localize(
+            dt = pytz.timezone('US/Pacific').localize(
                 dt, is_dst=zone_part == 'PDT')
             if not settings.USE_TZ:
                 dt = timezone.make_naive(dt, timezone=timezone.utc)
         return dt
+
+
+# OK, fun days:
+# * Django 4.0 adds a `render` method to a base class, which earlier versions
+#   did not have, with a different signature to our `render()`, breaking everything.
+# * Doing `the_form.render` in a template has been the documented
+#   way of using PayPalPaymentsForm since forever, and now broken,
+#   so we really need a workaround without making everyone change their code
+#   for this silly little thing.
+# * Due to our use case, we don't care about preserving Django's new
+#   form rendering functionality.
+# * Django 4.0 also changes `as_p()` to use its new `render()` method,
+#   and we were using `as_p()` from our `render()` method
+# * Django's `render` does not include the `<form>` tag etc.
+#   unlike ours.
+
+DJANGO_FORM_HAS_RENDER_METHOD = hasattr(forms.Form, 'render')
 
 
 class PayPalPaymentsForm(forms.Form):
@@ -160,6 +178,13 @@ class PayPalPaymentsForm(forms.Form):
     {1}
     <input type="image" src="{2}" name="submit" alt="Buy it Now" />
 </form>""", self.get_login_url(), self.as_p(), self.get_image())
+
+    if DJANGO_FORM_HAS_RENDER_METHOD:
+        # Override as_p so that it doesn't call `self.render()` but the intended
+        # forms.Form.render. We can rely on `self.template_name_p` existing in
+        # this case.5
+        def as_p(self):
+            return forms.Form.render(self, template_name=self.template_name_p)
 
     def get_image(self):
         return {
