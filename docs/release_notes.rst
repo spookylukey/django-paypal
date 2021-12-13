@@ -2,7 +2,7 @@
  Release notes
 ===============
 
-Version 1.1.2 (unreleased)
+Version 1.1.2 (2021-12-13)
 --------------------------
 
 * Fixed Django 4.0 support
