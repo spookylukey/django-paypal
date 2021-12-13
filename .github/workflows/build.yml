@@ -48,6 +48,9 @@ jobs:
         - python-version: 3.9
           django-version: 3.2.9
           usetz: true
+        - python-version: 3.9
+          django-version: 4.0
+          usetz: true
 
     steps:
     - uses: actions/checkout@v2
