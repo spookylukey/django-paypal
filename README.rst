@@ -53,6 +53,15 @@ Please see `CONTRIBUTING.rst <CONTRIBUTING.rst>`_ for more information about
 using the issue tracker and pull requests. Please do not open issues for support
 requests.
 
+Questions and issues
+====================
+
+If you have a question about using django-paypal, see the 
+`Discussion <https://github.com/spookylukey/django-paypal/discussions>`_ section.
+Only use the `issues <https://github.com/spookylukey/django-paypal/issues>`_ if 
+you are reporting a bug, or describing a new feature that you would like
+to contribute.
+
 Paid support
 ============
 
