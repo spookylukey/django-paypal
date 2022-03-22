@@ -49,7 +49,7 @@ jobs:
           django-version: 3.2.9
           usetz: true
         - python-version: 3.9
-          django-version: 4.0
+          django-version: 4.0.3
           usetz: true
 
     steps:
