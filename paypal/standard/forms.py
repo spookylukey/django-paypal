@@ -97,6 +97,9 @@ class PayPalDateTimeField(forms.DateTimeField):
 #   and we were using `as_p()` from our `render()` method
 # * Django's `render` does not include the `<form>` tag etc.
 #   unlike ours.
+# * In some cases we need to support things like BoundField.label_tag
+#   which does `self.form.render(self.form.template_name_label, context)`
+#   which means supporting both forms.
 
 DJANGO_FORM_HAS_RENDER_METHOD = hasattr(forms.Form, 'render')
 
@@ -173,18 +176,25 @@ class PayPalPaymentsForm(forms.Form):
         else:
             return LOGIN_URL
 
-    def render(self):
-        return format_html(u"""<form action="{0}" method="post">
+    if DJANGO_FORM_HAS_RENDER_METHOD:
+        def render(self, *args, **kwargs):
+            if not args and not kwargs:
+                # `form.render` usage from template
+                return format_html(u"""<form action="{0}" method="post">
     {1}
     <input type="image" src="{2}" name="submit" alt="Buy it Now" />
 </form>""", self.get_login_url(), self.as_p(), self.get_image())
-
-    if DJANGO_FORM_HAS_RENDER_METHOD:
-        # Override as_p so that it doesn't call `self.render()` but the intended
-        # forms.Form.render. We can rely on `self.template_name_p` existing in
-        # this case.5
-        def as_p(self):
-            return forms.Form.render(self, template_name=self.template_name_p)
+            else:
+                # Need to delegate to super. This provides
+                # support for `as_p` method and for `BoundField.label_tag`,
+                # and perhaps others.
+                return super().render(*args, **kwargs)
+    else:
+        def render(self):
+            return format_html(u"""<form action="{0}" method="post">
+    {1}
+    <input type="image" src="{2}" name="submit" alt="Buy it Now" />
+</form>""", self.get_login_url(), self.as_p(), self.get_image())
 
     def get_image(self):
         return {

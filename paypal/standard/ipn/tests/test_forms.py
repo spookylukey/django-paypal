@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 import re
 
+from django import forms
 from django.test import TestCase
 
 from paypal.standard.forms import (
@@ -41,6 +42,19 @@ class PaymentsFormTest(TestCase):
         self.assertIn('''value="10.50"''', rendered)
         self.assertIn('''buynowCC''', rendered)
         self.assertIn('''value="''' + return_url + '''"''', rendered)
+
+    def test_custom_subclass_form_render(self):
+        class CustomAmountPayPalForm(PayPalPaymentsForm):
+            """
+            PayPal form that lets user choose their own amount
+            """
+            amount = forms.IntegerField(widget=forms.widgets.NumberInput)
+
+        f = CustomAmountPayPalForm(initial={'business': 'me@mybusiness.com'})
+        rendered = f.render()
+        self.assertIn('<label for="id_amount">Amount:</label>', rendered)
+        self.assertIn('<input type="number" name="amount" required id="id_amount">', rendered)
+        self.assertIn('value="me@mybusiness.com', rendered)
 
     def test_form_endpont(self):
         with self.settings(PAYPAL_TEST=False):
