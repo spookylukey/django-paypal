@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from paypal.standard.pdt.forms import PayPalPDTForm
+from paypal.standard.pdt.forms import PayPalPDTCallbackForm
 from paypal.standard.pdt.models import PayPalPDT
 from paypal.utils import warn_untested
 
@@ -32,7 +32,7 @@ def process_pdt(request):
             pass
 
         if pdt_obj is None:
-            form = PayPalPDTForm(request.GET)
+            form = PayPalPDTCallbackForm(request.GET)
             if form.is_valid():
                 try:
                     pdt_obj = form.save(commit=False)
