@@ -4,13 +4,12 @@ import locale
 import unittest
 from datetime import datetime
 from decimal import Decimal
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
-from six import text_type
-from six.moves.urllib.parse import urlencode
 
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import invalid_ipn_received, valid_ipn_received
@@ -82,7 +81,7 @@ class IPNUtilsMixin(ResetIPNSignalsMixin):
         """
         # We build params into a bytestring ourselves, to avoid some encoding
         # processing that is done by the test client.
-        cond_encode = lambda v: v.encode(CHARSET) if isinstance(v, text_type) else v
+        cond_encode = lambda v: v.encode(CHARSET) if isinstance(v, str) else v
         byte_params = {cond_encode(k): cond_encode(v) for k, v in params.items()}
         post_data = urlencode(byte_params)
         return self.client.post("/ipn/", post_data, content_type='application/x-www-form-urlencoded')
@@ -369,6 +368,7 @@ class IPNPostbackTest(IPNUtilsMixin, TestCase):
     """
     Tests an actual postback to PayPal server.
     """
+
     def test_postback(self):
         # Incorrect signature means we will always get failure
         self.assertFlagged({}, u'Invalid postback. (INVALID)')

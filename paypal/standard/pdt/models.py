@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from urllib.parse import unquote_plus
+
 import requests
 from django.conf import settings
 from django.db import models
 from django.http import QueryDict
-from six.moves.urllib.parse import unquote_plus
 
 from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 from paypal.standard.models import PayPalStandardBase

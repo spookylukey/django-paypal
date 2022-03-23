@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import hashlib
 
-import six
 from django.conf import settings
 from django.utils.encoding import smart_str
 
@@ -57,13 +56,13 @@ def make_secret(form_instance, secret_fields=None):
     for name in secret_fields:
         if hasattr(form_instance, 'cleaned_data'):
             if name in form_instance.cleaned_data:
-                data += six.text_type(form_instance.cleaned_data[name])
+                data += str(form_instance.cleaned_data[name])
         else:
             # Initial data passed into the constructor overrides defaults.
             if name in form_instance.initial:
-                data += six.text_type(form_instance.initial[name])
+                data += str(form_instance.initial[name])
             elif name in form_instance.fields and form_instance.fields[name].initial is not None:
-                data += six.text_type(form_instance.fields[name].initial)
+                data += str(form_instance.fields[name].initial)
 
     secret = get_sha1_hexdigest(settings.SECRET_KEY, data)
     return secret

@@ -2,10 +2,11 @@
  Release notes
 ===============
 
-Version 1.1.3 (unreleased)
---------------------------
+Version 2.0 (unreleased)
+------------------------
 
 * Better fix for Django 4.0 form rendering, enabling custom subclasses to work.
+* Dropped support for old Python versions (< 3.6) and old Django versions (< 2.2)
 
 Version 1.1.2 (2021-12-13)
 --------------------------

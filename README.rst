@@ -16,10 +16,9 @@ See https://django-paypal.readthedocs.org/ for documentation.
 
 django-paypal supports:
 
-* Django 1.11+
-* Python 2.7, and 3.4+
+* Django 2.2 and later
+* Python 3.6 and later
 
-(Not all combinations are supported).
 
 Project status
 ==============
@@ -56,9 +55,9 @@ requests.
 Questions and issues
 ====================
 
-If you have a question about using django-paypal, see the 
+If you have a question about using django-paypal, see the
 `Discussion <https://github.com/spookylukey/django-paypal/discussions>`_ section.
-Only use the `issues <https://github.com/spookylukey/django-paypal/issues>`_ if 
+Only use the `issues <https://github.com/spookylukey/django-paypal/issues>`_ if
 you are reporting a bug, or describing a new feature that you would like
 to contribute.
 
