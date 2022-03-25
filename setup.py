@@ -15,7 +15,7 @@ DOCS_URL = "https://django-paypal.readthedocs.org"
 
 setup(
     name="django-paypal",
-    version="2.0-dev",
+    version="2.0",
     author="John Boxall",
     author_email="john@handimobility.ca",
     maintainer="Luke Plant",

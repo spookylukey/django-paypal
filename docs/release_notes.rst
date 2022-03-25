@@ -2,7 +2,7 @@
  Release notes
 ===============
 
-Version 2.0 (unreleased)
+Version 2.0 (2022-03-25)
 ------------------------
 
 * Better fix for Django 4.0 form rendering, enabling custom subclasses to work.

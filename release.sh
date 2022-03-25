@@ -9,4 +9,4 @@ find . -type d | xargs chmod ugo+rx
 
 VERSION=$(./setup.py --version) || exit 1
 
-twine upload dist/django-paypal-$VERSION.tar.gz dist/django_paypal-$VERSION-py2.py3-none-any.whl || exit 1
+twine upload dist/django-paypal-$VERSION.tar.gz dist/django_paypal-$VERSION-py3-none-any.whl || exit 1
