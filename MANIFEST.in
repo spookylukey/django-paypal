@@ -8,6 +8,7 @@ include *.py
 include *.sh
 include *.txt
 include *.yaml
+include *.toml
 recursive-include docs *.rst
 recursive-include docs *.py
 recursive-include docs *.bat

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pro', '0002_auto_20141117_1647'),
+        ("pro", "0002_auto_20141117_1647"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='paypalnvp',
-            name='flag',
+            model_name="paypalnvp",
+            name="flag",
             field=models.BooleanField(blank=True, default=False),
         ),
     ]

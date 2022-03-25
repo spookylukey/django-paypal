@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import hashlib
 
 from django.conf import settings
@@ -9,7 +8,7 @@ from paypal.utils import warn_untested
 
 
 def get_sha1_hexdigest(salt, raw_password):
-    encoded_string = (smart_str(salt) + smart_str(raw_password)).encode('utf-8')
+    encoded_string = (smart_str(salt) + smart_str(raw_password)).encode("utf-8")
     return hashlib.sha1(encoded_string).hexdigest()
 
 
@@ -24,11 +23,12 @@ def duplicate_txn_id(ipn_obj):
     """
 
     # get latest similar transaction(s)
-    similars = (ipn_obj.__class__._default_manager
-                .filter(txn_id=ipn_obj.txn_id)
-                .exclude(id=ipn_obj.id)
-                .exclude(flag=True)
-                .order_by('-created_at')[:1])
+    similars = (
+        ipn_obj.__class__._default_manager.filter(txn_id=ipn_obj.txn_id)
+        .exclude(id=ipn_obj.id)
+        .exclude(flag=True)
+        .order_by("-created_at")[:1]
+    )
 
     if len(similars) > 0:
         # we have a similar transaction, has the payment_status changed?
@@ -50,11 +50,11 @@ def make_secret(form_instance, secret_fields=None):
 
     # Build the secret with fields availible in both PaymentForm and the IPN. Order matters.
     if secret_fields is None:
-        secret_fields = ['business', 'item_name']
+        secret_fields = ["business", "item_name"]
 
     data = ""
     for name in secret_fields:
-        if hasattr(form_instance, 'cleaned_data'):
+        if hasattr(form_instance, "cleaned_data"):
             if name in form_instance.cleaned_data:
                 data += str(form_instance.cleaned_data[name])
         else:

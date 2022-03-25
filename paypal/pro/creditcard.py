@@ -1,29 +1,36 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Adapted from:
     - http://www.djangosnippets.org/snippets/764/
     - http://www.satchmoproject.com/trac/browser/satchmo/trunk/satchmo/apps/satchmo_utils/views.py
     - http://tinyurl.com/shoppify-credit-cards
 """
-from __future__ import unicode_literals
 
 import re
 
 # Well known card regular expressions.
 CARDS = {
-    'Visa': re.compile(r"^4\d{12}(\d{3})?$"),
-    'Mastercard': re.compile(r"^(5[1-5]\d{4}|677189)\d{10}$"),
-    'Dinersclub': re.compile(r"^3(0[0-5]|[68]\d)\d{11}$"),
-    'Amex': re.compile(r"^3[47]\d{13}$"),
-    'Discover': re.compile(r"^(6011|65\d{2})\d{12}$"),
+    "Visa": re.compile(r"^4\d{12}(\d{3})?$"),
+    "Mastercard": re.compile(r"^(5[1-5]\d{4}|677189)\d{10}$"),
+    "Dinersclub": re.compile(r"^3(0[0-5]|[68]\d)\d{11}$"),
+    "Amex": re.compile(r"^3[47]\d{13}$"),
+    "Discover": re.compile(r"^(6011|65\d{2})\d{12}$"),
 }
 
 # Well known test numbers
 TEST_NUMBERS = [
-    "378282246310005", "371449635398431", "378734493671000", "30569309025904",
-    "38520000023237", "6011111111111117", "6011000990139424", "555555555554444",
-    "5105105105105100", "4111111111111111", "4012888888881881", "4222222222222"
+    "378282246310005",
+    "371449635398431",
+    "378734493671000",
+    "30569309025904",
+    "38520000023237",
+    "6011111111111117",
+    "6011000990139424",
+    "555555555554444",
+    "5105105105105100",
+    "4111111111111111",
+    "4012888888881881",
+    "4222222222222",
 ]
 
 
@@ -32,13 +39,13 @@ def verify_credit_card(number):
     return CreditCard(number).verify()
 
 
-class CreditCard(object):
+class CreditCard:
     def __init__(self, number):
         self.number = number
 
     def is_number(self):
         """True if there is at least one digit in number."""
-        self.number = re.sub(r'[^\d]', '', self.number)
+        self.number = re.sub(r"[^\d]", "", self.number)
         return self.number.isdigit()
 
     def is_mod10(self):

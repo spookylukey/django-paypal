@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipn', '0007_auto_20160219_1135'),
+        ("ipn", "0007_auto_20160219_1135"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='paypalipn',
-            name='flag',
+            model_name="paypalipn",
+            name="flag",
             field=models.BooleanField(blank=True, default=False),
         ),
         migrations.AlterField(
-            model_name='paypalipn',
-            name='test_ipn',
+            model_name="paypalipn",
+            name="test_ipn",
             field=models.BooleanField(blank=True, default=False),
         ),
     ]

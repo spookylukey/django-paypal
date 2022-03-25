@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from paypal.standard.pdt.forms import PayPalPDTForm
 from paypal.standard.pdt.models import PayPalPDT
@@ -21,7 +19,7 @@ def process_pdt(request):
     """
 
     pdt_obj = None
-    txn_id = request.GET.get('tx')
+    txn_id = request.GET.get("tx")
     failed = False
     if txn_id is not None:
         # If an existing transaction with the id tx exists: use it
@@ -48,7 +46,7 @@ def process_pdt(request):
             if failed:
                 warn_untested()
                 pdt_obj = PayPalPDT()
-                pdt_obj.set_flag("Invalid form. %s" % error)
+                pdt_obj.set_flag(f"Invalid form. {error}")
 
             pdt_obj.initialize(request)
 

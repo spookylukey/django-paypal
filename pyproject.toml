@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 120
+# required-version = '22.1.0' # see https://github.com/psf/black/issues/2493
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+line_length = 120
+known_first_party = ["paypal"]
+default_section= "THIRDPARTY"
+forced_separate = ["paypal.pro.tests", "paypal.standard.ipn.tests", "paypal.standard.pdt.tests"]
+skip = [".tox", "dist", "build", ".git"]
+skip_glob = ["**/migrations/*.py"]
