@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from django import forms
 
 
@@ -11,8 +10,6 @@ class ValueHiddenInput(forms.HiddenInput):
 
     def render(self, name, value, attrs=None, renderer=None):
         if value is None:
-            return u''
+            return ""
         else:
-            return super(ValueHiddenInput, self).render(name, value,
-                                                        attrs=attrs,
-                                                        renderer=renderer)
+            return super().render(name, value, attrs=attrs, renderer=renderer)

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models
@@ -19,33 +17,38 @@ except ImportError:
 
 class PayPalNVP(Model):
     """Record of a NVP interaction with PayPal."""
+
     TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"  # 2009-02-03T17:47:41Z
-    RESTRICTED_FIELDS = ["expdate",
-                         "cvv2",
-                         "acct",
-                         ]
-    ADMIN_FIELDS = ['id',
-                    'user',
-                    'flag',
-                    'flag_code',
-                    'flag_info',
-                    'query',
-                    'response',
-                    'created_at',
-                    'updated_at',
-                    ]
-    ITEM_FIELDS = ["amt",
-                   "custom",
-                   "invnum",
-                   ]
-    DIRECT_FIELDS = ["firstname",
-                     "lastname",
-                     "street",
-                     "city",
-                     "state",
-                     "countrycode",
-                     "zip",
-                     ]
+    RESTRICTED_FIELDS = [
+        "expdate",
+        "cvv2",
+        "acct",
+    ]
+    ADMIN_FIELDS = [
+        "id",
+        "user",
+        "flag",
+        "flag_code",
+        "flag_info",
+        "query",
+        "response",
+        "created_at",
+        "updated_at",
+    ]
+    ITEM_FIELDS = [
+        "amt",
+        "custom",
+        "invnum",
+    ]
+    DIRECT_FIELDS = [
+        "firstname",
+        "lastname",
+        "street",
+        "city",
+        "state",
+        "countrycode",
+        "zip",
+    ]
 
     # Response fields
     method = models.CharField(max_length=64, blank=True)
@@ -72,9 +75,12 @@ class PayPalNVP(Model):
     custom = models.CharField(max_length=255, blank=True)
 
     # Admin fields
-    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
-                             blank=True, null=True,
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        getattr(settings, "AUTH_USER_MODEL", "auth.User"),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     flag = models.BooleanField(default=False, blank=True)
     flag_code = models.CharField(max_length=32, blank=True)
     flag_info = models.TextField(blank=True)
@@ -100,25 +106,29 @@ class PayPalNVP(Model):
         """Initialize a PayPalNVP instance from a HttpRequest."""
         if request is not None:
             from paypal.pro.helpers import strip_ip_port
-            self.ipaddress = strip_ip_port(request.META.get('REMOTE_ADDR', ''))
-            if (hasattr(request, "user") and request.user.is_authenticated):
+
+            self.ipaddress = strip_ip_port(request.META.get("REMOTE_ADDR", ""))
+            if hasattr(request, "user") and request.user.is_authenticated:
                 self.user = request.user
         else:
-            self.ipaddress = ''
+            self.ipaddress = ""
 
         # No storing credit card info.
-        query_data = dict((k, v) for k, v in paypal_request.items() if k not in self.RESTRICTED_FIELDS)
+        query_data = {k: v for k, v in paypal_request.items() if k not in self.RESTRICTED_FIELDS}
         self.query = urlencode(query_data)
         self.response = urlencode(paypal_response)
 
         # Was there a flag on the play?
-        ack = paypal_response.get('ack', False)
+        ack = paypal_response.get("ack", False)
         if ack != "Success":
             if ack == "SuccessWithWarning":
                 warn_untested()
-                self.flag_info = paypal_response.get('l_longmessage0', '')
+                self.flag_info = paypal_response.get("l_longmessage0", "")
             else:
-                self.set_flag(paypal_response.get('l_longmessage0', ''), paypal_response.get('l_errorcode', ''))
+                self.set_flag(
+                    paypal_response.get("l_longmessage0", ""),
+                    paypal_response.get("l_errorcode", ""),
+                )
 
     def set_flag(self, info, code=None):
         """Flag this instance for investigation."""
@@ -136,21 +146,21 @@ class PayPalNVP(Model):
 
         # Change the model information into a dict that PayPal can understand.
         params = model_to_dict(self, exclude=self.ADMIN_FIELDS)
-        params['acct'] = self.acct
-        params['creditcardtype'] = self.creditcardtype
-        params['expdate'] = self.expdate
-        params['cvv2'] = self.cvv2
+        params["acct"] = self.acct
+        params["creditcardtype"] = self.creditcardtype
+        params["expdate"] = self.expdate
+        params["cvv2"] = self.cvv2
         params.update(item)
 
         # Create recurring payment:
-        if 'billingperiod' in params:
+        if "billingperiod" in params:
             return wpp.createRecurringPaymentsProfile(params, direct=True)
         # Create single payment:
         else:
             return wpp.doDirectPayment(params)
 
     def __repr__(self):
-        return '<PayPalNVP id:{0}>'.format(self.id)
+        return f"<PayPalNVP id:{self.id}>"
 
     def __str__(self):
-        return "PayPalNVP: {0}".format(self.id)
+        return f"PayPalNVP: {self.id}"

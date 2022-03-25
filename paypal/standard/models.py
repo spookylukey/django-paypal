@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.db import models
 from django.utils.functional import cached_property
@@ -9,26 +7,26 @@ from paypal.standard.conf import POSTBACK_ENDPOINT, SANDBOX_POSTBACK_ENDPOINT
 from paypal.standard.helpers import check_secret, duplicate_txn_id
 from paypal.utils import warn_untested
 
-ST_PP_ACTIVE = 'Active'
-ST_PP_CANCELLED = 'Cancelled'
-ST_PP_CANCELED_REVERSAL = 'Canceled_Reversal'
-ST_PP_CLEARED = 'Cleared'
-ST_PP_COMPLETED = 'Completed'
-ST_PP_CREATED = 'Created'
-ST_PP_DECLINED = 'Declined'
-ST_PP_DENIED = 'Denied'
-ST_PP_EXPIRED = 'Expired'
-ST_PP_FAILED = 'Failed'
-ST_PP_PAID = 'Paid'
-ST_PP_PENDING = 'Pending'
-ST_PP_PROCESSED = 'Processed'
-ST_PP_REFUNDED = 'Refunded'
-ST_PP_REFUSED = 'Refused'
-ST_PP_REVERSED = 'Reversed'
-ST_PP_REWARDED = 'Rewarded'
-ST_PP_UNCLAIMED = 'Unclaimed'
-ST_PP_UNCLEARED = 'Uncleared'
-ST_PP_VOIDED = 'Voided'
+ST_PP_ACTIVE = "Active"
+ST_PP_CANCELLED = "Cancelled"
+ST_PP_CANCELED_REVERSAL = "Canceled_Reversal"
+ST_PP_CLEARED = "Cleared"
+ST_PP_COMPLETED = "Completed"
+ST_PP_CREATED = "Created"
+ST_PP_DECLINED = "Declined"
+ST_PP_DENIED = "Denied"
+ST_PP_EXPIRED = "Expired"
+ST_PP_FAILED = "Failed"
+ST_PP_PAID = "Paid"
+ST_PP_PENDING = "Pending"
+ST_PP_PROCESSED = "Processed"
+ST_PP_REFUNDED = "Refunded"
+ST_PP_REFUSED = "Refused"
+ST_PP_REVERSED = "Reversed"
+ST_PP_REWARDED = "Rewarded"
+ST_PP_UNCLAIMED = "Unclaimed"
+ST_PP_UNCLEARED = "Uncleared"
+ST_PP_VOIDED = "Voided"
 
 try:
     from idmapper.models import SharedMemoryModel as Model
@@ -36,38 +34,40 @@ except ImportError:
     Model = models.Model
 
 
-DEFAULT_ENCODING = 'windows-1252'  # PayPal seems to normally use this.
+DEFAULT_ENCODING = "windows-1252"  # PayPal seems to normally use this.
 
 
 class PayPalStandardBase(Model):
     """Base class for common variables shared by IPN and PDT"""
+
     # See https://developer.paypal.com/docs/classic/ipn/integration-guide/IPNandPDTVariables/
 
     # @@@ Might want to add all these one distant day.
     # FLAG_CODE_CHOICES = (
     # PAYMENT_STATUS_CHOICES = "Canceled_ Reversal Completed Denied Expired " \
     #                          "Failed Pending Processed Refunded Reversed Voided".split()
-    PAYMENT_STATUS_CHOICES = [ST_PP_ACTIVE,
-                              ST_PP_CANCELLED,
-                              ST_PP_CANCELED_REVERSAL,
-                              ST_PP_CLEARED,
-                              ST_PP_COMPLETED,
-                              ST_PP_CREATED,
-                              ST_PP_DECLINED,
-                              ST_PP_DENIED,
-                              ST_PP_EXPIRED,
-                              ST_PP_FAILED,
-                              ST_PP_PAID,
-                              ST_PP_PENDING,
-                              ST_PP_PROCESSED,
-                              ST_PP_REFUNDED,
-                              ST_PP_REFUSED,
-                              ST_PP_REVERSED,
-                              ST_PP_REWARDED,
-                              ST_PP_UNCLAIMED,
-                              ST_PP_UNCLEARED,
-                              ST_PP_VOIDED,
-                              ]
+    PAYMENT_STATUS_CHOICES = [
+        ST_PP_ACTIVE,
+        ST_PP_CANCELLED,
+        ST_PP_CANCELED_REVERSAL,
+        ST_PP_CLEARED,
+        ST_PP_COMPLETED,
+        ST_PP_CREATED,
+        ST_PP_DECLINED,
+        ST_PP_DENIED,
+        ST_PP_EXPIRED,
+        ST_PP_FAILED,
+        ST_PP_PAID,
+        ST_PP_PENDING,
+        ST_PP_PROCESSED,
+        ST_PP_REFUNDED,
+        ST_PP_REFUSED,
+        ST_PP_REVERSED,
+        ST_PP_REWARDED,
+        ST_PP_UNCLAIMED,
+        ST_PP_UNCLEARED,
+        ST_PP_VOIDED,
+    ]
     # AUTH_STATUS_CHOICES = "Completed Pending Voided".split()
     # ADDRESS_STATUS_CHOICES = "confirmed unconfirmed".split()
     # PAYER_STATUS_CHOICES = "verified / unverified".split()
@@ -86,9 +86,19 @@ class PayPalStandardBase(Model):
     receiver_id = models.CharField(max_length=255, blank=True)  # 258DLEHY2BDK6
     residence_country = models.CharField(max_length=2, blank=True)
     test_ipn = models.BooleanField(default=False, blank=True)
-    txn_id = models.CharField("Transaction ID", max_length=255, blank=True, help_text="PayPal transaction ID.",
-                              db_index=True)
-    txn_type = models.CharField("Transaction Type", max_length=255, blank=True, help_text="PayPal transaction type.")
+    txn_id = models.CharField(
+        "Transaction ID",
+        max_length=255,
+        blank=True,
+        help_text="PayPal transaction ID.",
+        db_index=True,
+    )
+    txn_type = models.CharField(
+        "Transaction Type",
+        max_length=255,
+        blank=True,
+        help_text="PayPal transaction type.",
+    )
     verify_sign = models.CharField(max_length=255, blank=True)
 
     # Buyer Information Variables
@@ -233,7 +243,7 @@ class PayPalStandardBase(Model):
 
     class Meta:
         abstract = True
-        app_label = 'paypal_standard_base'
+        app_label = "paypal_standard_base"
 
     def __unicode__(self):
         if self.is_transaction():
@@ -251,11 +261,12 @@ class PayPalStandardBase(Model):
         if not self.query:
             return None
         from django.http import QueryDict
-        roughdecode = dict(item.split('=', 1) for item in self.query.split('&'))
-        encoding = roughdecode.get('charset', None)
+
+        roughdecode = dict(item.split("=", 1) for item in self.query.split("&"))
+        encoding = roughdecode.get("charset", None)
         if encoding is None:
             encoding = DEFAULT_ENCODING
-        query = self.query.encode('ascii')
+        query = self.query.encode("ascii")
         data = QueryDict(query, encoding=encoding)
         return data.dict()
 
@@ -352,15 +363,15 @@ class PayPalStandardBase(Model):
         Verifies an IPN and a PDT.
         Checks for obvious signs of weirdness in the payment and flags appropriately.
         """
-        self.response = self._postback().decode('ascii')
+        self.response = self._postback().decode("ascii")
         self.clear_flag()
         self._verify_postback()
         if not self.flag:
             if self.is_transaction():
                 if self.payment_status not in self.PAYMENT_STATUS_CHOICES:
-                    self.set_flag("Invalid payment_status. (%s)" % self.payment_status)
+                    self.set_flag(f"Invalid payment_status. ({self.payment_status})")
                 if duplicate_txn_id(self):
-                    self.set_flag("Duplicate txn_id. (%s)" % self.txn_id)
+                    self.set_flag(f"Duplicate txn_id. ({self.txn_id})")
 
         self.save()
 
@@ -384,13 +395,13 @@ class PayPalStandardBase(Model):
 
     def initialize(self, request):
         """Store the data we'll need to make the postback from the request object."""
-        if request.method == 'GET':
+        if request.method == "GET":
             # PDT only - this data is currently unused
-            self.query = request.META.get('QUERY_STRING', '')
-        elif request.method == 'POST':
+            self.query = request.META.get("QUERY_STRING", "")
+        elif request.method == "POST":
             # The following works if paypal sends an ASCII bytestring, which it does.
-            self.query = request.body.decode('ascii')
-        self.ipaddress = request.META.get('REMOTE_ADDR', '')
+            self.query = request.body.decode("ascii")
+        self.ipaddress = request.META.get("REMOTE_ADDR", "")
 
     def _postback(self):
         """Perform postback to PayPal and store the response in self.response."""

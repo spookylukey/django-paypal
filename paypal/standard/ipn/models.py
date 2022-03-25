@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import requests
 
@@ -10,7 +8,8 @@ from paypal.standard.models import PayPalStandardBase
 
 class PayPalIPN(PayPalStandardBase):
     """Logs PayPal IPN interactions."""
-    format = u"<IPN: %s %s>"
+
+    format = "<IPN: %s %s>"
 
     class Meta:
         db_table = "paypal_ipn"
@@ -18,11 +17,14 @@ class PayPalIPN(PayPalStandardBase):
 
     def _postback(self):
         """Perform PayPal Postback validation."""
-        return requests.post(self.get_endpoint(), data=b"cmd=_notify-validate&" + self.query.encode("ascii")).content
+        return requests.post(
+            self.get_endpoint(),
+            data=b"cmd=_notify-validate&" + self.query.encode("ascii"),
+        ).content
 
     def _verify_postback(self):
         if self.response != "VERIFIED":
-            self.set_flag("Invalid postback. ({0})".format(self.response))
+            self.set_flag(f"Invalid postback. ({self.response})")
 
     def send_signals(self):
         """Shout for the world to hear whether a txn was successful."""
@@ -33,7 +35,7 @@ class PayPalIPN(PayPalStandardBase):
             valid_ipn_received.send(sender=self)
 
     def __repr__(self):
-        return '<PayPalIPN id:{0}>'.format(self.id)
+        return f"<PayPalIPN id:{self.id}>"
 
     def __str__(self):
-        return "PayPalIPN: {0}".format(self.id)
+        return f"PayPalIPN: {self.id}"

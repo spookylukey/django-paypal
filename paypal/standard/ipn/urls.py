@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 try:
     from django.urls import re_path
 except ImportError:
@@ -8,5 +6,5 @@ except ImportError:
 from paypal.standard.ipn import views
 
 urlpatterns = [
-    re_path(r'^$', views.ipn, name="paypal-ipn"),
+    re_path(r"^$", views.ipn, name="paypal-ipn"),
 ]

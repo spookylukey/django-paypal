@@ -4,7 +4,6 @@ If you do encounter this, you will need to add the "dispatch_uid" to your connec
 http://code.djangoproject.com/wiki/Signals#Helppost_saveseemstobeemittedtwiceforeachsave
 
 """
-from __future__ import unicode_literals
 
 from django.dispatch import Signal
 

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 try:
     from django.urls import re_path
 except ImportError:
@@ -23,5 +21,5 @@ def pdt(request, template="pdt/pdt.html", context=None):
 
 
 urlpatterns = [
-    re_path(r'^pdt/$', pdt),
+    re_path(r"^pdt/$", pdt),
 ]
