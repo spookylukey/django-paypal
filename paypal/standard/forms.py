@@ -191,20 +191,26 @@ class PayPalPaymentsForm(forms.Form):
         else:
             return LOGIN_URL
 
+    def get_html(self):
+        return format_html(
+            """<form action="{0}" method="post">{1}{2}</form>""",
+            self.get_login_url(),
+            self.as_p(),
+            self.get_html_submit_element(),
+        )
+
+    def get_html_submit_element(self):
+        return format_html(
+            """<input type="image" src="{0}" name="submit" alt="Buy it Now" />""",
+            self.get_image(),
+        )
+
     if DJANGO_FORM_HAS_RENDER_METHOD:
 
         def render(self, *args, **kwargs):
             if not args and not kwargs:
                 # `form.render` usage from template
-                return format_html(
-                    """<form action="{0}" method="post">
-    {1}
-    <input type="image" src="{2}" name="submit" alt="Buy it Now" />
-</form>""",
-                    self.get_login_url(),
-                    self.as_p(),
-                    self.get_image(),
-                )
+                return self.get_html()
             else:
                 # Need to delegate to super. This provides
                 # support for `as_p` method and for `BoundField.label_tag`,
@@ -214,15 +220,7 @@ class PayPalPaymentsForm(forms.Form):
     else:
 
         def render(self):
-            return format_html(
-                """<form action="{0}" method="post">
-    {1}
-    <input type="image" src="{2}" name="submit" alt="Buy it Now" />
-</form>""",
-                self.get_login_url(),
-                self.as_p(),
-                self.get_image(),
-            )
+            return self.get_html()
 
     def get_image(self):
         return {
