@@ -86,6 +86,18 @@ Using PayPal Standard IPN
    by subclassing ``PayPalPaymentsForm`` and overriding the ``get_image``
    method.
 
+   **Submit button customisation**
+   The submit button used by the form is the standard PayPal payment button, but it's possible to customise it extending the form:
+
+   .. code-block:: python
+
+       from paypal.standard.forms import PayPalPaymentsForm
+
+       class CustomPayPalPaymentsForm(PayPalPaymentsForm):
+
+           def get_html_submit_element(self):
+               return """<button type="submit">Continue on PayPal website</button>"""
+
 4. When someone uses this button to buy something PayPal makes a HTTP POST to
    your "notify_url". PayPal calls this Instant Payment Notification (IPN).
    The view ``paypal.standard.ipn.views.ipn`` handles IPN processing. To set the
