@@ -68,7 +68,7 @@ Using PayPal Standard IPN
 
 
    For a full list of variables that can be used in ``paypal_dict``, see
-   `PayPal HTML variables documentation <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_.
+   `PayPal HTML variables documentation <https://developer.paypal.com/api/nvp-soap/paypal-payments-standard/integration-guide/Appx-websitestandard-htmlvariables/>`_.
 
    .. note:: The names of these variables are not the same as the values
              returned on the IPN object.
