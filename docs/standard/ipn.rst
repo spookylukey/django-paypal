@@ -43,6 +43,7 @@ Using PayPal Standard IPN
    ``views.py``:
 
    .. code-block:: python
+
        from django.urls import reverse
        from django.shortcuts import render
        from paypal.standard.forms import PayPalPaymentsForm
