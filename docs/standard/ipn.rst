@@ -69,7 +69,7 @@ Using PayPal Standard IPN
 
 
    For a full list of variables that can be used in ``paypal_dict``, see
-   `PayPal HTML variables documentation <https://developer.paypal.com/webapps/developer/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/>`_.
+   `PayPal HTML variables documentation <https://developer.paypal.com/api/nvp-soap/paypal-payments-standard/integration-guide/Appx-websitestandard-htmlvariables/>`_.
 
    .. note:: The names of these variables are not the same as the values
              returned on the IPN object.
@@ -86,6 +86,18 @@ Using PayPal Standard IPN
    The image used for the button can be customized using the :doc:`/settings`, or
    by subclassing ``PayPalPaymentsForm`` and overriding the ``get_image``
    method.
+
+   **Submit button customisation**
+   The submit button used by the form is the standard PayPal payment button, but it's possible to customise it extending the form:
+
+   .. code-block:: python
+
+       from paypal.standard.forms import PayPalPaymentsForm
+
+       class CustomPayPalPaymentsForm(PayPalPaymentsForm):
+
+           def get_html_submit_element(self):
+               return """<button type="submit">Continue on PayPal website</button>"""
 
 4. When someone uses this button to buy something PayPal makes a HTTP POST to
    your "notify_url". PayPal calls this Instant Payment Notification (IPN).
