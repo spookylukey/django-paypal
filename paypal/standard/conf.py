@@ -29,6 +29,11 @@ DONATION_BUTTON_IMAGE = getattr(
     "PAYPAL_DONATION_BUTTON_IMAGE",
     "https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif",
 )
+PAY_BUTTON_IMAGE = getattr(
+    settings,
+    "PAYPAL_PAY_BUTTON_IMAGE",
+    "https://www.paypal.com/en_US/i/btn/btn_paynowCC_LG.gif",
+)
 
 
 # Paypal Encrypt Certificate
