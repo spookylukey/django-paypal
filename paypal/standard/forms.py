@@ -16,8 +16,9 @@ from paypal.standard.conf import (
     BUY_BUTTON_IMAGE,
     DONATION_BUTTON_IMAGE,
     LOGIN_URL,
-    PAYPAL_CERT,
+    PAY_BUTTON_IMAGE,
     PAYPAL_CERT_ID,
+    PAYPAL_CERT,
     PAYPAL_PRIVATE_CERT,
     PAYPAL_PUBLIC_CERT,
     SANDBOX_LOGIN_URL,
@@ -149,6 +150,7 @@ class PayPalPaymentsForm(forms.Form):
     BUY = "buy"
     SUBSCRIBE = "subscribe"
     DONATE = "donate"
+    PAY = "pay"
 
     # Default fields.
     cmd = forms.ChoiceField(widget=forms.HiddenInput(), initial=CMD_CHOICES[0][0])
@@ -227,6 +229,7 @@ class PayPalPaymentsForm(forms.Form):
             self.SUBSCRIBE: SUBSCRIPTION_BUTTON_IMAGE,
             self.BUY: BUY_BUTTON_IMAGE,
             self.DONATE: DONATION_BUTTON_IMAGE,
+            self.PAY: PAY_BUTTON_IMAGE,
         }[self.button_type]
 
     def is_transaction(self):
