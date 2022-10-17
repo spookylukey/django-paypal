@@ -17,7 +17,7 @@ repos:
     hooks:
       - id: check-manifest
   - repo: 'https://github.com/myint/autoflake'
-    rev: v1.7.1
+    rev: v1.7.6
     hooks:
       - id: autoflake
         args:
@@ -40,7 +40,7 @@ repos:
       - id: flynt
         language_version: python3.9
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.0.0
+    rev: v3.1.0
     hooks:
       - id: pyupgrade
         entry: pyupgrade --py3-plus --py36-plus --keep-runtime-typing
