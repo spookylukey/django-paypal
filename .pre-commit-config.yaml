@@ -25,7 +25,7 @@ repos:
           - '-i'
         language_version: python3.9
   - repo: 'https://github.com/pre-commit/mirrors-autopep8'
-    rev: v1.7.0
+    rev: v2.0.0
     hooks:
       - id: autopep8
         language_version: python3.9
@@ -40,7 +40,7 @@ repos:
       - id: flynt
         language_version: python3.9
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: pyupgrade
         entry: pyupgrade --py3-plus --py36-plus --keep-runtime-typing
