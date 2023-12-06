@@ -4,7 +4,12 @@ from calendar import monthrange
 from datetime import date
 
 from django import forms
-from django.core.validators import EMPTY_VALUES
+
+# for backwards compatibility with older django versions
+try:
+    from django.forms.fields import EMPTY_VALUES
+except Exception:
+    from django.core.validators import EMPTY_VALUES
 from django.utils.translation import gettext_lazy as _
 
 from paypal.pro.creditcard import verify_credit_card
