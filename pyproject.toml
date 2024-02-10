@@ -11,3 +11,18 @@ default_section= "THIRDPARTY"
 forced_separate = ["paypal.pro.tests", "paypal.standard.ipn.tests", "paypal.standard.pdt.tests"]
 skip = [".tox", "dist", "build", ".git"]
 skip_glob = ["**/migrations/*.py"]
+
+[tool.ruff]
+line-length = 120
+target-version = 'py37'
+
+[tool.ruff.lint]
+extend-select = [
+  "UP",  # enable pyupgrade
+  "I",   # enable isort
+  "FLY", # enable flynt
+]
+ignore = [
+  "E731",
+  "UP031",
+]
