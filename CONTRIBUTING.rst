@@ -47,14 +47,14 @@ Development environment
 
 4. Install development tools::
 
-     pip install tox isort flake8
+     pip install -r requirements-test.txt -r requirements-dev.txt
 
-5. Recommended: Install `pre-commit <https://pre-commit.com/>`_ and set up
+5. Strongly recommended: Install `pre-commit <https://pre-commit.com/>`_ and set up
    the hooks::
 
        pre-commit install
 
-   This will run flake8/isort automatically when you commit.
+   This will run linters automatically when you commit.
 
 Code quality
 ~~~~~~~~~~~~

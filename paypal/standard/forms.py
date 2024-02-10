@@ -89,7 +89,7 @@ class PayPalDateTimeField(forms.DateTimeField):
             # PST/PDT is 'US/Pacific'
             dt = pytz.timezone("US/Pacific").localize(dt, is_dst=zone_part == "PDT")
             if not settings.USE_TZ:
-                dt = timezone.make_naive(dt, timezone=timezone.utc)
+                dt = timezone.make_naive(dt, timezone=timezone.timezone.utc)
         return dt
 
 
