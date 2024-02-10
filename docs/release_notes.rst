@@ -8,6 +8,7 @@ Version 2.1 (2024-04-30)
   ``get_html_submit_element``, thanks @fabiocaccamo
 * Added pay now button #266, thanks @ohidurbappy
 * Dropped support for Python 3.6
+* Fixed Django 5.0 support
 
 Version 2.0 (2022-03-25)
 ------------------------
