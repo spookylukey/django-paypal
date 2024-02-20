@@ -12,6 +12,10 @@ Django PayPal
 Django PayPal is a pluggable application that integrates with PayPal Payments
 Standard and Payments Pro.
 
+Note that these are now very old payment methods that are increasingly badly
+supported by PayPal, and django-paypal does not have support for any payment
+methods using their newer APIs.
+
 See https://django-paypal.readthedocs.org/ for documentation.
 
 django-paypal supports:
