@@ -9,7 +9,7 @@ set the following values in your settings.py to customise the behaviour of djang
 
    The URL of the image to be used for 'buy' buttons.
 
-.. attribute:: PAYPAL_DONATE_BUTTON_IMAGE
+.. attribute:: PAYPAL_DONATION_BUTTON_IMAGE
 
    The  URL of the image to be used for 'donate' buttons.
 
