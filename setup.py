@@ -21,7 +21,7 @@ setup(
     maintainer="Luke Plant",
     maintainer_email="L.Plant.98@cantab.net",
     url=URL,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "Django>=2.2",
         "requests>=2.5.3",
@@ -42,7 +42,6 @@ setup(
         "Intended Audience :: System Administrators",
         "Operating System :: OS Independent",
         "Topic :: Software Development",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
