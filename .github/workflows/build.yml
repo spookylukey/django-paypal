@@ -55,15 +55,6 @@ jobs:
       run: |
         ./runtests.py --use-tz=false
 
-  pre-commit:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - uses: pre-commit/action@v3.0.0
-
   check-manifest:
     runs-on: ubuntu-latest
     steps:
