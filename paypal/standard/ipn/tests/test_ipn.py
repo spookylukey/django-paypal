@@ -1,13 +1,12 @@
 import locale
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from urllib.parse import urlencode
 
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import timezone
 
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import invalid_ipn_received, valid_ipn_received
@@ -384,7 +383,6 @@ class IPNPostbackTest(IPNUtilsMixin, TestCase):
 
 @override_settings(ROOT_URLCONF="paypal.standard.ipn.tests.test_urls")
 class IPNSimulatorTests(TestCase):
-
     # Some requests, as sent by the simulator.
 
     # The simulator itself has bugs. For example, it doesn't send the 'charset'

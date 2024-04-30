@@ -15,7 +15,7 @@ jobs:
       matrix:
         # Sync with tox.ini
         include:
-        - python-version: 3.6
+        - python-version: 3.7
           django-version: 2.2.19
         - python-version: 3.7
           django-version: 3.0.13
@@ -27,6 +27,10 @@ jobs:
           django-version: 4.0.3
         - python-version: "3.10"
           django-version: 4.0.3
+        - python-version: "3.11"
+          django-version: 4.2.11
+        - python-version: "3.12"
+          django-version: 5.0.4
 
     steps:
     - uses: actions/checkout@v2
@@ -50,51 +54,6 @@ jobs:
     - name: Test suite with USE_TZ=False
       run: |
         ./runtests.py --use-tz=false
-
-  flake8:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-    - uses: actions/cache@v2
-      with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ '3.9' }}-${{ hashFiles('requirements*.txt') }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .
-        pip install -r requirements-dev.txt
-    - name: Lint with flake8
-      run: |
-        flake8 --version
-        flake8 .
-
-  isort:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-    - uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ '3.9' }}-${{ hashFiles('requirements*.txt') }}
-    - name: Install deps
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .
-        pip install -r requirements-dev.txt
-    - name: Run isort
-      run: |
-        isort --version
-        isort -c .
 
   check-manifest:
     runs-on: ubuntu-latest

@@ -8,7 +8,7 @@ Install into a virtualenv using pip::
 
 Or using the latest version from GitHub::
 
-    pip install git://github.com/spookylukey/django-paypal.git#egg=django-paypal
+    pip install git+https://github.com/spookylukey/django-paypal.git#egg=django-paypal
 
 If you are using Django < 1.11, you should use django-paypal 0.5.x and refer to
 its documentation.
