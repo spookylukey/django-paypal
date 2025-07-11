@@ -2,6 +2,11 @@
  Release notes
 ===============
 
+Version 2.2 (under development)
+------------------------
+* Added support for Django 5.2.
+* ...
+
 Version 2.1 (2024-04-30)
 ------------------------
 * Added easier method to customise the submit button via
