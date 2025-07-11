@@ -38,6 +38,7 @@ setup(
         "Framework :: Django :: 3.0",
         "Framework :: Django :: 3.1",
         "Framework :: Django :: 4.0",
+        "Framework :: Django :: 5.2",
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
         "Operating System :: OS Independent",
