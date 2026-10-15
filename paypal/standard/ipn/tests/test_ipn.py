@@ -187,6 +187,33 @@ class IPNTest(MockedPostbackMixin, IPNUtilsMixin, TestCase):
         self.assertEqual(ipn_objs[0].flag, True)
         self.assertEqual(ipn_objs[1].flag, False)
 
+    def test_receiver_error_is_flagged_so_paypal_retry_is_not_a_duplicate(self):
+        calls = []
+
+        def flaky_receiver(sender, **kwargs):
+            calls.append(sender)
+            if len(calls) == 1:
+                raise RuntimeError("receiver blew up")
+
+        valid_ipn_received.connect(flaky_receiver)
+
+        # First delivery: the receiver raises, so the request fails and the row
+        # must be flagged, otherwise PayPal's retry is mistaken for a duplicate.
+        with self.assertRaises(RuntimeError):
+            self.paypal_post(IPN_POST_PARAMS)
+
+        # PayPal resends the same IPN. It must reach the receiver again instead
+        # of being acknowledged as a duplicate and silently dropped.
+        self.paypal_post(IPN_POST_PARAMS)
+
+        self.assertEqual(len(calls), 2)
+
+        first, second = PayPalIPN.objects.order_by("created_at", "pk")[:2]
+        self.assertEqual(second.txn_id, first.txn_id)
+        self.assertFalse(second.flag)
+        self.assertTrue(first.flag)
+        self.assertIn("receiver blew up", first.flag_info)
+
     def test_posted_params_attribute(self):
         params = {
             "btn_id1": b"3453595",

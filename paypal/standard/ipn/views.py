@@ -101,7 +101,17 @@ def ipn(request):
             ipn_obj.verify()
 
     ipn_obj.save()
-    ipn_obj.send_signals()
+    try:
+        ipn_obj.send_signals()
+    except Exception as exc:
+        # A receiver raised while handling this IPN. The row above is already
+        # committed. Leaving it unflagged makes PayPal's retry look like a
+        # duplicate: duplicate_txn_id() would flag it, the retry would answer an
+        # empty 200, and the payment would never be processed. Flag this row so
+        # the retry is verified as a fresh IPN, and re-raise so PayPal resends.
+        ipn_obj.set_flag(f"Exception raised while sending signals. ({exc})")
+        ipn_obj.save()
+        raise
 
     if encoding_missing:
         # Wait until we have an ID to log warning
